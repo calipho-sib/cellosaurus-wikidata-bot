@@ -66,7 +66,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		diseases=correspondance["diseases"]
 		#if disease items in wikidata have the same NCI thesaurus id, they are
 			#written in /doc/ERRORS/diseases/more_than_1.txt
-		with open ("./doc/ERRORS/diseases/more_than_1.txt", "w") as file:
+		with open ("doc/ERRORS/diseases/more_than_1.txt", "w") as file:
 			for duplicate in correspondance["problematicdiseases"]:
 				file.write(duplicate+"\t"+str(correspondance["problematicdiseases"][duplicate])+"\n")
 
@@ -82,7 +82,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#for each cell line, find if it needs to be created or updated or deleted
 			#in wikidata. 
 		
-		with open ("/results/cell_line_duplicate.txt", "w") as file:
+		with open ("results/cell_line_duplicate.txt", "w") as file:
 			for cell_line in Release.cellosaurus:
 
 
@@ -106,7 +106,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 
 
 		#-----------------DELETE-------------------------#
-		with open ("/results/Qids_2_delete.txt", "w") as file:		
+		with open ("results/Qids_2_delete.txt", "w") as file:		
 			for cell_line in Release.wikidata:
 				#the cell line exists in Wikidata but not in Cellosaurus, it
 					#needs to be deleted.

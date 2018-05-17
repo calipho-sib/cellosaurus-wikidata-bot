@@ -99,7 +99,7 @@ def correspondance(cellosaurus):
 			species[Taxid]=WDid
 
 
-	with open ("./doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
+	with open ("doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
 
 		for celline in cellosaurus:
 		
@@ -235,27 +235,22 @@ class Create_Update():
 		if self.cellosaurus[Item]["CC"] != []:
 			data.append(wdi_core.WDItemID(value="Q27971671", prop_nr="P31"))
 
-		
-
-
-		"""# à appliquer quand disease sera OK 
+ 		
+ 		#check if disease informations exists for the cell line
 		if self.cellosaurus[Item]["DI"]== []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr=""))
+			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P5166"))
 		
 		else:
 			for disease in self.cellosaurus[Item]["DI"]:
+				#add the disease in established from medical condition(P5166)
 				if disease in self.diseases:
-					data.append(wdi_core.WDItemID(value=self.diseases[disease], prop_nr=''))
+					data.append(wdi_core.WDItemID(value=self.diseases[disease], prop_nr="5166"))
+				#if the disease does not exist in Wikidata, write it in
+					#doc/ERRORS/diseases/not_in.txt
 				else :
-					with open ("/doc/ERRORS/diseases/not_in.txt", "a") as file:
+					with open ("doc/ERRORS/diseases/not_in.txt", "a") as file:
 						file.write(disease+"\n")
-					add disease(s) in * (P*)
-		"""
 		
-
-
-
-
 
 		#check if species information exists for the cell line
 		if self.cellosaurus[Item]["OX"] == []:
@@ -269,7 +264,7 @@ class Create_Update():
 			else:
 				#if the species is not in wikidata, write it in
 					#doc/ERRORS/species.txt
-				with open ("./doc/ERRORS/species.txt") as file:
+				with open ("doc/ERRORS/species.txt") as file:
 					file.write(spec+"\n")
 
 
@@ -431,7 +426,7 @@ class Create_Update():
 			item.set_description(description, lang=lang)
 			item.set_label(label=Set(self.cellosaurus,Item)['name'], lang=lang)
 		#pprint(item.get_wd_json_representation())
-		with open ("WikidataID.txt", "a") as file:
+		with open ("results/WikidataID.txt", "a") as file:
 			file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")
 		#self.WIDs.append(item.write(login_instance, bot_account=False, edit_summary="creation or update of item {}".format(cellosaurus[Item]["ID"])))	
 	
