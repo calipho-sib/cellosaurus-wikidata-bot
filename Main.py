@@ -71,7 +71,58 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 				file.write(duplicate+"\t"+str(correspondance["problematicdiseases"][duplicate])+"\n")
 
 
+		#-----------------COMPARE_CELLOSAURUS_WIKIDATA-------------------------#
+		#Create_Update object creation
+		Release=Create_Update(login=login, releaseID=sys.argv[1], cellosaurus=cellosaurus, wikidata=wikidata, references=references, species=species, categories=categories, diseases=diseases)
+
+		update={}
+		create=[]
+		problematic={}
+
+		#for each cell line, find if it needs to be created or updated or deleted
+			#in wikidata. 
 		
+		with open ("/results/cell_line_duplicate.txt", "w") as file:
+			for cell_line in Release.cellosaurus:
+
+
+				#-----------------UPDATE-------------------------#
+				if cell_line in Release.wikidata and cell_line not in update:
+					# the cell line exist in Wikidata, it needs to be updated.
+					update[cell_line]=wikidata[cell_line]
+					Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
+
+				#-----------------DUPLICATE-------------------------#
+				elif cell_line in Release.wikidata and cell_line in update:
+					#the cell line is duplicated
+					file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
+
+				#-----------------CREATE-------------------------#
+				else:
+					#the cell line does not exist in Wikidata, it needs to be
+						#created.
+					create.append(cell_line)
+					Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
+
+
+		#-----------------DELETE-------------------------#
+		with open ("/results/Qids_2_delete.txt", "w") as file:		
+			for cell_line in Release.wikidata:
+				#the cell line exists in Wikidata but not in Cellosaurus, it
+					#needs to be deleted.
+				if cell_line not in Release.cellosaurus:
+					file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
+
+		#-----------------ADD_PARENT_&_AUTOLOGOUS_CELL_LINES-------------------------#
+		
+		#Update the Wikidata informations after integration
+		Release.wikidata=QueryingWikidata()
+
+		#Update parent and autologous informations
+		for cell_line in Release.AddParentCelline:
+			Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
+
+
 
 
 
@@ -81,133 +132,4 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 	
 else:
 	print("------------------- You have to give the Wikidata ID for the Cellosaurus release -------------------")
-"""
-
-
-cellosaurus=CellosaurusToDictionary("cellosaurus.txt")
-SerializeData(cellosaurus, "cellosaurus.pickle")
-
-#cellosaurus=DeserializeData("cellosaurus.pickle")
-
-#wikidata=DeserializeData("wikidata.pickle")
-wikidata=QueryingWikidata()
-
-correspondance=correspondance(cellosaurus)
-#pprint(correspondance['errorreferences'])
-
-#species=DeserializeData("species.pickle")
-#species=correspondance["species"]
-#SerializeData(species, "species.pickle")
-
-#references=DeserializeData("references.pickle")
-#references=correspondance["references"]
-#SerializeData(references, "references.pickle")
-
-#category.txt contains all the cellosaurus categories and their wikidata item id associated.
-#categories=categories("category.txt")
-
-#diseases_name={}
-#for celline in cellosaurus:
-#	if cellosaurus[celline]["DI"] != []:
-#		for disname in cellosaurus[celline]["DI_names"]:
-#			diseases_name[disname]=cellosaurus[celline]["DI_names"][disname]
-#pprint(diseases_name)
-#SerializeData(diseases_name, "diseasesname.pickle")
-
-diseases_name=DeserializeData("diseasesname.pickle")
-
-
-#diseases=DeserializeData("diseases.pickle")
-#diseases=correspondance["diseases"]
-#SerializeData(diseases, "diseases.pickle")
-
-
-#problematicdiseases=DeserializeData("problematicdiseases.pickle")
-problematicdiseases=correspondance["problematicdiseases"]
-SerializeData(problematicdiseases, "problematicdiseases.pickle")
-
-with open ("more_than_1.txt", "w") as file:
-	for disease in problematicdiseases:
-		if disease in diseases_name:
-			file.write(disease+"\t"+diseases_name[disease]+"\t"+str(problematicdiseases[disease])+"\n")
-
-supp={}
-with open ("not_in.txt", "w") as file:
-	for celline in cellosaurus:
-		if cellosaurus[celline]["DI"] != []:
-			for disease in cellosaurus[celline]["DI"]:
-				if disease not in diseases and disease not in problematicdiseases:
-					if disease not in supp:
-						supp[disease]="s"
-						file.write(disease+"\t"+diseases_name[disease]+"\n")
-
-
-
-
-
-
-#notreferencing=DeserializeData("notreferencing.pickle")
-#print(len(notreferencing))
-#notreferencing=correspondance['referencesniw']
-#SerializeData( notreferencing, "notreferencing.pickle")
-
-
-
-
-#à voir quoi faire avec correspondance["referencesniw"] et correspondance["problematicspecies"]
-
-
-"""
-"""
-Création de l'objet Create_Update
--> Prendra en sysargv[1] l'id de l'item wikidata corrrespondant à la release
-Ici relsease 25 (Q50346976)
-
-"""
-"""
-Release=Create_Update(login=login, releaseID="Q50346976", cellosaurus=cellosaurus, wikidata=wikidata, references=references, species=species, categories=categories, diseases=diseases)
-
-update={}
-create=[]
-problematic={}
-delete={}
-#CVCL_1048 = Q52155313 = 638V => à updater
-
-#for cell_line in Release.cellosaurus:
-# POUR FAIRE TOURNER SUR TOUTES LES CELLINES
-cell_line="CVCL_1049"
-
-if cell_line in Release.wikidata and cell_line not in update:
-	print("update")
-	update[cell_line]=wikidata[cell_line]
-	Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
-
-elif cell_line in Release.wikidata and cell_line in update:
-	print("problematic")
-	problematic[wikidata[cell_line]]="2 or more items for 1 cell line"
-
-else:
-	print("create")
-	create.append(cell_line)
-	Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
-
-
-for cell_line in Release.wikidata:
-	if cell_line not in Release.cellosaurus:
-		delete[cell_line]=wikidata[cell_line]
-
-
-"""
-
-
-#pour updater les lignées dont les items pour les parents et les autoloous n'étaient pas créés. 
-
-#Release.wikidata=QueryingWikidata()
-#mettre à jour le contenu de Wikidata
-
-#for cell_line in Release.AddParentCelline:
-#	Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
-
-
-
 
