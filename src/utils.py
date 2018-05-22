@@ -111,24 +111,24 @@ def correspondance(cellosaurus):
 								pubmed=reference.strip("PubMed=")
 								if pubmed not in references :
 									query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
+									print(pubmed)
 									query=query['results']
 									query=query['bindings']
 									if query == []:
 										if reference not in references_done:
-											pass
-											#references_done.append(reference)
-											#result=os.popen("curl --header 'Authorization: Token 6fef682d6c34261d860dde2b5dc3561d63b4fefe' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")	
-											#exitresult=result.read().replace('"', '\"')
-											#print(result)
-											#final=json.loads(exitresult)
+											references_done.append(reference)
+											result=os.popen("curl --header 'Authorization: Token 6fef682d6c34261d860dde2b5dc3561d63b4fefe' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")	
+											exitresult=result.read().replace('"', '\"')
+											final=json.loads(exitresult)
 					
-											#if final['error'] != []:
-											#	error_references[reference]=str(result)
-											#	references_errors.write(reference+"\t"+result+"\n")
+											if final['error'] != []:
+												error_references[reference]=str(result)
+												references_errors.write(reference+"\t"+str(exitresult)+"\n")
 
 									else:
 										query=query[0]['item']['value']
 										QIDreferences=query.strip("http://www.wikidata.org/entity/")
+										#print(pubmed)
 										references[pubmed]=QIDreferences
 								
 
@@ -143,6 +143,7 @@ def correspondance(cellosaurus):
 									else:
 										query=query[0]['item']['value']
 										QIDreferences=query.strip("http://www.wikidata.org/entity/")
+										#print(DOI)
 										references[DOI]=QIDreferences
 	
 
@@ -218,7 +219,8 @@ class Create_Update():
 		data_to_delete=[]
 
 		if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P31"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P31"))
+			data_to_delete.append("P31")
 
 
 		#add item cell line(Q21014462) in instance of(P31):
@@ -238,7 +240,8 @@ class Create_Update():
  		
  		#check if disease informations exists for the cell line
 		if self.cellosaurus[Item]["DI"]== []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P5166"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P5166"))
+			data_to_delete.append("P5166")
 		
 		else:
 			for disease in self.cellosaurus[Item]["DI"]:
@@ -254,7 +257,8 @@ class Create_Update():
 
 		#check if species information exists for the cell line
 		if self.cellosaurus[Item]["OX"] == []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P703"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P703"))
+			data_to_delete.append("P703")
 	
 
 		species=[]
@@ -270,7 +274,8 @@ class Create_Update():
 
 		#check if sexes information exists for the cell line
 		if self.cellosaurus[Item]["SX"] == []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P21"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P21"))
+			data_to_delete.append("P21")
 		
 
 		sexes=[]
@@ -308,7 +313,8 @@ class Create_Update():
 
 		#check if parent cell line information exist for the cell line 
 		if self.cellosaurus[Item]["HI"] == []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3432"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3432"))
+			data_to_delete.append("P3432")
 		
 
 		for parent in self.cellosaurus[Item]["HI"]:
@@ -318,11 +324,13 @@ class Create_Update():
 			else:
 				#if the parent cell line does not exist in Wikidata, add it in
 					#AddParentCelline
-				self.AddParentCellline.append(Item)
+				if Item not in self.AddParentCellline:
+					self.AddParentCellline.append(Item)
 
 		#check if autologous cell line information exist for the cell line
 		if self.cellosaurus[Item]["OI"] == []:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3578"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3578"))
+			data_to_delete.append("P3578")
 		
 
 		for autologous in self.cellosaurus[Item]["OI"]:
@@ -333,27 +341,30 @@ class Create_Update():
 			else:
 				#if the autologous cell line does not exist in Wikidata, add
 					#it in AddParentCelline
-				self.AddParentCellline.append(Item)
+				if Item not in self.AddParentCellline:
+					self.AddParentCellline.append(Item)
 
 
 
 		release=[wdi_core.WDItemID(value=self.releaseID, prop_nr="P248", is_reference=True)]
-		#add the Cellosaurus ID with the Cellosaurus ID in reference in
-			#Cellosaurus ID (P3289)
+		#add the Cellosaurus ID with the Cellosaurus ID in Cellosaurus ID
+		#(P3289)
 		data.append(wdi_core.WDExternalID(value=Item, prop_nr="P3289", references=[release]))
 		
 
 		#check if external reference in CLO, BTO, EFO, BCGO exists
 		for id in ["CLO", "BTO", "EFO", "BCGO"]:
 			if self.cellosaurus[Item][id] == []:
-				data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P2888"))
+				#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P2888"))
+				data_to_delete.append("P2888")
 
 		if self.cellosaurus[Item]["MeSH"] != "NULL":
 			#add MeSH id corresponding to the cell line in MeSH ID (P486) if
 				#it exists
 			data.append(wdi_core.WDExternalID(value=self.cellosaurus[Item]["MeSH"], prop_nr="P486"))
 		else:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P486"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P486"))
+			data_to_delete.append("P486")
 
 
 		if self.cellosaurus[Item]["CLO"] != []:
@@ -399,7 +410,8 @@ class Create_Update():
 							#source (P1343)
 						data.append(wdi_core.WDItemID(value=self.references[DOI], prop_nr="P1343"))	
 		else:
-			data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P1343"))
+			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P1343"))
+			data_to_delete.append("P1343")
 
 		return {'data':data, 'data_to_delete':data_to_delete}
 
@@ -420,15 +432,16 @@ class Create_Update():
 
 
 		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'], fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''}, fast_run_use_refs=True)
-		item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
+
+		if self.cellosaurus[Item]["SY"] != []:
+			item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
 
 		for lang, description in Set(self.cellosaurus,Item)['descriptions'].items():
 			item.set_description(description, lang=lang)
 			item.set_label(label=Set(self.cellosaurus,Item)['name'], lang=lang)
-		#pprint(item.get_wd_json_representation())
+
 		with open ("results/WikidataID.txt", "a") as file:
-			file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")
-		#self.WIDs.append(item.write(login_instance, bot_account=False, edit_summary="creation or update of item {}".format(cellosaurus[Item]["ID"])))	
+			file.write(item.write(self.login, bot_account=True, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")	
 	
 
 
@@ -440,23 +453,33 @@ class Create_Update():
 		    data and data_to_delete dictionnaries.
 		"""
 
+		to_delete=[]
 
 		name=Set(self.cellosaurus, Item)['name']
 		descriptions=Set(self.cellosaurus, Item)['descriptions']
 
 		if data['data_to_delete']!= []:
-			item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item] , domain="cell line", data=data['data_to_delete'] )
+			old=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line")
+			olditem=old.get_wd_json_representation()
+			for statement in olditem['claims']:
+				if statement in data['data_to_delete']:
+					to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
+			item_deletion=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], domain="cell line", data=to_delete)
+			item_deletion.write(self.login, bot_account=True, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
 
-		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item] , domain="cell line",data=data['data'],fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''}, fast_run_use_refs=True)
 
 
-		item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
+		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'],fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''},fast_run_use_refs=True)
+
+
+		if self.cellosaurus[Item] != "NUL":
+			item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
 		
 		for lang, description in descriptions.items():
 			item.set_description(description, lang=lang)
 			item.set_label(label=name, lang=lang)
 		
-		item.write(self.login, bot_account=False, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
+		item.write(self.login, bot_account=True, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
@@ -587,7 +610,7 @@ def CellosaurusToDictionary(file):
 				"CA":CA} 
 				AC="NULL"
 				ID="NULL"
-				SY="NULL"
+				SY=[]
 				CLO=[]
 				MeSH="NULL"
 				BTO=[]

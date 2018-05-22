@@ -44,7 +44,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#contains the cell lines items with a Cellosaurus ID
 		wikidata=QueryingWikidata()
 
-		correspondance=correspondance(cellosaurus)
+		correspondance=DeserializeData("correspondance.pickle")
 
 		#-----------------SPECIES-------------------------#
 		#contains all wikidata species items with a NCBI Taxonomy id
@@ -59,10 +59,11 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#-----------------CATEGORIES-------------------------#
 		#contains all the cellosaurus categories and their wikidata item id
 			#associated
-		categories=categories("/project/categories.txt")
+		categories=categories("project/category.txt")
 
 		#-----------------DISEASES-------------------------#
 		#contains all wikidata items with NCI thesaurus id
+		
 		diseases=correspondance["diseases"]
 		#if disease items in wikidata have the same NCI thesaurus id, they are
 			#written in /doc/ERRORS/diseases/more_than_1.txt
@@ -70,22 +71,19 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 			for duplicate in correspondance["problematicdiseases"]:
 				file.write(duplicate+"\t"+str(correspondance["problematicdiseases"][duplicate])+"\n")
 
-
 		#-----------------COMPARE_CELLOSAURUS_WIKIDATA-------------------------#
 		#Create_Update object creation
 		Release=Create_Update(login=login, releaseID=sys.argv[1], cellosaurus=cellosaurus, wikidata=wikidata, references=references, species=species, categories=categories, diseases=diseases)
 
 		update={}
 		create=[]
-		problematic={}
 
 		#for each cell line, find if it needs to be created or updated or deleted
 			#in wikidata. 
 		
 		with open ("results/cell_line_duplicate.txt", "w") as file:
-			for cell_line in Release.cellosaurus:
-
-
+			#for cell_line in Release.cellosaurus:
+			for cell_line in ["CVCL_1048","CVCL_RH59","CVCL_1049","CVCL_VG99"]:
 				#-----------------UPDATE-------------------------#
 				if cell_line in Release.wikidata and cell_line not in update:
 					# the cell line exist in Wikidata, it needs to be updated.
@@ -119,7 +117,8 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		Release.wikidata=QueryingWikidata()
 
 		#Update parent and autologous informations
-		for cell_line in Release.AddParentCelline:
+		#print (Release.AddParentCellline)
+		for cell_line in Release.AddParentCellline:
 			Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
 
 
