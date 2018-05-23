@@ -1,0 +1,119 @@
+# Shape Expression for cell lines from Cellosaurus in Wikidata
+
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX pr:  <http://www.wikidata.org/prop/reference/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+ 
+start= @<wikidata_cell_line>  
+
+<wikidata_cell_line>{
+	#VALUE STATEMENTS
+
+		p:P31 @<P31_instance_of_cell_line> ; #Item describes a cell line
+		p:P31 @<P31_category>? ; #Zero Item if the category is "Undefined cell line type" else the item descibes the category of the cell line
+		p:P31 @<P31_contaminated_misidentified>? ; #Zero or one item for describe if the cell line is contaminated/misidentified
+		
+		p:P5166 @<P5166_disease>* ; #Zero or more disease item of the individual from which the cell line come from
+
+		p:P703 @<P703_species>* ; #Zero or more species item from which the cell originated
+
+		p:P3432 @<P3432_parent_cell_line>* ; #Zero or more cell line item from which the cell line is originated
+
+		p:P3578 @<P3578_autologous_cell_line>* ; #Zero or more cell line are originated from the same individual
+
+		p:P2888 @<P2888_exact_match>* ; #Zero or more external resource identifiers describing the same concept
+
+		p:P1343 @<P1343_decribed_by_source>* ; #Zero or more references for the cell line
+
+	#IDENTIFIERS
+
+		p:P3289 @<P3289_cellosaurus_id> ; # the cellosaurus identifier
+
+		p:P486 @<P486_MeSh_id>? ; # the MeSh id
+
+}
+
+#DETAILLED ShEX
+
+	#STATEMENTS
+
+	<P31_instance_of_cell_line>{
+		ps:P31 [wd:Q21014462] ; #the wikidata cell line item
+	}
+
+	<P31_category>{
+		ps:P31 [wd:Q23058136 	#cancer cell line
+				wd:Q27653145 	#conditionally immortalized cell line
+				wd:Q1151519 	#embryonic stem cell 
+				wd:Q27627225	#factor-dependent cell line
+				wd:Q27671617	#finite cell line
+				wd:Q27555050	#hybrid cell line
+				wd:Q27554370	#hybridoma
+				wd:Q674925		#induced pluripotent stem cell
+				wd:Q2642600		#somatic stem cell
+				wd:Q27555319	#spontaneously immortalized cell line
+				wd:Q27671698	#stromal cell line
+				wd:Q27653701	#telomerase immortalized cell line
+				wd:Q27555384	#transformed cell line 
+				] ;
+	}
+
+	<P31_contaminated_misidentified>{
+		ps:P31 [wd:Q27971671] ; #the wikidata contaminated/misidentified item
+	}
+
+	<P5166_disease>{
+		ps:P5166 IRI ; #the wikidata disease item
+	}
+
+	<P703_species>{
+		ps:P703 IRI ; #the wikidata species item
+		(
+			ps:P703 [wd:Q15978631] ; #for a human cell line
+			pq:P21 [wd:Q6581072 #Female
+					wd:Q6581097 #Male
+					wd:Q1097630 #Intersex
+					]* ; 
+		) ;
+		(
+			ps:P703 [wd:~ - wd:Q15978631] ; #for a non-human cell line
+			pq:P21 [wd:Q43445 #female organism
+					wd:Q44148 #male organism
+					wd:Q28873047 #intersex organism
+					]* ;
+		) ;
+
+	}
+
+	<P3432_parent_cell_line>{
+		ps:P3432 IRI ; #the wikidata cell line item
+	}
+
+	<P3578_autologous_cell_line>{
+		ps:P3432 IRI ; #the wikidata cell line item
+	}
+
+	<P2888_exact_match>{
+		ps:P2888 IRI ; #the url which described the same concept
+	}
+
+	<P1343_decribed_by_source>{
+		ps:P1343 IRI ; #the wikidata reference item
+	}
+
+	#IDENTIFIERS
+
+	<P3289_cellosaurus_id>{
+		ps:P3289 LITERAL ; #the cellosaurus identifier
+		pr:P248 IRI ; #stated in the wikidata cellosaurus release item
+	}
+
+	<P486_MeSh_id>{
+		ps:P486 LITERAL ; #the MeSh identifier 
+	}
+
+
+
