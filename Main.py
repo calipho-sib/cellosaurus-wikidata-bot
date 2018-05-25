@@ -44,7 +44,10 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#contains the cell lines items with a Cellosaurus ID
 		wikidata=QueryingWikidata()
 
-		correspondance=DeserializeData("correspondance.pickle")
+		correspondance=correspondance(cellosaurus)
+		#SerializeData(correspondance, "correspondance.pickle")
+		#correspondance=DeserializeData("correspondance.pickle")
+		
 
 		#-----------------SPECIES-------------------------#
 		#contains all wikidata species items with a NCBI Taxonomy id
@@ -83,7 +86,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		
 		with open ("results/cell_line_duplicate.txt", "w") as file:
 			#for cell_line in Release.cellosaurus:
-			for cell_line in ["CVCL_1048","CVCL_RH59","CVCL_1049","CVCL_VG99"]:
+			for cell_line in ["CVCL_4888"]:
 				#-----------------UPDATE-------------------------#
 				if cell_line in Release.wikidata and cell_line not in update:
 					# the cell line exist in Wikidata, it needs to be updated.
@@ -114,12 +117,13 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#-----------------ADD_PARENT_&_AUTOLOGOUS_CELL_LINES-------------------------#
 		
 		#Update the Wikidata informations after integration
-		Release.wikidata=QueryingWikidata()
+		wikidata=QueryingWikidata()
+		Release.Update_Wikidata(wikidata)
 
 		#Update parent and autologous informations
-		#print (Release.AddParentCellline)
 		for cell_line in Release.AddParentCellline:
-			Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
+			if cell_line in Release.wikidata:
+				Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
 
 
 
