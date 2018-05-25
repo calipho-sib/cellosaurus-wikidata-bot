@@ -3,6 +3,7 @@
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
+from datetime import datetime
 import json
 import pickle
 import os
@@ -218,24 +219,32 @@ class Create_Update():
 		data=[]
 		data_to_delete=[]
 
+		
+		importedfrom=[wdi_core.WDItemID(value="Q24691710", prop_nr="P143" ,is_reference=True)]
+		release=[wdi_core.WDItemID(value=self.releaseID, prop_nr="P248", is_reference=True)]
+		date=datetime.now()
+		retrieved=[wdi_core.WWDString(value=date.day+" "+date.month+" "+date.year, prop_nr="P813", is_reference=True)
+
+		WQreference=[importedfrom, release, retrieved]
+
 		if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
 			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P31"))
 			data_to_delete.append("P31")
 
 
 		#add item cell line(Q21014462) in instance of(P31):
-		data.append(wdi_core.WDItemID(value="Q21014462", prop_nr="P31"))
+		data.append(wdi_core.WDItemID(value="Q21014462", prop_nr="P31", references=WQreference))
 		
 		
 		#add category item in instance of(P31):
 		if self.cellosaurus[Item]["CA"] in self.categories:
-			data.append(wdi_core.WDItemID(value=self.categories[self.cellosaurus[Item]["CA"]],prop_nr="P31"))
+			data.append(wdi_core.WDItemID(value=self.categories[self.cellosaurus[Item]["CA"]],prop_nr="P31", references=WQreference))
 
 
 		#add contaminated/misiendtified(Q27971671) in instance of(P31) if cell
 			#line is contaminated of misidentified
 		if self.cellosaurus[Item]["CC"] != []:
-			data.append(wdi_core.WDItemID(value="Q27971671", prop_nr="P31"))
+			data.append(wdi_core.WDItemID(value="Q27971671", prop_nr="P31", references=WQreference))
 
  		
  		#check if disease informations exists for the cell line
@@ -247,7 +256,7 @@ class Create_Update():
 			for disease in self.cellosaurus[Item]["DI"]:
 				#add the disease in established from medical condition(P5166)
 				if disease in self.diseases:
-					data.append(wdi_core.WDItemID(value=self.diseases[disease], prop_nr="5166"))
+					data.append(wdi_core.WDItemID(value=self.diseases[disease], prop_nr="5166", references=WQreference))
 				#if the disease does not exist in Wikidata, write it in
 					#doc/ERRORS/diseases/not_in.txt
 				else :
@@ -285,7 +294,7 @@ class Create_Update():
 			if sexe == "Sex unspecified":
 				#add "Unknow value" if sex is unspecified in sex or gender
 					#(P21)
-				sexes.append(wdi_core.WDString(value="Unknow value", prop_nr="P21", is_qualifier=True))
+				sexes.append(wdi_core.WDString(value="Unknow value", prop_nr="P21", is_qualifier=True, references=WQreference))
 			else:
 				#else add the item corresponding to sex in sex or gender (P21)
 				if "Q15978631" in species:
@@ -307,7 +316,7 @@ class Create_Update():
 		#add species information in found in taxon (P703)
 		if species != []:
 			for spec in species:
-				data.append(wdi_core.WDItemID(value=spec, prop_nr="P703", qualifiers=sexes))
+				data.append(wdi_core.WDItemID(value=spec, prop_nr="P703", qualifiers=sexes, references=WQreference))
 
 		#check if parent cell line information exist for the cell line 
 		if self.cellosaurus[Item]["HI"] == []:
@@ -318,7 +327,7 @@ class Create_Update():
 		for parent in self.cellosaurus[Item]["HI"]:
 			if parent in self.wikidata:
 				#add parent cell line information in parent cell line (P3432)
-				data.append(wdi_core.WDItemID(value=self.wikidata[parent], prop_nr="P3432"))
+				data.append(wdi_core.WDItemID(value=self.wikidata[parent], prop_nr="P3432",references=WQreference))
 			else:
 				#if the parent cell line does not exist in Wikidata, add it in
 					#AddParentCelline
@@ -334,7 +343,7 @@ class Create_Update():
 				if autologous in self.wikidata:
 					#add autiologous cell line information in autologous cell line
 						#(P3578)
-					data.append(wdi_core.WDItemID(value=self.wikidata[autologous], prop_nr="P3578"))
+					data.append(wdi_core.WDItemID(value=self.wikidata[autologous], prop_nr="P3578",references=WQreference))
 				else:
 					#if the autologous cell line does not exist in Wikidata, add
 						#it in AddParentCelline
@@ -343,10 +352,9 @@ class Create_Update():
 
 
 
-		release=[wdi_core.WDItemID(value=self.releaseID, prop_nr="P248", is_reference=True)]
 		#add the Cellosaurus ID with the Cellosaurus ID in Cellosaurus ID
 		#(P3289)
-		data.append(wdi_core.WDExternalID(value=Item, prop_nr="P3289", references=[release]))
+		data.append(wdi_core.WDExternalID(value=Item, prop_nr="P3289", references=WQreference))
 		
 
 		#check if external reference in CLO, BTO, EFO, BCGO exists
@@ -358,7 +366,7 @@ class Create_Update():
 		if self.cellosaurus[Item]["MeSH"] != "NULL":
 			#add MeSH id corresponding to the cell line in MeSH ID (P486) if
 				#it exists
-			data.append(wdi_core.WDExternalID(value=self.cellosaurus[Item]["MeSH"], prop_nr="P486"))
+			data.append(wdi_core.WDExternalID(value=self.cellosaurus[Item]["MeSH"], prop_nr="P486", references=WQreference))
 		else:
 			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P486"))
 			data_to_delete.append("P486")
@@ -368,28 +376,28 @@ class Create_Update():
 			for CLO in self.cellosaurus[Item]["CLO"]:
 				#add CLO id Url corresponding to the cell line in exact match
 					#(P2888)
-				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+CLO, prop_nr="P2888")) 
+				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+CLO, prop_nr="P2888", references=WQreference)) 
 		
 
 		if self.cellosaurus[Item]["BTO"] != []:
 			for BTO in self.cellosaurus[Item]["BTO"]:
 				#add BTO id Url corresponding to the cell line in exact match
 					#(P2888)
-				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+BTO, prop_nr="2888")) 
+				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+BTO, prop_nr="2888", references=WQreference)) 
 
 
 		if self.cellosaurus[Item]["EFO"] != []:
 			for EFO in self.cellosaurus[Item]["EFO"]:
 				#add EFO id Url corresponding to the cell line in exact match
 					#(P2888)
-				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+EFO, prop_nr="2888"))
+				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+EFO, prop_nr="2888", references=WQreference))
 		 
 
 		if self.cellosaurus[Item]["BCGO"] != []:
 			for BCGO in self.cellosaurus[Item]["BCGO"]:
 				#add BCGO id Url corresponding to the cell line in exact match
 					#(P2888)
-				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+BCGO, prop_nr="2888"))
+				data.append(wdi_core.WDUrl(value="http://purl.obolibrary.org/obo/"+BCGO, prop_nr="2888", references=WQreference))
 
 
 		if self.cellosaurus[Item]["RX"] != []:
@@ -399,13 +407,13 @@ class Create_Update():
 					if pubmed in self.references:
 						#add Pubmed reference with the property described by
 							#source (P1343)
-						data.append(wdi_core.WDItemID(value=self.references[pubmed], prop_nr="P1343"))
+						data.append(wdi_core.WDItemID(value=self.references[pubmed], prop_nr="P1343", references=WQreference))
 				elif reference.startswith("DOI"):
 					DOI=reference.strip("DOI=")
 					if DOI in self.references:
 						#add DOI reference with the property described by
 							#source (P1343)
-						data.append(wdi_core.WDItemID(value=self.references[DOI], prop_nr="P1343"))	
+						data.append(wdi_core.WDItemID(value=self.references[DOI], prop_nr="P1343", references=WQreference))	
 		else:
 			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P1343"))
 			data_to_delete.append("P1343")
@@ -427,7 +435,7 @@ class Create_Update():
 		    lines items created.
 		"""
 
-		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'], fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''}, fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'],param_global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''}, fast_run_use_refs=True)
 
 		if self.cellosaurus[Item]["SY"] != []:
 			item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
@@ -467,7 +475,7 @@ class Create_Update():
 
 
 
-		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'],fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''},fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'], param_global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''},fast_run_use_refs=True)
 
 
 		if self.cellosaurus[Item] != "NUL":
