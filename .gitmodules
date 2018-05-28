@@ -1,0 +1,3 @@
+[submodule "conf/WikidataIntegrator"]
+	path = conf/WikidataIntegrator
+	url = https://github.com/SuLab/WikidataIntegrator.git
