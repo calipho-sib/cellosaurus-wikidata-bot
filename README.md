@@ -9,11 +9,14 @@
 **It was developed from the the [WikidataIntegrator](https://github.com/SuLab/WikidataIntegrator) library.</center>**
 ## Installation
 
-First, you have to clone the bot from Git Hub and install The wikidataIntegrator library:
+First, you have to clone the bot from Git Hub and install the submodule WikidataIntegrator:
 
 		git clone https://github.com/calipho-sib/cellosaurus-wikidata-bot.git
-		cd cellosaurus-wikidata-bot/WikidataIntegrator
-		python setup.py install
+		cd cellosaurus-wikidata-bot
+		git submodule init
+		git submodule update
+		cd WikidataIntegrator
+		python setup.py install 
 
 ## Requirements
 
