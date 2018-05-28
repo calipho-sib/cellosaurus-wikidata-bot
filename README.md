@@ -28,12 +28,10 @@ First, you have to clone the bot from Git Hub and install The wikidataIntegrator
 ### Cellosaurus dump:
 
 If you have already a dump of the Cellosaurus database in .txt format, you can use it. Move the file in **project/**.
+If not, the bot will automatically upload it for you. 
 
 
-On the other hand, the bot will automatically upload it for you. 
-
-
-For run the bot with the Wikidata relase id (#releaseid) and optionnaly the cellosaurus dump in .txt format (#cellosaurus.txt) :
+To run the bot with the Wikidata relase id (#releaseid) and optionnaly the cellosaurus dump in .txt format (#cellosaurus.txt) :
 
 	./Main.py #releaseid #cellosaurus.txt
 
@@ -52,9 +50,9 @@ The Cellosaurus bot will:
 + Inform you for Wikidata cell lines items to delete (in **results/Qids_2_delete.txt**).
 + Inform you for Wikidata cell lines items that are in duplicate in Wikidata (in **results/cell_line_duplicate.txt**).
 
-## Exemple
+## Example
 
-For a the Cellosaurus release 26: 
+For Cellosaurus release 26: 
 
 	./Main.py Q53439980
 	>>------------------- Would you download a Cellosaurus dump?(y/n) -------------------
@@ -64,7 +62,7 @@ In this case, the bot will check the item id for the release, upload the last Ce
 
 	./Main.py Q53439980 /project/cellosaurus.txt 
 
-In this case, the dump is provided, the bot will check the item id for the release, check the cellosaurus dump and start the integration of Cellosaurus data.
+In this case, the dump is provided, the bot will check the item id for the release, check the Cellosaurus dump and start the integration of Cellosaurus data.
 	
 
 
@@ -73,3 +71,4 @@ In this case, the dump is provided, the bot will check the item id for the relea
 
 
  
+

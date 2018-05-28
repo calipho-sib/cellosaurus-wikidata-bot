@@ -86,7 +86,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		
 		with open ("results/cell_line_duplicate.txt", "w") as file:
 			#for cell_line in Release.cellosaurus:
-			for cell_line in ["CVCL_4888"]:
+			for cell_line in ["CVCL_V699"]:
 				#-----------------UPDATE-------------------------#
 				if cell_line in Release.wikidata and cell_line not in update:
 					# the cell line exist in Wikidata, it needs to be updated.

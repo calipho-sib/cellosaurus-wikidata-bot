@@ -3,7 +3,9 @@
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
-from datetime import datetime
+import time
+import calendar
+from datetime import datetime, date
 import json
 import pickle
 import os
@@ -17,29 +19,29 @@ def DeserializeData(pickleFileName):
 	"""
 	If you want to Deserialize a pickle file.
 	:param pickeFileName : YourFile.pickle
-	:return : a dictionnary wich contain YourFile.pickle informations
+	:return : a dictionary wich contain YourFile.pickle informations
 	"""
 
 	with open(pickleFileName, 'rb') as file:
-		dictionnary=pickle.load(file)
-	return dictionnary
+		dictionary=pickle.load(file)
+	return dictionary
 
-def SerializeData(dictionnary, pickleFileName):
+def SerializeData(dictionary, pickleFileName):
 	"""
-	If you want to serialize dictionnary into a file.
-	:param dictionnary : the dictionnary that you want to serialize
+	If you want to serialize dictionary into a file.
+	:param dictionary : the dictionary that you want to serialize
 	:param pickleFileName : the name of the file that will contain you
-	    serialized dictionnary
+	    serialized dictionary
 	"""
 
 	with open(pickleFileName, 'wb') as file:
-		pickle.dump(dictionnary, file)
+		pickle.dump(dictionary, file)
 
 def categories(file):
 	"""
 	Get cartegories for cell lines from file.
 	:param file : a file which contains categories for cell lines
-	:return : a dictionnary, in key the category name, in value the wikidata
+	:return : a dictionary, in key the category name, in value the wikidata
 	    item id corresponding
 	"""
 	categories={}
@@ -55,21 +57,21 @@ def correspondance(cellosaurus):
 	"""
 	This function create dictionnaries of list of pre-requisite wikidata
 		informations.
-	:param cellosaurus : the cellosaurus dictionnary from .txt file create
+	:param cellosaurus : the cellosaurus dictionary from .txt file create
 	    with CellosaurusToDictionary function
-	:return : a dictionnary with contain dictionnaries or list.
-		- references dictionnary : in key, the PubMed or DOI id for an article
+	:return : a dictionary with contain dictionnaries or list.
+		- references dictionary : in key, the PubMed or DOI id for an article
 		  	in wikidata and in value, the wikidata item id which correspond to
 		  	this article.
 		- DOI_not_in_wikidata : a list of DOI references that are not in
 		 	 wikidata.
 		- error_references : all the errors that occurs during the item
 		  creation for the article by Fatameh.
-		- species dictionnary : in key, a NCBI taxonomy id in cellosaurus
+		- species dictionary : in key, a NCBI taxonomy id in cellosaurus
 		  	and in value, the wikidata item id which correspond to this species
 		- problematic_species: a list of NCBI taxonomy id that are not in
 		  	wikidata.
-		- diseases dictionnary : in key, a NCI thesaurus if in cellosaurus and
+		- diseases dictionary : in key, a NCI thesaurus if in cellosaurus and
 		  	in value, the wikidata item id which correspond to this disease.
 		- problematic_diseases : in key notin, if the disease is not in
 		  	wikidata; in key morethan, if the NCI thesaurus id correspond to
@@ -171,17 +173,17 @@ class Create_Update():
 		    login in Main.py).
 		:param releaseID : the wikidata item id which corresponding to the
 		    Cellosaurus release.
-		:param cellosaurus : the cellosaurus dictionnary which contains
+		:param cellosaurus : the cellosaurus dictionary which contains
 		    cellosaurus dump information.
-		:param wikidata : the wikidata dictionnary which contains wikidata
+		:param wikidata : the wikidata dictionary which contains wikidata
 		    cell lines items that already exit.
-		:param references : the references dictionnary creating with
+		:param references : the references dictionary creating with
 		    correspondance function.
-		:param species : the species dictionnary creating with correspondance
+		:param species : the species dictionary creating with correspondance
 		    function.
-		:param categories : the categories dictionnary creating with
+		:param categories : the categories dictionary creating with
 		    categories function.
-		:param diseases : the diseases dictionnary creating with
+		:param diseases : the diseases dictionary creating with
 		    correspondance function.
 		"""
 		
@@ -208,7 +210,7 @@ class Create_Update():
 			for the cell line.
 
 		:param Item: the Cellosaurus id for a cell line. 
-		:return : a dictionnary composed of 2 dictionnaries: 
+		:return : a dictionary composed of 2 dictionnaries: 
 			- data : is composed of information objects that are to add or
 			  	update for the wikidata cell line item.
 			- data_to_delete : is the information objects that are have to be
@@ -219,13 +221,16 @@ class Create_Update():
 		data=[]
 		data_to_delete=[]
 
-		
-		importedfrom=[wdi_core.WDItemID(value="Q24691710", prop_nr="P143" ,is_reference=True)]
-		release=[wdi_core.WDItemID(value=self.releaseID, prop_nr="P248", is_reference=True)]
-		date=datetime.now()
-		retrieved=[wdi_core.WWDString(value=date.day+" "+date.month+" "+date.year, prop_nr="P813", is_reference=True)
 
-		WQreference=[importedfrom, release, retrieved]
+		#add Cellosaurus version, date and Cellosaurus id as reference for all
+			#the informations
+		release=wdi_core.WDItemID(value=self.releaseID, prop_nr="P248", is_reference=True)
+		date=datetime.now()
+		timeStringNow = date.strftime("+%Y-%m-%dT00:00:00Z")
+		refRetrieved = wdi_core.WDTime(timeStringNow, prop_nr='P813', is_reference=True)
+		cellosaurusref=wdi_core.WDExternalID(value=Item, prop_nr="P3289", is_reference=True)
+
+		WQreference=[[release, refRetrieved, cellosaurusref]]
 
 		if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
 			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P31"))
@@ -430,12 +435,12 @@ class Create_Update():
 		This function create a Wikidata item for the cell line with
 			cellosaurus informations.
 		:param Item : the Cellosaurus id for a cell line.
-		:param data : the dictionnary from InitialisationData function.
+		:param data : the dictionary from InitialisationData function.
 		:return : WikidataID.txt, a file which contains the Wikidata cell
 		    lines items created.
 		"""
 
-		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'],param_global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''}, fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'],global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
 
 		if self.cellosaurus[Item]["SY"] != []:
 			item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
@@ -445,8 +450,8 @@ class Create_Update():
 			item.set_label(label=Set(self.cellosaurus,Item)['name'], lang=lang)
 
 
-		#with open ("results/WikidataID.txt", "a") as file:
-			#file.write(item.write(self.login, bot_account=True, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")	
+		with open ("results/WikidataID.txt", "a") as file:
+			file.write(item.write(self.login, bot_account=True, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")	
 	
 
 
@@ -454,7 +459,7 @@ class Create_Update():
 		"""
 		This function update a Wikidata item (add or delete informations).
 		:param Item : the Cellosaurus id for a cell line.
-		:param data : the dictionnary from InitialisationData function within
+		:param data : the dictionary from InitialisationData function within
 		    data and data_to_delete dictionnaries.
 		"""
 
@@ -471,11 +476,11 @@ class Create_Update():
 				if statement in data['data_to_delete']:
 					to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
 			item_deletion=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], domain="cell line", data=to_delete)
-			#item_deletion.write(self.login, bot_account=True, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
+			item_deletion.write(self.login, bot_account=True, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
-		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'], param_global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':''},fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
 
 
 		if self.cellosaurus[Item] != "NUL":
@@ -485,7 +490,7 @@ class Create_Update():
 			item.set_description(description, lang=lang)
 			item.set_label(label=name, lang=lang)
 		
-		#item.write(self.login, bot_account=True, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
+		item.write(self.login, bot_account=True, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
@@ -520,10 +525,10 @@ def Set(cellosaurus, Item):
 
 def CellosaurusToDictionary(file):
 	"""
-	Format Cellosaurus dump (.txt) in a dictionnary with the informations that
+	Format Cellosaurus dump (.txt) in a dictionary with the informations that
 		will integrating in Wikidata. 
 	:param file : the cellosaurus dump at .txt format
-	:return :  a dictionnary. In key, the Cellosaurus id for the cell line. In
+	:return :  a dictionary. In key, the Cellosaurus id for the cell line. In
 	    value, the informations on the cell line (name, aliases, external ids,
 	    species of origin, parent cell line, references, autologous cell line,
 	    sex of the species of origin, ctaegory of the cell line, etc...) 
@@ -643,7 +648,7 @@ def QueryingWikidata():
 	"""
 	Thanks to a SPARQL request on Wikidata, this function recover all the cell
 		lines that exist already in Wikidata (with a Cellosaurus id).
-	:return : a dictionnary with in key, the Cellosaurus id and in value the
+	:return : a dictionary with in key, the Cellosaurus id and in value the
 	    Wikidata cell line item id.
 	"""
 	Wikidata_query_result={}
