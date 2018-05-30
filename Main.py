@@ -83,50 +83,51 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 
 		#for each cell line, find if it needs to be created or updated or deleted
 			#in wikidata. 
-		
 		with open ("results/cell_line_duplicate.txt", "w") as file:
 			#for cell_line in Release.cellosaurus:
-			for cell_line in ["CVCL_V699"]:
-				#-----------------UPDATE-------------------------#
-				if cell_line in Release.wikidata and cell_line not in update:
-					# the cell line exist in Wikidata, it needs to be updated.
-					update[cell_line]=wikidata[cell_line]
+			with open ("CVCL50.txt", "r") as fichier:
+				for cell_line in fichier.readlines():
+					cell_line=cell_line.strip("\n")
+					print(cell_line)
+
+					#-----------------UPDATE-------------------------#
+					if cell_line in Release.wikidata and cell_line not in update:
+						# the cell line exist in Wikidata, it needs to be updated.
+						update[cell_line]=wikidata[cell_line]
+						Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
+
+					#-----------------DUPLICATE-------------------------#
+					elif cell_line in Release.wikidata and cell_line in update:
+						#the cell line is duplicated
+						file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
+
+					#-----------------CREATE-------------------------#
+					else:
+						#the cell line does not exist in Wikidata, it needs to be
+							#created.
+						create.append(cell_line)
+						Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
+
+
+			#-----------------DELETE-------------------------#
+			with open ("results/Qids_2_delete.txt", "w") as file:		
+				for cell_line in Release.wikidata:
+					#the cell line exists in Wikidata but not in Cellosaurus, it
+						#needs to be deleted.
+					if cell_line not in Release.cellosaurus:
+						file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
+
+			#-----------------ADD_PARENT_&_AUTOLOGOUS_CELL_LINES-------------------------#
+			
+			#Update the Wikidata informations after integration
+			wikidata=QueryingWikidata()
+			Release.Update_Wikidata(wikidata)
+
+			#Update parent and autologous informations
+			#print(Release.AddParentCellline)
+			for cell_line in Release.AddParentCellline:
+				if cell_line in Release.wikidata:
 					Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
-
-				#-----------------DUPLICATE-------------------------#
-				elif cell_line in Release.wikidata and cell_line in update:
-					#the cell line is duplicated
-					file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
-
-				#-----------------CREATE-------------------------#
-				else:
-					#the cell line does not exist in Wikidata, it needs to be
-						#created.
-					create.append(cell_line)
-					Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
-
-
-		#-----------------DELETE-------------------------#
-		with open ("results/Qids_2_delete.txt", "w") as file:		
-			for cell_line in Release.wikidata:
-				#the cell line exists in Wikidata but not in Cellosaurus, it
-					#needs to be deleted.
-				if cell_line not in Release.cellosaurus:
-					file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
-
-		#-----------------ADD_PARENT_&_AUTOLOGOUS_CELL_LINES-------------------------#
-		
-		#Update the Wikidata informations after integration
-		wikidata=QueryingWikidata()
-		Release.Update_Wikidata(wikidata)
-
-		#Update parent and autologous informations
-		for cell_line in Release.AddParentCellline:
-			if cell_line in Release.wikidata:
-				Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
-
-
-
 
 
 	else:

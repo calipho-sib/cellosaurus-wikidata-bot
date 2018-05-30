@@ -232,8 +232,8 @@ class Create_Update():
 
 		WQreference=[[release, refRetrieved, cellosaurusref]]
 
+		#if category or if the celline is not contaminated, "instance of" P31 is empty
 		if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P31"))
 			data_to_delete.append("P31")
 
 
@@ -254,7 +254,6 @@ class Create_Update():
  		
  		#check if disease informations exists for the cell line
 		if self.cellosaurus[Item]["DI"]== []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P5166"))
 			data_to_delete.append("P5166")
 		
 		else:
@@ -271,24 +270,26 @@ class Create_Update():
 
 		#check if species information exists for the cell line
 		if self.cellosaurus[Item]["OX"] == []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P703"))
 			data_to_delete.append("P703")
 	
 
 		species=[]
-		for spec in self.cellosaurus[Item]["OX"]:
-			if spec in self.species:
-				species.append(self.species[spec])
-			else:
-				#if the species is not in wikidata, write it in
-					#doc/ERRORS/species.txt
-				with open ("doc/ERRORS/species.txt", "a") as file:
-					file.write(spec+"\n")
+		if self.cellosaurus[Item]["OX"] != []:	
+			for spec in self.cellosaurus[Item]["OX"]:
+				if spec in self.species:
+					species.append(self.species[spec])
+				elif spec == "32644":
+					#if the species is u
+					species.append("Unknow value")
+				else:
+					#if the species is not in wikidata, write it in
+						#doc/ERRORS/species.txt
+					with open ("doc/ERRORS/species.txt", "a") as file:
+						file.write(spec+"\n")
 
 
 		#check if sexes information exists for the cell line
 		if self.cellosaurus[Item]["SX"] == []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P21"))
 			data_to_delete.append("P21")
 		
 
@@ -299,7 +300,9 @@ class Create_Update():
 			if sexe == "Sex unspecified":
 				#add "Unknow value" if sex is unspecified in sex or gender
 					#(P21)
-				sexes.append(wdi_core.WDString(value="Unknow value", prop_nr="P21", is_qualifier=True, references=WQreference))
+				sexes.append(wdi_core.WDString( value="Unknow value", prop_nr="P21", is_qualifier=True, snak_type='somevalue'))
+				
+				#wdi_core.WDBaseDataType(value="Unknow value",snak_type="somevalue", prop_nr="P21", is_qualifier=True, references=WQreference)
 			else:
 				#else add the item corresponding to sex in sex or gender (P21)
 				if "Q15978631" in species:
@@ -321,11 +324,13 @@ class Create_Update():
 		#add species information in found in taxon (P703)
 		if species != []:
 			for spec in species:
-				data.append(wdi_core.WDItemID(value=spec, prop_nr="P703", qualifiers=sexes, references=WQreference))
+				if spec == "Unknow value":
+					data.append(wdi_core.WDString( value="Unknow value", prop_nr="P703", qualifiers=sexes, references=WQreference, snak_type='somevalue'))
+				else:
+					data.append(wdi_core.WDItemID(value=spec, prop_nr="P703", qualifiers=sexes, references=WQreference))
 
 		#check if parent cell line information exist for the cell line 
 		if self.cellosaurus[Item]["HI"] == []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3432"))
 			data_to_delete.append("P3432")
 		
 
@@ -341,7 +346,6 @@ class Create_Update():
 
 		#check if autologous cell line information exist for the cell line
 		if self.cellosaurus[Item]["OI"] == []:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P3578"))
 			data_to_delete.append("P3578")
 		else:
 			for autologous in self.cellosaurus[Item]["OI"]:
@@ -365,7 +369,6 @@ class Create_Update():
 		#check if external reference in CLO, BTO, EFO, BCGO exists
 		for id in ["CLO", "BTO", "EFO", "BCGO"]:
 			if self.cellosaurus[Item][id] == []:
-				#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P2888"))
 				data_to_delete.append("P2888")
 
 		if self.cellosaurus[Item]["MeSH"] != "NULL":
@@ -373,7 +376,6 @@ class Create_Update():
 				#it exists
 			data.append(wdi_core.WDExternalID(value=self.cellosaurus[Item]["MeSH"], prop_nr="P486", references=WQreference))
 		else:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement( prop_nr="P486"))
 			data_to_delete.append("P486")
 
 
@@ -420,7 +422,6 @@ class Create_Update():
 							#source (P1343)
 						data.append(wdi_core.WDItemID(value=self.references[DOI], prop_nr="P1343", references=WQreference))	
 		else:
-			#data_to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr="P1343"))
 			data_to_delete.append("P1343")
 
 		return {'data':data, 'data_to_delete':data_to_delete}
@@ -439,7 +440,6 @@ class Create_Update():
 		:return : WikidataID.txt, a file which contains the Wikidata cell
 		    lines items created.
 		"""
-
 		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'],global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
 
 		if self.cellosaurus[Item]["SY"] != []:
@@ -510,7 +510,7 @@ def Set(cellosaurus, Item):
 	"de":"Zelllinie"
 	}
 
-	if "[" in name:
+	if " [" in name:
 		namecompose=name.split("[")
 		descriptions={
 		"en":"cell line"+" ("+namecompose[1].strip("]")+")",
