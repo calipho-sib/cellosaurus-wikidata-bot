@@ -21,7 +21,7 @@ First, you have to clone the bot from Git Hub and install the submodule Wikidata
 For test the correct installation, start a python console and execute the following:
 
 	>>>from wikidataintegrator import wdi_core
-	>>>my_first_wikidata_item = wdi_core.WDIItemEngine(wd_item_id='Q5')
+	>>>my_first_wikidata_item = wdi_core.WDItemEngine(wd_item_id='Q5')
 And print the json representation of the item:
 	
 	>>>my_first_wikidata_item.get_wd_json_representation()

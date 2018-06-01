@@ -1,8 +1,9 @@
-#!/usr/python3
+#!/Users/leliadebornes/anaconda3/bin/python3
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
+import time
 import json
 import pickle
 import sys
@@ -48,6 +49,11 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#SerializeData(correspondance, "correspondance.pickle")
 		correspondance=DeserializeData("correspondance.pickle")
 		
+
+		time.sleep(60)
+
+		login = wdi_login.WDLogin(WDUSER, WDPASS)
+
 
 		#-----------------SPECIES-------------------------#
 		#contains all wikidata species items with a NCBI Taxonomy id

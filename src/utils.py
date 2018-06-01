@@ -1,4 +1,4 @@
-#!/usr/python3
+#!/Users/leliadebornes/anaconda3/bin/python3
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -564,7 +564,7 @@ def CellosaurusToDictionary(file):
 			if line.startswith("DR"):
 				DR=line.rstrip("\n").split("   ")[1]
 				if DR.startswith("MeSH"):
-					MeSH=DR.strip("MeSH;")
+					MeSH=DR.strip("MeSH; ")
 				if DR.startswith("CLO"):
 					CLO.append(DR.strip("CLO;").strip(" "))
 				if DR.startswith("BTO"):
