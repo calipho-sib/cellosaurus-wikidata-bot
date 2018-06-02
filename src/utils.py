@@ -1,4 +1,4 @@
-#!/Users/leliadebornes/anaconda3/bin/python3
+#!/usr/bin/python3
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -310,14 +310,14 @@ class Create_Update():
 						value="Q6581072"
 					elif sexe == "Male":
 						value="Q6581097"
-					elif sexe == "Intersex":
+					elif sexe == "Sex ambiguous":
 						value="Q1097630"
 				else:
 					if sexe == "Female":
 						value="Q43445"
 					elif sexe == "Male":
 						value="Q44148"	
-					elif sexe == "Intersex":
+					elif sexe == "Sex ambiguous":
 						value="Q28873047"
 				sexes.append(wdi_core.WDItemID(value=value, prop_nr="P21", is_qualifier=True))
 			
