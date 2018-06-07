@@ -1,4 +1,4 @@
-#!/Users/leliadebornes/anaconda3/bin/python3
+#!/usr/bin/python3
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
