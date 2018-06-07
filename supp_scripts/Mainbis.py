@@ -1,4 +1,4 @@
-#!/Users/leliadebornes/anaconda3/bin/python3
+#!/usr/bin/python3
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -8,7 +8,7 @@ import json
 import pickle
 import sys
 import os
-from src.utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
+from src.utilsbis import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
 
 from src.local import WDUSER, WDPASS
 
@@ -45,9 +45,9 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#contains the cell lines items with a Cellosaurus ID
 		wikidata=QueryingWikidata()
 
-		#correspondance=correspondance(cellosaurus)
+		correspondance=correspondance(cellosaurus)
 		#SerializeData(correspondance, "correspondance.pickle")
-		correspondance=DeserializeData("correspondance.pickle")
+        #correspondance=DeserializeData("correspondance.pickle")
 		
 
 		#time.sleep(60)
@@ -74,11 +74,6 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#contains all wikidata items with NCI thesaurus id
 		
 		diseases=correspondance["diseases"]
-		#if disease items in wikidata have the same NCI thesaurus id, they are
-			#written in /doc/ERRORS/diseases/more_than_1.txt
-		with open ("doc/ERRORS/diseases/more_than_1.txt", "w") as file:
-			for duplicate in correspondance["problematicdiseases"]:
-				file.write(duplicate+"\t"+str(correspondance["problematicdiseases"][duplicate])+"\n")
 
 		#-----------------COMPARE_CELLOSAURUS_WIKIDATA-------------------------#
 		#Create_Update object creation

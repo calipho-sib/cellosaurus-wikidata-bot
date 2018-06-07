@@ -1,4 +1,5 @@
-#!/Users/leliadebornes/anaconda3/bin/python3
+#!/usr/bin/python3
+
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -11,156 +12,163 @@ import pickle
 import os
 
 """
-Contain the main functions for Wikidata Cellosaurus Bot
-"""
+    contains the secondary script in case queries become osoletes (for find sepcies and diseases in Wikidata cf correspondance)
+    """
 
 
 def DeserializeData(pickleFileName):
-	"""
-	If you want to Deserialize a pickle file.
-	:param pickeFileName : YourFile.pickle
-	:return : a dictionary wich contain YourFile.pickle informations
-	"""
-
-	with open(pickleFileName, 'rb') as file:
-		dictionary=pickle.load(file)
-	return dictionary
+    """
+        If you want to Deserialize a pickle file.
+        :param pickeFileName : YourFile.pickle
+        :return : a dictionary wich contain YourFile.pickle informations
+        """
+    
+    with open(pickleFileName, 'rb') as file:
+        dictionary=pickle.load(file)
+    return dictionary
 
 def SerializeData(dictionary, pickleFileName):
-	"""
-	If you want to serialize dictionary into a file.
-	:param dictionary : the dictionary that you want to serialize
-	:param pickleFileName : the name of the file that will contain you
-	    serialized dictionary
-	"""
-
-	with open(pickleFileName, 'wb') as file:
-		pickle.dump(dictionary, file)
+    """
+        If you want to serialize dictionary into a file.
+        :param dictionary : the dictionary that you want to serialize
+        :param pickleFileName : the name of the file that will contain you
+        serialized dictionary
+        """
+    
+    with open(pickleFileName, 'wb') as file:
+        pickle.dump(dictionary, file)
 
 def categories(file):
-	"""
-	Get cartegories for cell lines from file.
-	:param file : a file which contains categories for cell lines
-	:return : a dictionary, in key the category name, in value the wikidata
-	    item id corresponding
-	"""
-	categories={}
-	with open (file) as file:
-		for line in file:
-			line=line.split(" (")
-			category=line[0]
-			QID=line[1].strip(")\n")
-			categories[category]=QID
-		return categories
+    """
+        Get cartegories for cell lines from file.
+        :param file : a file which contains categories for cell lines
+        :return : a dictionary, in key the category name, in value the wikidata
+        item id corresponding
+        """
+    categories={}
+    with open (file) as file:
+        for line in file:
+            line=line.split(" (")
+            category=line[0]
+            QID=line[1].strip(")\n")
+            categories[category]=QID
+        return categories
 
 def correspondance(cellosaurus):
-	"""
-	This function create dictionnaries of list of pre-requisite wikidata
-		informations.
-	:param cellosaurus : the cellosaurus dictionary from .txt file create
-	    with CellosaurusToDictionary function
-	:return : a dictionary with contain dictionnaries or list.
-		- references dictionary : in key, the PubMed or DOI id for an article
-		  	in wikidata and in value, the wikidata item id which correspond to
-		  	this article.
-		- DOI_not_in_wikidata : a list of DOI references that are not in
-		 	 wikidata.
-		- error_references : all the errors that occurs during the item
-		  creation for the article by Fatameh.
-		- species dictionary : in key, a NCBI taxonomy id in cellosaurus
-		  	and in value, the wikidata item id which correspond to this species
-		- problematic_species: a list of NCBI taxonomy id that are not in
-		  	wikidata.
-		- diseases dictionary : in key, a NCI thesaurus if in cellosaurus and
-		  	in value, the wikidata item id which correspond to this disease.
-		- problematic_diseases : in key notin, if the disease is not in
-		  	wikidata; in key morethan, if the NCI thesaurus id correspond to
-		  	more than 1 disease in Wikidata. In value, the thesaurus id with
-		  	these problems.
+    """
+        This function create dictionnaries of list of pre-requisite wikidata
+        informations.
+        :param cellosaurus : the cellosaurus dictionary from .txt file create
+        with CellosaurusToDictionary function
+        :return : a dictionary with contain dictionnaries or list.
+        - references dictionary : in key, the PubMed or DOI id for an article
+        in wikidata and in value, the wikidata item id which correspond to
+        this article.
+        - DOI_not_in_wikidata : a list of DOI references that are not in
+        wikidata.
+        - error_references : all the errors that occurs during the item
+        creation for the article by Fatameh.
+        - species dictionary : in key, a NCBI taxonomy id in cellosaurus
+        and in value, the wikidata item id which correspond to this species
+        - diseases dictionary : in key, a NCI thesaurus if in cellosaurus and
+        in value, the wikidata item id which correspond to this disease.
+        
+        """
+    
+    references={}
+    references_done=[]
+    DOI_not_in_wikidata=[]
+    error_references={}
+    species={}
+    species_done=[]
+    diseases={}
+    diseases_done=[]
+    
+    
+    with open ("doc/ERRORS/species.txt", "w") as species_not:
+        with open ("doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
+            with open ("doc/ERRORS/not_in.txt", "w") as not_in:
+                with open ("doc/ERRORS/more_than_1.txt", "w") as more_than_1:
+                    
+                    for celline in cellosaurus:
+                        
+                        
+                        if cellosaurus[celline]["OX"] != []:
+                            for spe in cellosaurus[celline]["OX"]:
+                                if spe not in species:
+                                    query1=wdi_core.WDItemEngine.execute_sparql_query("""SELECT distinct ?item WHERE {?item p:P685 ?node. ?node ps:P685 '"""+spe+"""'.}""")
+                                    query1=query1["results"]["bindings"]
+                                    if query1 == []:
+                                        if spe not in species_done:
+                                            species_done.append(spe)
+                                            species_not.write(spe+"\n")
+                                    else:
+                                        for wid in query1:
+                                            WDid=wid['item']['value'].strip("http://www.wikidata.org/entity/")
+                                            species[spe]=WDid
+                    
+                    
+                        if cellosaurus[celline]["RX"] != []:
+                            for reference in cellosaurus[celline]["RX"]:
+                                if reference.startswith("PubMed"):
+                                    pubmed=reference.strip("PubMed=")
+                                    if pubmed not in references :
+                                        query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
+                                        query=query['results']
+                                        query=query['bindings']
+                                        if query == []:
+                                            if reference not in references_done:
+                                                references_done.append(reference)
+                                                result=os.popen("curl --header 'Authorization: Token 6fef682d6c34261d860dde2b5dc3561d63b4fefe' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")
+                                                exitresult=result.read().replace('"', '\"')
+                                                final=json.loads(exitresult)
+                                                
+                                                if final['error'] != []:
+                                                    error_references[reference]=str(result)
+                                                    references_errors.write(reference+"\t"+str(exitresult)+"\n")
+                                        
+                                        else:
+                                            query=query[0]['item']['value']
+                                            QIDreferences=query.strip("http://www.wikidata.org/entity/")
+                                            references[pubmed]=QIDreferences
+                        
+                        
+                        if  reference.startswith("DOI"):
+                            DOI=reference.strip("DOI=")
+                            if DOI not in references and DOI not in DOI_not_in_wikidata:
+                                query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P356 '"""+DOI+"""'.}""")
+                                query=query['results']
+                                query=query['bindings']
+                                if query == []:
+                                    DOI_not_in_wikidata.append(DOI)
+                                        else:
+                                            query=query[0]['item']['value']
+                                            QIDreferences=query.strip("http://www.wikidata.org/entity/")
+                                            references[DOI]=QIDreferences
+                                            
+                                            
+                                            if cellosaurus[celline]["DI"] != []:
+                                            for dis in cellosaurus[celline]["DI"]:
+                                                if dis not in diseases:
+                                                    query3=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE { ?item wdt:P1748 '"""+dis+"""'.}""")
+                                                    query3=query3['results']['bindings']
+                                                    if query3 == []:
+                                                        if dis not in diseases_done:
+                                                            diseases_done.append(dis)
+                                                            not_in.write(dis+"\n")
+                                                                elif len(query3) >1:
+                                                                    if dis not in diseases_done:
+                                                                        diseases_done.append(dis)
+                                                                        for moredis in query3:
+                                                                            WDid=moredis['item']['value'].strip("http://www.wikidata.org/entity/")
+                                                                            more_than_1.write(dis+"\t"+WDid+"\n")
+                                                                                else:
+                                                                                    for moredis in query3:
+                                                                                        WDid=moredis['item']['value'].strip("http://www.wikidata.org/entity/")
+                                                                                        diseases[dis]=WDid
 
 
-	"""
-
-	references={}
-	references_done=[]
-	DOI_not_in_wikidata=[]
-	error_references={}
-	species={}
-	problematic_species={}
-	diseases={}
-	problematic_diseases={}
-
-	query1=wdi_core.WDItemEngine.execute_sparql_query("""SELECT distinct ?item ?taxid WHERE { ?item p:P685 ?node. ?node ps:P685 ?taxid.}""")
-	for spec in query1['results']['bindings']:
-		WDid=spec['item']['value'].strip("http://www.wikidata.org/entity/")
-		Taxid=spec['taxid']['value']
-		if Taxid in species and Taxid not in problematic_species:
-			problematic_species[Taxid]=[WDid]
-		elif Taxid in species and Taxid in problematic_species:
-			problematic_species[Taxid].append(WDid)
-		elif Taxid not in species:
-			species[Taxid]=WDid
-
-
-	with open ("doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
-
-		for celline in cellosaurus:
-		
-			if cellosaurus[celline]["RX"] != []:
-						
-						for reference in cellosaurus[celline]["RX"]:
-							
-							if reference.startswith("PubMed"):
-								pubmed=reference.strip("PubMed=")
-								if pubmed not in references :
-									query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
-									query=query['results']
-									query=query['bindings']
-									if query == []:
-										if reference not in references_done:
-											references_done.append(reference)
-											result=os.popen("curl --header 'Authorization: Token 6fef682d6c34261d860dde2b5dc3561d63b4fefe' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")	
-											exitresult=result.read().replace('"', '\"')
-											final=json.loads(exitresult)
-					
-											if final['error'] != []:
-												error_references[reference]=str(result)
-												references_errors.write(reference+"\t"+str(exitresult)+"\n")
-
-									else:
-										query=query[0]['item']['value']
-										QIDreferences=query.strip("http://www.wikidata.org/entity/")
-										references[pubmed]=QIDreferences
-								
-
-							if  reference.startswith("DOI"):
-								DOI=reference.strip("DOI=")
-								if DOI not in references and DOI not in DOI_not_in_wikidata:
-									query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P356 '"""+DOI+"""'.}""")
-									query=query['results']
-									query=query['bindings']
-									if query == []:
-										DOI_not_in_wikidata.append(DOI)
-									else:
-										query=query[0]['item']['value']
-										QIDreferences=query.strip("http://www.wikidata.org/entity/")
-										references[DOI]=QIDreferences
-	
-
-
-
-	query3=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item ?NCIt WHERE { ?item wdt:P1748 ?NCIt.}""")
-	for disease in query3['results']['bindings']:
-		WDid=disease['item']['value'].strip("http://www.wikidata.org/entity/")
-		NCIt=disease['NCIt']['value']
-		if NCIt in diseases and NCIt not in problematic_diseases:
-			problematic_diseases[NCIt]=[WDid]
-		elif NCIt in diseases and NCIt in problematic_diseases:
-			problematic_diseases[NCIt].append(WDid)
-		elif NCIt not in diseases:
-			diseases[NCIt]=WDid
-
-	return {"references":references, "referencesniw":DOI_not_in_wikidata, "errorreferences":error_references, "species":species, "problematicspecies":problematic_species, "diseases":diseases, "problematicdiseases":problematic_diseases}
+	return {"references":references, "referencesniw":DOI_not_in_wikidata, "errorreferences":error_references, "species":species, "diseases":diseases}
 
 class Create_Update():
 	"""
@@ -261,11 +269,6 @@ class Create_Update():
 				#add the disease in established from medical condition(P5166)
 				if disease in self.diseases:
 					data.append(wdi_core.WDItemID(value=self.diseases[disease], prop_nr="5166", references=WQreference))
-				#if the disease does not exist in Wikidata, write it in
-					#doc/ERRORS/diseases/not_in.txt
-				else :
-					with open ("doc/ERRORS/diseases/not_in.txt", "a") as file:
-						file.write(disease+"\n")
 		
 
 		#check if species information exists for the cell line
@@ -281,11 +284,6 @@ class Create_Update():
 				elif spec == "32644":
 					#if the species is u
 					species.append("Unknow value")
-				else:
-					#if the species is not in wikidata, write it in
-						#doc/ERRORS/species.txt
-					with open ("doc/ERRORS/species.txt", "a") as file:
-						file.write(spec+"\n")
 
 
 		#check if sexes information exists for the cell line
