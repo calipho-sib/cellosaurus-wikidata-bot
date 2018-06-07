@@ -1,7 +1,9 @@
 # <center>Cellosaurus Wikidata Bot</center>
 
 ***************************
-<center><img src="img/WikiCello.pdf" style="width: 100px;"/></center>
+<p align="center">
+  <img src="img/WikiCello.pdf" width="200"/>
+</p>
 ***************************
 
 **<center>Cellosaurus Bot allows to integrate cell lines from [Cellosaurus](https://web.expasy.org/cellosaurus/) to [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page).**
