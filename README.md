@@ -2,7 +2,7 @@
 
 ***************************
 <p align="center">
-  <img src="img/WikiCello.pdf" width="200"/>
+  <img src="img/WikiCello.png" width="200"/>
 </p>
 ***************************
 
