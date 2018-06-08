@@ -90,30 +90,28 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
 		#for each cell line, find if it needs to be created or updated or deleted
 			#in wikidata. 
 		with open ("results/cell_line_duplicate.txt", "w") as file:
-			with open ("CVCL50.txt", "r") as fichier:
-				for cell_line in fichier.readlines():
-					cell_line=cell_line.strip("\n")
-					print(cell_line)
+			for cell_line in cellosaurus:
+				print(cell_line)
 
-					#-----------------UPDATE-------------------------#
-					if cell_line in Release.wikidata and cell_line not in update:
-						# the cell line exist in Wikidata, it needs to be updated.
-						print("update")
-						update[cell_line]=wikidata[cell_line]
-						Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
+				#-----------------UPDATE-------------------------#
+				if cell_line in Release.wikidata and cell_line not in update:
+					# the cell line exist in Wikidata, it needs to be updated.
+					print("update")
+					update[cell_line]=wikidata[cell_line]
+					Release.UpdateWikidata(cell_line, Release.InitialisationData(cell_line))
 
-					#-----------------DUPLICATE-------------------------#
-					elif cell_line in Release.wikidata and cell_line in update:
-						#the cell line is duplicated
-						file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
+				#-----------------DUPLICATE-------------------------#
+				elif cell_line in Release.wikidata and cell_line in update:
+					#the cell line is duplicated
+					file.write(cell_line+"\t"+wikidata[cell_line]+"\n")
 
-					#-----------------CREATE-------------------------#
-					else:
-						#the cell line does not exist in Wikidata, it needs to be
-							#created.
-						print("create")
-						create.append(cell_line)
-						Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
+				#-----------------CREATE-------------------------#
+				else:
+					#the cell line does not exist in Wikidata, it needs to be
+						#created.
+					print("create")
+					create.append(cell_line)
+					Release.InsertionWikidata(cell_line, Release.InitialisationData(cell_line))
 
 
 			#-----------------DELETE-------------------------#
