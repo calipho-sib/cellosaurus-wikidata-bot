@@ -443,7 +443,7 @@ class Create_Update():
 		:return : WikidataID.txt, a file which contains the Wikidata cell
 		    lines items created.
 		"""
-		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], domain="cell line", data=data['data'],global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(item_name=Set(self.cellosaurus,Item)['name'], data=data['data'],global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter= {'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
 
 		if self.cellosaurus[Item]["SY"] != []:
 			item.set_aliases(self.cellosaurus[Item]["SY"], lang='en', append=False)
@@ -473,17 +473,18 @@ class Create_Update():
 
 
 		if data['data_to_delete']!= []:
-			old=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line")
+			old=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item])
 			olditem=old.get_wd_json_representation()
 			for statement in olditem['claims']:
 				if statement in data['data_to_delete']:
 					to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
-			item_deletion=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], domain="cell line", data=to_delete)
+                    
+			item_deletion=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=to_delete)
 			item_deletion.write(self.login, bot_account=True, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
-		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item],domain="cell line",data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
+		item=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={'P31':'Q21014462','P31':'','P21':'', 'P703':'', 'P3432':'','P3578':'','P248':'','P3289':'','P486':'', 'P2888':'','P1343':'', 'P5166':'', 'P813':''}, fast_run_use_refs=True)
 
 
 		if self.cellosaurus[Item] != "NUL":
