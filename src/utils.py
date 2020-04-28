@@ -454,7 +454,7 @@ class Create_Update():
 
 
 		with open ("results/WikidataID.txt", "a") as file:
-			file.write(item.write(self.login, bot_account=True, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")	
+			file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(self.cellosaurus[Item]["ID"]))+"\t"+Item+"\n")	
 	
 
 
@@ -480,7 +480,7 @@ class Create_Update():
 					to_delete.append(wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
                     
 			item_deletion=wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=to_delete)
-			item_deletion.write(self.login, bot_account=True, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
+			item_deletion.write(self.login, bot_account=False, edit_summary="delete statements before update the item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
@@ -494,7 +494,7 @@ class Create_Update():
 			item.set_description(description, lang=lang)
 			item.set_label(label=name, lang=lang)
 		
-		item.write(self.login, bot_account=True, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
+		item.write(self.login, bot_account=False, edit_summary="update item {}".format(self.cellosaurus[Item]["ID"]))
 
 
 
