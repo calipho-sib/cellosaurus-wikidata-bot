@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
+from utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata, add_reference_to_wikidata
 
 
 os.chdir("/home/lubianat/Documents/cellosaurus-wikidata-bot")
@@ -23,6 +23,15 @@ class TestStringMethods(unittest.TestCase):
 
     def test_matching_of_cellosaurus_to_wikidata(self):
         self.assertEqual(cellosaurus_informations_to_wikidata_ids["references"]['25400923'],'Q42064754')
+
+
+class TestAuxiliaryFunctions(unittest.TestCase):
+    
+    def test_add_reference_to_wikidata(self):
+        pubmed_id = "mock_id"
+        add_reference_to_wikidata(pubmed_id)
+        self.assertEqual("bla", "bla")
+
 
            
  

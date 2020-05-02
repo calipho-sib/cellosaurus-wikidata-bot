@@ -587,9 +587,8 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
 
 
     """
-    cellosaurus = cellosaurus_in_dicionary_format
     references = {}
-    references_done = []
+    references_that_were_not_on_wikidata = []
     DOI_not_in_wikidata = []
     error_references = {}
     species = {}
@@ -613,22 +612,17 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
                             
                             if reference.startswith("PubMed"):
                                 pubmed=reference.strip("PubMed=")
+
                                 if pubmed not in references :
-                                    query=wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
-                                    query=query['results']
-                                    query=query['bindings']
+                                    query = query_wikidata_by_pubmed_id(pubmed)
+
                                     if query == []:
-                                        if reference not in references_done:
-                                            print(reference)
-                                            references_done.append(reference)
-                                            result=os.popen("curl --header 'Authorization: Token dfa3bb5860e36eaad4cc056a6bd196e3e7478cf2' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")
-                                            print(result)
-                                            exitresult=result.read().replace('"', '\"')
-                                            final=json.loads(exitresult)
-                    
-                                            if final['error'] != []:
-                                                error_references[reference]=str(result)
-                                                references_errors.write(reference+"\t"+str(exitresult)+"\n")
+                                        if reference not in references_that_were_not_on_wikidata:
+                                            print("This reference is not on Wikidata yet: " + reference)
+                                            add_reference_to_wikidata(pubmed)
+                                            references_that_were_not_on_wikidata.append(reference)
+                                            references_errors.write("Reference for article with PMID "+ pubmed +" could not be added to Wikidata")
+
 
                                     else:
                                         query=query[0]['item']['value']
@@ -692,3 +686,21 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
                 problematic_species_ids[taxid].append(wikidata_id)
 
         return(species_ids, problematic_species_ids )
+        
+def query_wikidata_by_pubmed_id(pubmed):
+    query_result = wdi_core.WDItemEngine.execute_sparql_query("""SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
+    query_result = query_result['results']['bindings']
+    return(query_result)
+    
+    
+def add_reference_to_wikidata(pubmed_id):
+    pass
+ 
+ #   result=os.popen("curl --header 'Authorization: Token dfa3bb5860e36eaad4cc056a6bd196e3e7478cf2' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")
+ #   print(result)
+ #   exitresult=result.read().replace('"', '\"')
+ #   final=json.loads(exitresult)
+ #                   
+ #   if final['error'] != []:
+ #       error_references[reference]=str(result)
+ #       references_errors.write(reference+"\t"+str(exitresult)+"\n")
