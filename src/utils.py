@@ -611,23 +611,23 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
                         for reference in cell_line_references:
                             
                             if reference.startswith("PubMed"):
-                                pubmed=reference.strip("PubMed=")
+                                pubmed_id=reference.strip("PubMed=")
 
-                                if pubmed not in references :
-                                    query = query_wikidata_by_pubmed_id(pubmed)
+                                if pubmed_id not in references :
+                                    query = query_wikidata_by_pubmed_id(pubmed_id)
 
                                     if query == []:
                                         if reference not in references_that_were_not_on_wikidata:
                                             print("This reference is not on Wikidata yet: " + reference)
-                                            add_reference_to_wikidata(pubmed)
+                                            add_reference_to_wikidata(pubmed_id)
                                             references_that_were_not_on_wikidata.append(reference)
-                                            references_errors.write("Reference for article with PMID "+ pubmed +" could not be added to Wikidata")
+                                            references_errors.write("Reference for article with PMID "+ pubmed_id +" could not be added to Wikidata")
 
 
                                     else:
                                         query=query[0]['item']['value']
                                         QIDreferences=query.strip("http://www.wikidata.org/entity/")
-                                        references[pubmed]=QIDreferences
+                                        references[pubmed_id]=QIDreferences
                                 
 
                             if  reference.startswith("DOI"):
@@ -703,4 +703,4 @@ def add_reference_to_wikidata(pubmed_id):
  #                   
  #   if final['error'] != []:
  #       error_references[reference]=str(result)
- #       references_errors.write(reference+"\t"+str(exitresult)+"\n")
+ #       references_errors.write(reference+"\t"+str(exitresult)+"\n")121
