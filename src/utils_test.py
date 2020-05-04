@@ -1,7 +1,12 @@
 import unittest
 import os
-
 from utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata, add_reference_to_wikidata
+
+
+class TestRunning(unittest.TestCase):
+    
+    def test_run(self):
+        self.assertEqual(1,1)
 
 
 os.chdir("/home/lubianat/Documents/cellosaurus-wikidata-bot")
@@ -11,6 +16,7 @@ cellosaurus_dump_in_dictionary_format = CellosaurusToDictionary("./project/test_
 cell_line_to_wikidata_id = QueryingWikidata()
 
 cellosaurus_informations_to_wikidata_ids = correspondance(cellosaurus_dump_in_dictionary_format)
+
 
 class TestStringMethods(unittest.TestCase):
     
