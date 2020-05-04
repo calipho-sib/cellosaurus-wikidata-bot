@@ -45,13 +45,12 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
         #contains the cell lines items with a Cellosaurus ID
         wikidata=QueryingWikidata()
 
-        correspondance=correspondance(cellosaurus)
-        SerializeData(correspondance, "correspondance.pickle")
-        #correspondance=DeserializeData("correspondance.pickle")
+        #correspondance=correspondance(cellosaurus)
+        #SerializeData(correspondance, "correspondance.pickle")
+        correspondance=DeserializeData("correspondance.pickle")
         
 
         time.sleep(60)
-
         login = wdi_login.WDLogin(WDUSER, WDPASS)
 
 

@@ -26,10 +26,6 @@ cellosaurus_informations_to_wikidata_ids = DeserializeData("correspondance.pickl
 
 cellosaurus_dump_in_dictionary_format = CellosaurusToDictionary("./project/test_cellosaurus.txt")
 
-#             with eventlet.Timeout(10):
-#                 cellosaurus_release.UpdateWikidata(
-#                     cell_line, cellosaurus_release.InitialisationData(cell_line))
-
 class TestRelease2(unittest.TestCase):
 
 
@@ -42,6 +38,11 @@ class TestRelease2(unittest.TestCase):
     wikidata=QueryingWikidata()
     cellosaurus_release = Create_Update(login=login, releaseID="Q87574023", cellosaurus=cellosaurus_dump_in_dictionary_format, wikidata=wikidata,
                                      references=references, species=species, categories=categories, diseases=diseases)
+
+    with eventlet.Timeout(10):
+        print("ok, timeout set for 10 seconds")
+        cellosaurus_release.UpdateWikidata(
+          cell_line, cellosaurus_release.InitialisationData(cell_line))
 
     for cell_line in cellosaurus_dump_in_dictionary_format:
         print(cell_line)
