@@ -16,15 +16,7 @@ Contain the main functions for Wikidata Cellosaurus Bot
 
 
 def DeserializeData(pickleFileName):
-    """
-    If you want to Deserialize a pickle file.
-    :param pickeFileName : YourFile.pickle
-    :return : a dictionary wich contain YourFile.pickle informations
-    """
-
-    with open(pickleFileName, 'rb') as file:
-        dictionary = pickle.load(file)
-    return dictionary
+    return(load_pickle_file(pickleFileName))
 
 
 def SerializeData(dictionary, pickleFileName):
@@ -546,6 +538,27 @@ def QueryingWikidata():
 
 # Auxiliary functions added by lubianat
 
+### Functions to process pickle files 
+
+def load_pickle_file(pickleFileName):
+    """
+    Loads a serialized pickle file.
+    :param pickeFileName : YourFile.pickle
+    :return : a dictionary wich contain YourFile.pickle informations
+    """
+
+    with open(pickleFileName, 'rb') as file:
+        dictionary = pickle.load(file)
+    return dictionary
+
+def save_pickle_file(dictionary, pickleFileName):
+    """
+    Saves a dictionary into a pickle file.
+    :param dictionary : the dictionary that you want to serialize
+    :param pickleFileName : the name of the file
+    """
+    with open(pickleFileName, 'wb') as file:
+        pickle.dump(dictionary, file)
 
 def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
