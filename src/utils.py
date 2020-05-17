@@ -656,28 +656,27 @@ def query_wikidata_for_taxids():
         """SELECT distinct ?item ?taxid WHERE { ?item p:P685 ?node. ?node ps:P685 ?taxid.}""")
     return(query_result['results']['bindings'])
 
+
 def query_wikidata_for_cell_lines():
     """
-    Thanks to a SPARQL request on Wikidata, this function recover all the cell
-        lines that exist already in Wikidata (with a Cellosaurus id).
-    :return : a dictionary with in key, the Cellosaurus id and in value the
-        Wikidata cell line item id.
+    Recover all the cell lines that exist in Wikidata (with a Cellosaurus id).
+    :return : a dictionary matching Cellosaurus id to  Wikidata cell line item id.
     """
-    Wikidata_query_result = {}
-    query = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?CVCL WHERE{ 
+
+    query_result = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?CVCL WHERE{ 
     ?QID wdt:P3289 ?CVCL.
     }""")
-    query = query['results']
-    query = query['bindings']
-    for data in query:
-        QID = data['QID']
-        QID = str(QID['value'])
-        QID = QID.strip("http://www.wikidata.org/entity/").strip("\n")
-        CVCL = data['CVCL']
-        CVCL = CVCL['value']
-        Wikidata_query_result[CVCL] = QID
-    return(Wikidata_query_result)
+    query_result = query_result['results']['bindings']
 
+
+    cellosaurus_to_wikidata_cell_lines = {}
+    for cell_line_entry in query_result:
+        QID_url = str(cell_line_entry['QID']['value'])
+        QID = QID_url.strip("http://www.wikidata.org/entity/").strip("\n")
+        CVCL = cell_line_entry['CVCL']['value']
+        cellosaurus_to_wikidata_cell_lines[CVCL] = QID
+   
+    return(cellosaurus_to_wikidata_cell_lines)
 
 
 def add_ids_to_species_id_holders(taxid_to_wikidata):
