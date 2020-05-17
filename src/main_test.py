@@ -6,8 +6,6 @@ from utils import DeserializeData, SerializeData , correspondance, categories, S
 import requests
 import eventlet
 
-# eventlet.monkey_patch()
-
 
 
 os.chdir("/home/lubianat/Documents/cellosaurus-wikidata-bot")

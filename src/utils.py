@@ -542,26 +542,7 @@ def CellosaurusToDictionary(file):
 
 
 def QueryingWikidata():
-    """
-    Thanks to a SPARQL request on Wikidata, this function recover all the cell
-        lines that exist already in Wikidata (with a Cellosaurus id).
-    :return : a dictionary with in key, the Cellosaurus id and in value the
-        Wikidata cell line item id.
-    """
-    Wikidata_query_result = {}
-    query = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?CVCL WHERE{ 
-    ?QID wdt:P3289 ?CVCL.
-    }""")
-    query = query['results']
-    query = query['bindings']
-    for data in query:
-        QID = data['QID']
-        QID = str(QID['value'])
-        QID = QID.strip("http://www.wikidata.org/entity/").strip("\n")
-        CVCL = data['CVCL']
-        CVCL = CVCL['value']
-        Wikidata_query_result[CVCL] = QID
-    return(Wikidata_query_result)
+    return(query_wikidata_for_cell_lines())
 
 # Auxiliary functions added by lubianat
 
@@ -670,11 +651,33 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     return {"references": references, "referencesniw": DOI_not_in_wikidata, "errorreferences": error_references, "species": species, "problematicspecies": problematic_species, "diseases": diseases, "problematicdiseases": problematic_diseases}
 
 
-
 def query_wikidata_for_taxids():
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
         """SELECT distinct ?item ?taxid WHERE { ?item p:P685 ?node. ?node ps:P685 ?taxid.}""")
     return(query_result['results']['bindings'])
+
+def query_wikidata_for_cell_lines():
+    """
+    Thanks to a SPARQL request on Wikidata, this function recover all the cell
+        lines that exist already in Wikidata (with a Cellosaurus id).
+    :return : a dictionary with in key, the Cellosaurus id and in value the
+        Wikidata cell line item id.
+    """
+    Wikidata_query_result = {}
+    query = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?CVCL WHERE{ 
+    ?QID wdt:P3289 ?CVCL.
+    }""")
+    query = query['results']
+    query = query['bindings']
+    for data in query:
+        QID = data['QID']
+        QID = str(QID['value'])
+        QID = QID.strip("http://www.wikidata.org/entity/").strip("\n")
+        CVCL = data['CVCL']
+        CVCL = CVCL['value']
+        Wikidata_query_result[CVCL] = QID
+    return(Wikidata_query_result)
+
 
 
 def add_ids_to_species_id_holders(taxid_to_wikidata):
