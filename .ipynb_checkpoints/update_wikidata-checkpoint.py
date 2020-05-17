@@ -8,35 +8,54 @@ import json
 import pickle
 import sys
 import os
-from src.utils import DeserializeData, SerializeData, correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
+import progressbar
 
+from src.utils import DeserializeData, SerializeData, correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
 from src.local import WDUSER, WDPASS
 
 
 cellosaurus_dump_in_dictionary_format = CellosaurusToDictionary(sys.argv[2])
-
 cellosaurus_to_wikidata_matches = DeserializeData("correspondance.pickle")
 
-login = wdi_login.WDLogin(WDUSER, WDPASS)
 
+login = wdi_login.WDLogin(WDUSER, WDPASS)
 species = cellosaurus_to_wikidata_matches["species"]
 references = cellosaurus_to_wikidata_matches["references"]
 diseases = cellosaurus_to_wikidata_matches["diseases"]
 categories = categories("project/category.txt")
-
 wikidata=QueryingWikidata()
+release_qid = sys.argv[1]
 
-cellosaurus_release = Create_Update(login=login, releaseID=sys.argv[1], cellosaurus=cellosaurus_dump_in_dictionary_format, wikidata=wikidata,
-                                    references=references, species=species, categories=categories, diseases=diseases)
+
+cellosaurus_release = Create_Update(login=login, 
+                                    releaseID=release_qid, 
+                                    cellosaurus=cellosaurus_dump_in_dictionary_format, 
+                                    wikidata=wikidata,
+                                    references=references, 
+                                    species=species, 
+                                    categories=categories, 
+                                    diseases=diseases)
 
 updated_items = {}
-created_items = []
+created_items = ["Cell Lines created", "Release ID:", release_qid]
+
 
 with open("results/cell_line_duplicate.txt", "w") as file_for_duplicated_lines:
 
+    widgets=[
+    ' [', progressbar.Timer(), '] ',
+    progressbar.Bar(),
+    ' (', progressbar.ETA(), ') ',
+]
+    bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength, redirect_stdout=True, widgets=widgets)
+    dict_size = len(cellosaurus_dump_in_dictionary_format)
+    
+    counter = 0
     for cell_line in cellosaurus_dump_in_dictionary_format:
         print(cell_line)
-
+        bar.update(counter)
+        counter += 1
+        print(str(counter) + "out of" + str(dict_size))
         if cell_line in cellosaurus_release.wikidata and cell_line not in updated_items:
             print("update")
 
@@ -63,6 +82,13 @@ with open("results/cell_line_duplicate.txt", "w") as file_for_duplicated_lines:
                 cell_line, cellosaurus_release.InitialisationData(cell_line))
             created_items.append(cell_line)
 
+            
+f=open('results/created_cell_line_items.txt','w')
+
+for cell_line in created_items:
+    f.write(cell_line+'\n')
+
+f.close()
 
 with open("results/Qids_2_delete.txt", "w") as file:
     for cell_line in cellosaurus_release.wikidata:
