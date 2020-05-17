@@ -38,9 +38,15 @@ class TestAuxiliaryFunctions(unittest.TestCase):
 
 class TestPickleFunctions(unittest.TestCase):
     
-    def test_save_pickle(self):
+    def test_save__load_pickle(self):
         test_dictionary = {"a":1 , "b":2}
-        self.assertEqual(test_dictionary['a'],1)
+
+        SerializeData(test_dictionary,"/tmp/test.pickle")
+        test_dictionary_after_processing  = DeserializeData("/tmp/test.pickle")
+        
+        os.remove("/tmp/test.pickle")
+        
+        self.assertEqual(test_dictionary,test_dictionary_after_processing)
            
  
 if __name__ == '__main__':

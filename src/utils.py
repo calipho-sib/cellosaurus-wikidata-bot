@@ -20,15 +20,7 @@ def DeserializeData(pickleFileName):
 
 
 def SerializeData(dictionary, pickleFileName):
-    """
-    If you want to serialize dictionary into a file.
-    :param dictionary : the dictionary that you want to serialize
-    :param pickleFileName : the name of the file that will contain you
-        serialized dictionary
-    """
-
-    with open(pickleFileName, 'wb') as file:
-        pickle.dump(dictionary, file)
+    return(save_pickle_file(dictionary, pickleFileName))
 
 
 def categories(file):
@@ -551,6 +543,7 @@ def load_pickle_file(pickleFileName):
         dictionary = pickle.load(file)
     return dictionary
 
+
 def save_pickle_file(dictionary, pickleFileName):
     """
     Saves a dictionary into a pickle file.
@@ -559,6 +552,7 @@ def save_pickle_file(dictionary, pickleFileName):
     """
     with open(pickleFileName, 'wb') as file:
         pickle.dump(dictionary, file)
+
 
 def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
