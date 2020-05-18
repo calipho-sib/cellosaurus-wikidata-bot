@@ -530,7 +530,7 @@ def QueryingWikidata():
 
 # Auxiliary functions added by lubianat
 
-### Functions to process pickle files 
+###### Functions to process pickle files ######
 
 def load_pickle_file(pickleFileName):
     """
@@ -553,6 +553,8 @@ def save_pickle_file(dictionary, pickleFileName):
     with open(pickleFileName, 'wb') as file:
         pickle.dump(dictionary, file)
 
+
+###### Functions to query and match to wikidata ###### 
 
 def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
@@ -685,6 +687,28 @@ def query_wikidata_for_cell_lines():
    
     return(cellosaurus_to_wikidata_cell_lines)
 
+def query_wikidata_by_pubmed_id(pubmed):
+    query_result = wdi_core.WDItemEngine.execute_sparql_query(
+        """SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
+    query_result = query_result['results']['bindings']
+    return(query_result)
+
+###### Functions to add things to wikidata ###### 
+def add_reference_to_wikidata(pubmed_id):
+    pass
+
+ #   result=os.popen("curl --header 'Authorization: Token dfa3bb5860e36eaad4cc056a6bd196e3e7478cf2' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")
+ #   print(result)
+ #   exitresult=result.read().replace('"', '\"')
+ #   final=json.loads(exitresult)
+ #
+ #   if final['error'] != []:
+ #       error_references[reference]=str(result)
+ #       references_errors.write(reference+"\t"+str(exitresult)+"\n")121
+
+
+###### Other equally important functions ###### 
+
 
 def add_ids_to_species_id_holders(taxid_to_wikidata):
     species_ids = {}
@@ -706,23 +730,3 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
             problematic_species_ids[taxid].append(wikidata_id)
 
     return(species_ids, problematic_species_ids)
-
-
-def query_wikidata_by_pubmed_id(pubmed):
-    query_result = wdi_core.WDItemEngine.execute_sparql_query(
-        """SELECT ?item WHERE{?item wdt:P698 '"""+pubmed+"""'.}""")
-    query_result = query_result['results']['bindings']
-    return(query_result)
-
-
-def add_reference_to_wikidata(pubmed_id):
-    pass
-
- #   result=os.popen("curl --header 'Authorization: Token dfa3bb5860e36eaad4cc056a6bd196e3e7478cf2' tools.wmflabs.org/fatameh/token/pmid/add/"+pubmed, "r")
- #   print(result)
- #   exitresult=result.read().replace('"', '\"')
- #   final=json.loads(exitresult)
- #
- #   if final['error'] != []:
- #       error_references[reference]=str(result)
- #       references_errors.write(reference+"\t"+str(exitresult)+"\n")121
