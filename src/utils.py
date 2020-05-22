@@ -125,14 +125,17 @@ class Create_Update():
                                                                 statement_value = cell_line_category_id,
                                                                 references = WQreference)
 
-
             information_to_insert_on_wikidata.append(instance_of_specific_cell_line_category_statement)
 
         # add contaminated/misiendtified(Q27971671) in instance of(P31) if cell
-            # line is contaminated of misidentified
+        # line is contaminated or misidentified
+
         if self.cellosaurus[Item]["CC"] != []:
-            information_to_insert_on_wikidata.append(wdi_core.WDItemID(value="Q27971671",
-                                          prop_nr="P31", references=WQreference))
+            instance_of_contaminated_cell_line_statement = make_statement(
+                                                                statement_property = "P31",
+                                                                statement_value = "Q27971671",
+                                                                references = WQreference)
+            information_to_insert_on_wikidata.append(instance_of_contaminated_cell_line_statement)
 
          # check if disease informations exists for the cell line
         if self.cellosaurus[Item]["DI"] == []:
@@ -140,10 +143,17 @@ class Create_Update():
 
         else:
             for disease in self.cellosaurus[Item]["DI"]:
-                # add the disease in established from medical condition(P5166)
+                # P5166 -->  established from medical condition(
                 if disease in self.diseases:
-                    information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                        value=self.diseases[disease], prop_nr="5166", references=WQreference))
+                    disease_id = self.diseases[disease]
+                    cell_line_from_patient_with_disease_statement = make_statement(
+                            statement_property="5166",
+                            statement_value=disease_id,
+                            references=WQreference
+                    )
+
+                    information_to_insert_on_wikidata.append(cell_line_from_patient_with_disease_statement)
+        
                 # if the disease does not exist in Wikidata, write it in
                     # doc/ERRORS/diseases/not_in.txt
                 else:
