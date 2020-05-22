@@ -107,15 +107,26 @@ class Create_Update():
             data_to_delete.append("P31")
         
         # add item cell line(Q21014462) in instance of(P31):
-        information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                                                 value="Q21014462",
-                                                 prop_nr="P31", 
-                                                 references=WQreference))
+
+        instance_of_cell_line_statement = make_statement(statement_property = "P31",
+                                   statement_value = "Q21014462",
+                                   references = WQreference )
+        information_to_insert_on_wikidata.append(instance_of_cell_line_statement)
+
 
         # add category item in instance of(P31):
         if self.cellosaurus[Item]["CA"] in self.categories:
-            information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                value=self.categories[self.cellosaurus[Item]["CA"]], prop_nr="P31", references=WQreference))
+
+            cell_line_category = self.cellosaurus[Item]["CA"]
+            cell_line_category_id = self.categories[cell_line_category]
+
+            instance_of_specific_cell_line_category_statement = make_statement(
+                                                                statement_property = "P31",
+                                                                statement_value = cell_line_category_id,
+                                                                references = WQreference)
+
+
+            information_to_insert_on_wikidata.append(instance_of_specific_cell_line_category_statement)
 
         # add contaminated/misiendtified(Q27971671) in instance of(P31) if cell
             # line is contaminated of misidentified
@@ -739,3 +750,9 @@ def get_WQ_reference(Item, cellosaurus_release_qid):
         
     WQreference = [[release, refRetrieved, cellosaurusref]]
     return(WQreference)
+
+def make_statement(statement_property,statement_value, references):
+    statement = wdi_core.WDItemID(value=statement_value,
+                                    prop_nr=statement_property, 
+                                    references=references)
+    return(statement)
