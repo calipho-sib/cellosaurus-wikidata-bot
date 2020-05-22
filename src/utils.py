@@ -306,7 +306,7 @@ class Create_Update():
                 # P2888: exact match
 
                 information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                                                         value="http://purl.obolibrary.org/obo/"+CLO,
+                                                         value=,
                                                          prop_nr="P2888",
                                                          references=WQreference))
 
@@ -332,21 +332,30 @@ class Create_Update():
                                                          references=WQreference))
 
         if self.cellosaurus[Item]["RX"] != []:
+
+
             for reference in self.cellosaurus[Item]["RX"]:
+
                 if reference.startswith("PubMed"):
                     pubmed = reference.strip("PubMed=")
+
                     if pubmed in self.references:
-                        # add Pubmed reference with the property described by
-                        #source (P1343)
+                        # P1343:described by source
                         information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                            value=self.references[pubmed], prop_nr="P1343", references=WQreference))
+                                                                 value=self.references[pubmed],
+                                                                 prop_nr="P1343",
+                                                                 references=WQreference))
+
+
                 elif reference.startswith("DOI"):
                     DOI = reference.strip("DOI=")
+
                     if DOI in self.references:
-                        # add DOI reference with the property described by
-                        #source (P1343)
+
                         information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                            value=self.references[DOI], prop_nr="P1343", references=WQreference))
+                                                                 value=self.references[DOI],
+                                                                 prop_nr="P1343",
+                                                                 references=WQreference))
         else:
             data_to_delete.append("P1343")
 
