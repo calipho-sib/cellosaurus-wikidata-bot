@@ -157,7 +157,7 @@ class Create_Update():
                 # if the disease does not exist in Wikidata, write it in
                     # doc/ERRORS/diseases/not_in.txt
                 else:
-                    with open("doc/ERRORS/diseases/not_in.txt", "a") as file:
+                    with open("../doc/ERRORS/diseases/not_in.txt", "a") as file:
                         file.write(disease+"\n")
 
         # check if species information exists for the cell line
@@ -166,7 +166,6 @@ class Create_Update():
 
         list_of_taxons_of_origin = []
         if self.cellosaurus[Item]["OX"] != []:
-
 
             for taxon_of_origin in self.cellosaurus[Item]["OX"]:
                 if taxon_of_origin in self.species:
@@ -178,7 +177,7 @@ class Create_Update():
                 else:
                     # if the species is not in wikidata, write it in
                     # doc/ERRORS/species.txt
-                    with open("doc/ERRORS/species.txt", "a") as file:
+                    with open("../doc/ERRORS/species.txt", "a") as file:
                         file.write(taxon_of_origin+"\n")
 
         # check if sexes information exists for the cell line
@@ -306,7 +305,7 @@ class Create_Update():
                 # P2888: exact match
 
                 information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                                                         value=,
+                                                         value="http://purl.obolibrary.org/obo/"+CLO,
                                                          prop_nr="P2888",
                                                          references=WQreference))
 
@@ -649,7 +648,7 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     species, problematic_species = add_ids_to_species_id_holders(
         taxids_on_wikidata)
 
-    with open("doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
+    with open("../doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
 
         for celline in cellosaurus_in_dicionary_format:
 
