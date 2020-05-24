@@ -28,7 +28,10 @@ class TestStringMethods(unittest.TestCase):
     def test_matching_of_cellosaurus_to_wikidata(self):
         cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
         cellosaurus_informations_to_wikidata_ids = utils.correspondance(cellosaurus_dump_in_dictionary_format)
+        utils.save_pickle_file(cellosaurus_informations_to_wikidata_ids,"../tests/test_full_cellosaurus_to_wikidata.pickle")
+
         self.assertEqual(cellosaurus_informations_to_wikidata_ids["references"]['25400923'],'Q42064754')
+
 
 
 class TestAuxiliaryFunctions(unittest.TestCase):
@@ -55,7 +58,7 @@ class TestCreate_UpdateClass(unittest.TestCase):
     
     def test_CreateUpdate_object_creation(self):
         
-        the_so_called_correspondance = utils.load_pickle_file("../tests/test_full_cellosaurus_to_wikidata.pickle")
+        the_so_called_correspondance = utils.load_pickle_file("../tests/cellosaurus_informations_to_wikidata_ids.pickle")
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
@@ -81,7 +84,7 @@ class TestCreate_UpdateClass(unittest.TestCase):
 
     def test_Initialisation_Data(self):
         
-        the_so_called_correspondance = utils.load_pickle_file("../tests/test_full_cellosaurus_to_wikidata.pickle")
+        the_so_called_correspondance = utils.load_pickle_file("../tests/cellosaurus_informations_to_wikidata_ids.pickle")
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
@@ -103,9 +106,11 @@ class TestCreate_UpdateClass(unittest.TestCase):
                                       diseases=diseases)
 
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
-        
-        new_output_of_InitialisationData = Release.InitialisationData(Item="CVCL_E548")
-        old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_E548")
+
+        utils.save_pickle_file(Release,"../tests/release_object_before_refactoring.pickle")
+
+        new_output_of_InitialisationData = Release.InitialisationData(Item="CVCL_2260")
+        old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
 
         print(new_output_of_InitialisationData)
 
