@@ -83,8 +83,8 @@ class TestCreate_UpdateClass(unittest.TestCase):
         self.assertEqual(old_release.references, Release.references)
 
     def test_Initialisation_Data(self):
-        
-        the_so_called_correspondance = utils.load_pickle_file("../tests/cellosaurus_informations_to_wikidata_ids.pickle")
+        the_so_called_correspondance = utils.load_pickle_file(
+            "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
@@ -106,8 +106,7 @@ class TestCreate_UpdateClass(unittest.TestCase):
                                       diseases=diseases)
 
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
-
-        utils.save_pickle_file(Release,"../tests/release_object_before_refactoring.pickle")
+        utils.save_pickle_file(Release, "../tests/release_object_before_refactoring.pickle")
 
         new_output_of_InitialisationData = Release.InitialisationData(Item="CVCL_2260")
         old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
@@ -116,8 +115,17 @@ class TestCreate_UpdateClass(unittest.TestCase):
 
         self.assertEqual(new_output_of_InitialisationData, old_output_of_InitialisationData)
 
-           
+class TestMakeStatements(unittest.TestCase):
+    def test_make_statement(self):
+        the_so_called_correspondance = utils.load_pickle_file(
+            "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
+        references = the_so_called_correspondance["references"]
+        statement = utils.make_statement(statement_property="P31",
+                       statement_value="Q5",
+                       references=references)
+        print(statement)
 
+        self.assertEqual(2, 1)
 
 
 
