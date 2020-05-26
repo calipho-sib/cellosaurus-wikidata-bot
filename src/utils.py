@@ -480,9 +480,11 @@ def query_wikidata_by_pubmed_id(pubmed):
     query_result = query_result['results']['bindings']
     return query_result
 
+
 ###### Functions to add things to wikidata ######
 def add_reference_to_wikidata(pubmed_id):
     pass
+
 
 ###### Other equally important functions ######
 def add_ids_to_species_id_holders(taxid_to_wikidata):
@@ -539,11 +541,13 @@ def make_instance_of_cell_line_statement(reference):
                                references=reference)
     return statement
 
-def make_instance_of_statement(statement_value,reference):
+
+def make_instance_of_statement(statement_value, reference):
     statement = make_statement(statement_property="P31",
                                statement_value=statement_value,
                                references=reference)
     return statement
+
 
 def make_instance_of_contaminated_cell_line_statement(reference):
     statement = make_statement(statement_property="P31",
@@ -551,7 +555,17 @@ def make_instance_of_contaminated_cell_line_statement(reference):
                                references=reference)
     return statement
 
-def create_information_objects_for_wikidata(self, Item):
+
+def make_established_from_disease_statement(disease_id, references):
+    cell_line_from_patient_with_disease_statement = make_statement(
+        statement_property="5166",
+        statement_value=disease_id,
+        references=references
+    )
+    return cell_line_from_patient_with_disease_statement
+
+
+def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../doc/ERRORS/"):
     """
     This function has to be run for each cell line in cellosaurus.
     It create the information objects that will be in the Wikidata item
@@ -563,7 +577,9 @@ def create_information_objects_for_wikidata(self, Item):
               update for the wikidata cell line item.
         - data_to_delete : is the information objects that are have to be
               deleted in this release for a wikidata cell line item.
+    :folder_for_errors : The path to the folders where errors are stored.
     """
+
     information_to_insert_on_wikidata = []
     data_to_delete = []
 
@@ -588,60 +604,57 @@ def create_information_objects_for_wikidata(self, Item):
             reference=wikidata_reference_for_statement
         ))
 
-    # Q27971671 -> contaminated/misiendtified ;
+    # Q27971671 -> contaminated/misidentified ;
     # P31 -> "instance of"
     # CC         Comments
     # Code currently assumes that if there is a comment, cell line is contaminated.
     if self.cellosaurus[Item]["CC"]:
-
         information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
             reference=wikidata_reference_for_statement
         ))
 
-    # check if disease informations exists for the cell line
+    # check if disease information exists for the cell line
     if self.cellosaurus[Item]["DI"] == []:
         data_to_delete.append("P5166")
 
     else:
         for disease in self.cellosaurus[Item]["DI"]:
             # P5166 -->  established from medical condition(
-            if disease in self.diseases:
-                disease_id = self.diseases[disease]
-                cell_line_from_patient_with_disease_statement = make_statement(
-                    statement_property="5166",
-                    statement_value=disease_id,
+            diseases_in_wikidata = self.diseases
+
+            if disease in diseases_in_wikidata:
+                disease_id = diseases_in_wikidata[disease]
+
+                information_to_insert_on_wikidata.append(make_established_from_disease_statement(
+                    disease_id=disease_id,
                     references=wikidata_reference_for_statement
-                )
+                ))
 
-                information_to_insert_on_wikidata.append(cell_line_from_patient_with_disease_statement)
-
-            # if the disease does not exist in Wikidata, write it in
-            # doc/ERRORS/diseases/not_in.txt
             else:
-                with open("../doc/ERRORS/diseases/not_in.txt", "a") as file:
+                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
                     file.write(disease + "\n")
 
-    # check if species information exists for the cell line
-    if self.cellosaurus[Item]["OX"] == []:
+    # OX : Taxon od origin
+    # P703 : Found in taxon
+    if self.cellosaurus[Item]["OX"]:
         data_to_delete.append("P703")
 
     list_of_taxons_of_origin = []
-    if self.cellosaurus[Item]["OX"] != []:
+
+    if self.cellosaurus[Item]["OX"]:
 
         for taxon_of_origin in self.cellosaurus[Item]["OX"]:
             if taxon_of_origin in self.species:
                 list_of_taxons_of_origin.append(self.species[taxon_of_origin])
 
             elif taxon_of_origin == "32644":
-                # if the species is u
+                # if the species is unkown
                 list_of_taxons_of_origin.append("Unknow value")
             else:
-                # if the species is not in wikidata, write it in
-                # doc/ERRORS/species.txt
-                with open("../doc/ERRORS/species.txt", "a") as file:
+                with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
                     file.write(taxon_of_origin + "\n")
 
-    # check if sexes information exists for the cell line
+    # SX : Sex of cell line
     if self.cellosaurus[Item]["SX"] == []:
         data_to_delete.append("P21")
 
@@ -651,39 +664,37 @@ def create_information_objects_for_wikidata(self, Item):
 
         if biological_sex_of_source == "Sex unspecified":
 
-            # add "Unknow value" if sex is unspecified in sex or gender
-            # (P21)
+            # P21 : gender
             list_of_biological_sexes_of_source.append(wdi_core.WDString(
                 value="Unknow value",
                 prop_nr="P21",
                 is_qualifier=True,
                 snak_type='somevalue'))
-
-            # wdi_core.WDBaseDataType(value="Unknow value",snak_type="somevalue", prop_nr="P21", is_qualifier=True, references=wikidata_reference_for_statement)
-
         else:
             # else add the item corresponding to sex in sex or gender (P21)
+
+            dict_for_human_genders = {"Female": "Q6581072",
+                                      "Male": "Q6581097",
+                                      "Sex ambiguous": "Q1097630"}
+
+            dict_for_non_human_genders = {"Female": "Q43445",
+                                      "Male": "Q44148",
+                                      "Sex ambiguous": "Q28873047"}
+
+
             if "Q15978631" in list_of_taxons_of_origin:
-                if biological_sex_of_source == "Female":
-                    value = "Q6581072"
-                elif biological_sex_of_source == "Male":
-                    value = "Q6581097"
-                elif biological_sex_of_source == "Sex ambiguous":
-                    value = "Q1097630"
+                biological_sex_id = dict_for_human_genders[biological_sex_of_source]
+
             else:
-                if biological_sex_of_source == "Female":
-                    value = "Q43445"
-                elif biological_sex_of_source == "Male":
-                    value = "Q44148"
-                elif biological_sex_of_source == "Sex ambiguous":
-                    value = "Q28873047"
-                elif biological_sex_of_source == "Mixed sex":
-                    value = "Q43445"
+                if biological_sex_of_source == "Mixed sex":
+                    biological_sex_id = "Q43445"
                     list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
                         value="Q44148", prop_nr="P21", is_qualifier=True))
+                else:
+                    biological_sex_id = dict_for_non_human_genders[biological_sex_of_source]
 
             list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
-                value=value, prop_nr="P21", is_qualifier=True))
+                value=biological_sex_id, prop_nr="P21", is_qualifier=True))
 
     # add species information in found in taxon (P703)
     if list_of_taxons_of_origin != []:
