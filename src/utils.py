@@ -773,8 +773,7 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
     else:
         data_to_delete.append("P486")
 
-    
-    if self.cellosaurus[Item]["CLO"] != []:
+    if self.cellosaurus[Item]["CLO"]:
         for CLO in self.cellosaurus[Item]["CLO"]:
             # P2888: exact match
             information_to_insert_on_wikidata.append(wdi_core.WDUrl(
@@ -782,28 +781,29 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
                 prop_nr="P2888",
                 references=wikidata_reference_for_statement))
 
-    if self.cellosaurus[Item]["BTO"] != []:
+    if self.cellosaurus[Item]["BTO"]:
         for BTO in self.cellosaurus[Item]["BTO"]:
             information_to_insert_on_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + BTO,
                 prop_nr="2888",
                 references=wikidata_reference_for_statement))
 
-    if self.cellosaurus[Item]["EFO"] != []:
+    if self.cellosaurus[Item]["EFO"]:
         for EFO in self.cellosaurus[Item]["EFO"]:
             information_to_insert_on_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + EFO,
                 prop_nr="2888",
                 references=wikidata_reference_for_statement))
 
-    if self.cellosaurus[Item]["BCGO"] != []:
+    if self.cellosaurus[Item]["BCGO"]:
         for BCGO in self.cellosaurus[Item]["BCGO"]:
             information_to_insert_on_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + BCGO,
                 prop_nr="2888",
                 references=wikidata_reference_for_statement))
 
-    if self.cellosaurus[Item]["RX"] != []:
+    #  RX         References identifiers
+    if self.cellosaurus[Item]["RX"]:
 
         for reference in self.cellosaurus[Item]["RX"]:
 
@@ -817,13 +817,12 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
                         prop_nr="P1343",
                         references=wikidata_reference_for_statement))
 
-
             elif reference.startswith("DOI"):
-                DOI = reference.strip("DOI=")
+                doi = reference.strip("DOI=")
 
-                if DOI in self.references:
+                if doi in self.references:
                     information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                        value=self.references[DOI],
+                        value=self.references[doi],
                         prop_nr="P1343",
                         references=wikidata_reference_for_statement))
     else:
