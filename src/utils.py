@@ -565,7 +565,7 @@ def make_established_from_disease_statement(disease_id, references):
     return cell_line_from_patient_with_disease_statement
 
 
-def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../doc/ERRORS/"):
+def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
     """
     This function has to be run for each cell line in cellosaurus.
     It create the information objects that will be in the Wikidata item
@@ -678,11 +678,11 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../
                                       "Sex ambiguous": "Q1097630"}
 
             dict_for_non_human_genders = {"Female": "Q43445",
-                                      "Male": "Q44148",
-                                      "Sex ambiguous": "Q28873047"}
+                                          "Male": "Q44148",
+                                          "Sex ambiguous": "Q28873047"}
 
-
-            if "Q15978631" in list_of_taxons_of_origin:
+            id_for_homo_sapiens = "Q15978631"
+            if id_for_homo_sapiens in list_of_taxons_of_origin:
                 biological_sex_id = dict_for_human_genders[biological_sex_of_source]
 
             else:
@@ -713,16 +713,19 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../
                     value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
                     references=wikidata_reference_for_statement))
 
-    # check if parent cell line information exist for the cell line
-    if self.cellosaurus[Item]["HI"] == []:
+    # HI         Hierarchy (parent cell line)
+    if not self.cellosaurus[Item]["HI"]:
         data_to_delete.append("P3432")
 
     for parent_cell_line in self.cellosaurus[Item]["HI"]:
         if parent_cell_line in self.wikidata:
-            # add parent cell line information in parent cell line (P3432)
-            information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                value=self.wikidata[parent_cell_line], prop_nr="P3432",
-                references=wikidata_reference_for_statement))
+            # P3432 : parent cell line
+            parent_cell_line_id = self.wikidata[parent_cell_line]
+            information_to_insert_on_wikidata.append(make_statement(
+                statement_property="P3432",
+                statement_value=parent_cell_line_id,
+                references=wikidata_reference_for_statement
+            ))
 
         else:
             # if the parent cell line does not exist in Wikidata, add it in
@@ -730,27 +733,27 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../
             if Item not in self.AddParentCellline:
                 self.AddParentCellline.append(Item)
 
-    # check if autologous cell line information exist for the cell line
-    if self.cellosaurus[Item]["OI"] == []:
+    #  OI         Originate from same individual  (autologous cell line)
+    #  P3578 : autologous cell line
+    if not self.cellosaurus[Item]["OI"]:
         data_to_delete.append("P3578")
 
     else:
         for autologous_cell_line in self.cellosaurus[Item]["OI"]:
             if autologous_cell_line in self.wikidata:
-                # add autologous cell line information in autologous cell line
-                # (P3578)
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=self.wikidata[autologous_cell_line],
-                    prop_nr="P3578",
-                    references=wikidata_reference_for_statement))
+                autologous_cell_line_id = self.wikidata[autologous_cell_line]
+                information_to_insert_on_wikidata.append(make_statement(
+                    statement_property="P3578",
+                    statement_value=autologous_cell_line_id,
+                    references=wikidata_reference_for_statement
+                ))
             else:
                 # if the autologous cell line does not exist in Wikidata, add
                 # it in AddParentCelline
                 if Item not in self.AddParentCellline:
                     self.AddParentCellline.append(Item)
 
-    # add the Cellosaurus ID with the Cellosaurus ID in Cellosaurus ID
-    # (P3289)
+    # P3289 : Cellosaurus ID
     information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
         value=Item,
         prop_nr="P3289",
@@ -758,12 +761,11 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../
 
     # check if external reference in CLO, BTO, EFO, BCGO exists
     for cell_line_id in ["CLO", "BTO", "EFO", "BCGO"]:
-        if self.cellosaurus[Item][cell_line_id] == []:
+        if not self.cellosaurus[Item][cell_line_id]:
             data_to_delete.append("P2888")
 
     if self.cellosaurus[Item]["MeSH"] != "NULL":
-        # add MeSH id corresponding to the cell line in MeSH ID (P486) if
-        # it exists
+        # P486 : MeSH ID
         information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
             value=self.cellosaurus[Item]["MeSH"],
             prop_nr="P486",
@@ -771,10 +773,10 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors = "../
     else:
         data_to_delete.append("P486")
 
+    
     if self.cellosaurus[Item]["CLO"] != []:
         for CLO in self.cellosaurus[Item]["CLO"]:
             # P2888: exact match
-
             information_to_insert_on_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + CLO,
                 prop_nr="P2888",
