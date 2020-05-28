@@ -525,7 +525,7 @@ def get_WQ_reference(Item, cellosaurus_release_qid):
     return (WQreference)
 
 
-# Functions to make statements
+###### Functions to make statements in the Wikidata Integrator format ######
 
 def make_statement(statement_property, statement_value, references):
     statement = wdi_core.WDItemID(value=statement_value,
@@ -565,7 +565,7 @@ def make_established_from_disease_statement(disease_id, references):
     return cell_line_from_patient_with_disease_statement
 
 
-### Append statement functions
+###### Functions to create and append  Wikidata Integrator statements to lists ######
 
 
 def append_category(self, Item, information_to_insert_on_wikidata, reference):
@@ -620,8 +620,7 @@ def append_diseases(self, Item, information_to_insert_on_wikidata,
     return information_to_insert_on_wikidata
 
 
-def get_list_of_taxons(self, Item, folder_for_errors ):
-
+def get_list_of_taxons(self, Item, folder_for_errors):
     # OX : Taxon od origin
     # P703 : Found in taxon
     list_of_taxons_of_origin = []
@@ -642,7 +641,6 @@ def get_list_of_taxons(self, Item, folder_for_errors ):
 
 
 def get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin):
-
     list_of_biological_sexes_of_source = []
 
     for biological_sex_of_source in self.cellosaurus[Item]["SX"]:
@@ -682,6 +680,27 @@ def get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin):
                 value=biological_sex_id, prop_nr="P21", is_qualifier=True))
 
     return list_of_biological_sexes_of_source
+
+
+def append_taxon_and_gender(information_to_insert_on_wikidata,
+                            list_of_taxons_of_origin, list_of_biological_sexes_of_source, references):
+    if list_of_taxons_of_origin:
+        for taxon_of_origin in list_of_taxons_of_origin:
+
+            if taxon_of_origin == "Unknow value":
+                information_to_insert_on_wikidata.append(wdi_core.WDString(
+                    value="Unknow value",
+                    prop_nr="P703",
+                    qualifiers=list_of_biological_sexes_of_source,
+                    references=references,
+                    snak_type='somevalue'))
+            else:
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    references=references))
+
+    return information_to_insert_on_wikidata
+
 
 def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
     """
@@ -744,22 +763,10 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
 
     list_of_biological_sexes_of_source = get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin)
 
-   # add species information in found in taxon (P703)
-    if list_of_taxons_of_origin != []:
-
-        for taxon_of_origin in list_of_taxons_of_origin:
-
-            if taxon_of_origin == "Unknow value":
-                information_to_insert_on_wikidata.append(wdi_core.WDString(
-                    value="Unknow value",
-                    prop_nr="P703",
-                    qualifiers=list_of_biological_sexes_of_source,
-                    references=wikidata_reference_for_statement,
-                    snak_type='somevalue'))
-            else:
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
-                    references=wikidata_reference_for_statement))
+    information_to_insert_on_wikidata = append_taxon_and_gender(information_to_insert_on_wikidata,
+                                                                list_of_taxons_of_origin,
+                                                                list_of_biological_sexes_of_source,
+                                                                references=wikidata_reference_for_statement)
 
     # HI         Hierarchy (parent cell line)
     if not self.cellosaurus[Item]["HI"]:
