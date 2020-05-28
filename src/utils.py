@@ -725,6 +725,81 @@ def append_autologous_cell_line(self, autologous_cell_line, information_to_inser
     return information_to_insert_on_wikidata
 
 
+def append_cellosaurus_id(Item, information_to_insert_on_wikidata, reference):
+    # P3289 : Cellosaurus ID
+    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
+        value=Item,
+        prop_nr="P3289",
+        references=reference))
+
+    return information_to_insert_on_wikidata
+
+
+def append_mesh_id(self, Item, information_to_insert_on_wikidata,reference):
+    # P486 : MeSH ID
+    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
+        value=self.cellosaurus[Item]["MeSH"],
+        prop_nr="P486",
+        references=reference))
+    return information_to_insert_on_wikidata
+
+
+def append_obo_exact_matches(self, Item, information_to_insert_on_wikidata,reference):
+    if self.cellosaurus[Item]["CLO"]:
+        for CLO in self.cellosaurus[Item]["CLO"]:
+            # P2888: exact match
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + CLO,
+                prop_nr="P2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["BTO"]:
+        for BTO in self.cellosaurus[Item]["BTO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BTO,
+                prop_nr="2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["EFO"]:
+        for EFO in self.cellosaurus[Item]["EFO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + EFO,
+                prop_nr="2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["BCGO"]:
+        for BCGO in self.cellosaurus[Item]["BCGO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BCGO,
+                prop_nr="2888",
+                references=reference))
+    return information_to_insert_on_wikidata
+
+
+def append_literature_descriptions(self, Item, information_to_insert_on_wikidata, wikidata_reference_for_statement):
+    for reference in self.cellosaurus[Item]["RX"]:
+
+        if reference.startswith("PubMed"):
+            pubmed = reference.strip("PubMed=")
+
+            if pubmed in self.references:
+                # P1343:described by source
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=self.references[pubmed],
+                    prop_nr="P1343",
+                    references=wikidata_reference_for_statement))
+
+        elif reference.startswith("DOI"):
+            doi = reference.strip("DOI=")
+
+            if doi in self.references:
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=self.references[doi],
+                    prop_nr="P1343",
+                    references=wikidata_reference_for_statement))
+
+    return information_to_insert_on_wikidata
+
 
 def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
     """
@@ -812,83 +887,31 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
     else:
         for autologous_cell_line in self.cellosaurus[Item]["OI"]:
             information_to_insert_on_wikidata = append_autologous_cell_line(self, autologous_cell_line,
-                                                                        information_to_insert_on_wikidata,
-                                                                        reference=wikidata_reference_for_statement)
+                                                                            information_to_insert_on_wikidata,
+                                                                            reference=wikidata_reference_for_statement)
             if Item not in self.AddParentCellline:
                 self.AddParentCellline.append(Item)
 
-    # P3289 : Cellosaurus ID
-    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
-        value=Item,
-        prop_nr="P3289",
-        references=wikidata_reference_for_statement))
+    information_to_insert_on_wikidata = append_cellosaurus_id(Item, information_to_insert_on_wikidata,
+                                                              reference=wikidata_reference_for_statement)
 
-    # check if external reference in CLO, BTO, EFO, BCGO exists
     for cell_line_id in ["CLO", "BTO", "EFO", "BCGO"]:
         if not self.cellosaurus[Item][cell_line_id]:
             data_to_delete.append("P2888")
 
     if self.cellosaurus[Item]["MeSH"] != "NULL":
-        # P486 : MeSH ID
-        information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
-            value=self.cellosaurus[Item]["MeSH"],
-            prop_nr="P486",
-            references=wikidata_reference_for_statement))
+        information_to_insert_on_wikidata = append_mesh_id(self, Item, information_to_insert_on_wikidata,
+                                                           reference=wikidata_reference_for_statement)
     else:
         data_to_delete.append("P486")
 
-    if self.cellosaurus[Item]["CLO"]:
-        for CLO in self.cellosaurus[Item]["CLO"]:
-            # P2888: exact match
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + CLO,
-                prop_nr="P2888",
-                references=wikidata_reference_for_statement))
-
-    if self.cellosaurus[Item]["BTO"]:
-        for BTO in self.cellosaurus[Item]["BTO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BTO,
-                prop_nr="2888",
-                references=wikidata_reference_for_statement))
-
-    if self.cellosaurus[Item]["EFO"]:
-        for EFO in self.cellosaurus[Item]["EFO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + EFO,
-                prop_nr="2888",
-                references=wikidata_reference_for_statement))
-
-    if self.cellosaurus[Item]["BCGO"]:
-        for BCGO in self.cellosaurus[Item]["BCGO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BCGO,
-                prop_nr="2888",
-                references=wikidata_reference_for_statement))
-
+    information_to_insert_on_wikidata = append_obo_exact_matches(self, Item, information_to_insert_on_wikidata,
+                                                                 reference=wikidata_reference_for_statement)
     #  RX         References identifiers
     if self.cellosaurus[Item]["RX"]:
-
-        for reference in self.cellosaurus[Item]["RX"]:
-
-            if reference.startswith("PubMed"):
-                pubmed = reference.strip("PubMed=")
-
-                if pubmed in self.references:
-                    # P1343:described by source
-                    information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                        value=self.references[pubmed],
-                        prop_nr="P1343",
-                        references=wikidata_reference_for_statement))
-
-            elif reference.startswith("DOI"):
-                doi = reference.strip("DOI=")
-
-                if doi in self.references:
-                    information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                        value=self.references[doi],
-                        prop_nr="P1343",
-                        references=wikidata_reference_for_statement))
+        information_to_insert_on_wikidata = append_literature_descriptions(self, Item,
+                                                                           information_to_insert_on_wikidata,
+                                                                           wikidata_reference_for_statement)
     else:
         data_to_delete.append("P1343")
 
