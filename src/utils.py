@@ -565,6 +565,81 @@ def make_established_from_disease_statement(disease_id, references):
     return cell_line_from_patient_with_disease_statement
 
 
+### Append statement functions
+
+
+def append_category(self, Item, information_to_insert_on_wikidata, reference):
+    # CA         Category
+    if self.cellosaurus[Item]["CA"] in self.categories:
+        cell_line_category = self.cellosaurus[Item]["CA"]
+        cell_line_category_id = self.categories[cell_line_category]
+
+        information_to_insert_on_wikidata.append(make_instance_of_statement(
+            statement_value=cell_line_category_id,
+            reference=reference
+        ))
+    return information_to_insert_on_wikidata
+
+
+def append_is_contaminated(self, Item, information_to_insert_on_wikidata, reference):
+    # Q27971671 -> contaminated/misidentified ;
+    # P31 -> "instance of"
+    # CC         Comments
+    # Code currently assumes that if there is a comment, cell line is contaminated.
+    if self.cellosaurus[Item]["CC"]:
+        information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
+            reference=reference
+        ))
+    return information_to_insert_on_wikidata
+
+
+def append_is_cell_ine(information_to_insert_on_wikidata, reference):
+    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
+        reference=reference
+    ))
+    return information_to_insert_on_wikidata
+
+
+def append_diseases(self, Item, information_to_insert_on_wikidata,
+                    reference, folder_for_errors):
+    # P5166 -->  established from medical condition(
+    diseases_in_wikidata = self.diseases
+
+    for disease in self.cellosaurus[Item]["DI"]:
+        if disease in diseases_in_wikidata:
+            disease_id = diseases_in_wikidata[disease]
+
+            information_to_insert_on_wikidata.append(make_established_from_disease_statement(
+                disease_id=disease_id,
+                references=reference
+            ))
+
+        else:
+            with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
+                file.write(disease + "\n")
+    return information_to_insert_on_wikidata
+
+def get_list_of_taxons(self, Item, folder_for_errors ):
+
+    # OX : Taxon od origin
+    # P703 : Found in taxon
+    list_of_taxons_of_origin = []
+
+    if self.cellosaurus[Item]["OX"]:
+
+        for taxon_of_origin in self.cellosaurus[Item]["OX"]:
+            if taxon_of_origin in self.species:
+                list_of_taxons_of_origin.append(self.species[taxon_of_origin])
+
+            elif taxon_of_origin == "32644":
+                # if the species is unkown
+                list_of_taxons_of_origin.append("Unknow value")
+            else:
+                with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
+                    file.write(taxon_of_origin + "\n")
+    return list_of_taxons_of_origin
+
+
 def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
     """
     This function has to be run for each cell line in cellosaurus.
@@ -590,72 +665,40 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
     if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
         data_to_delete.append("P31")
 
-    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
-        reference=wikidata_reference_for_statement
-    ))
+    information_to_insert_on_wikidata = append_is_cell_ine(
+        information_to_insert_on_wikidata,
+        wikidata_reference_for_statement)
 
-    # CA         Category
-    if self.cellosaurus[Item]["CA"] in self.categories:
-        cell_line_category = self.cellosaurus[Item]["CA"]
-        cell_line_category_id = self.categories[cell_line_category]
+    information_to_insert_on_wikidata = append_is_contaminated(self,
+                                                               Item,
+                                                               information_to_insert_on_wikidata,
+                                                               wikidata_reference_for_statement)
 
-        information_to_insert_on_wikidata.append(make_instance_of_statement(
-            statement_value=cell_line_category_id,
-            reference=wikidata_reference_for_statement
-        ))
+    information_to_insert_on_wikidata = append_category(self,
+                                                        Item,
+                                                        information_to_insert_on_wikidata,
+                                                        wikidata_reference_for_statement)
 
-    # Q27971671 -> contaminated/misidentified ;
-    # P31 -> "instance of"
-    # CC         Comments
-    # Code currently assumes that if there is a comment, cell line is contaminated.
-    if self.cellosaurus[Item]["CC"]:
-        information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
-            reference=wikidata_reference_for_statement
-        ))
-
-    # check if disease information exists for the cell line
-    if self.cellosaurus[Item]["DI"] == []:
+    # DI : Diseases
+    if not self.cellosaurus[Item]["DI"]:
         data_to_delete.append("P5166")
 
     else:
-        for disease in self.cellosaurus[Item]["DI"]:
-            # P5166 -->  established from medical condition(
-            diseases_in_wikidata = self.diseases
+        information_to_insert_on_wikidata = append_diseases(self,
+                                                            Item,
+                                                            information_to_insert_on_wikidata,
+                                                            reference=wikidata_reference_for_statement,
+                                                            folder_for_errors=folder_for_errors)
 
-            if disease in diseases_in_wikidata:
-                disease_id = diseases_in_wikidata[disease]
 
-                information_to_insert_on_wikidata.append(make_established_from_disease_statement(
-                    disease_id=disease_id,
-                    references=wikidata_reference_for_statement
-                ))
-
-            else:
-                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
-                    file.write(disease + "\n")
-
-    # OX : Taxon od origin
-    # P703 : Found in taxon
     if self.cellosaurus[Item]["OX"]:
         data_to_delete.append("P703")
 
-    list_of_taxons_of_origin = []
+    list_of_taxons_of_origin = get_list_of_taxons(self, Item, folder_for_errors )
 
-    if self.cellosaurus[Item]["OX"]:
-
-        for taxon_of_origin in self.cellosaurus[Item]["OX"]:
-            if taxon_of_origin in self.species:
-                list_of_taxons_of_origin.append(self.species[taxon_of_origin])
-
-            elif taxon_of_origin == "32644":
-                # if the species is unkown
-                list_of_taxons_of_origin.append("Unknow value")
-            else:
-                with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
-                    file.write(taxon_of_origin + "\n")
 
     # SX : Sex of cell line
-    if self.cellosaurus[Item]["SX"] == []:
+    if not self.cellosaurus[Item]["SX"]:
         data_to_delete.append("P21")
 
     list_of_biological_sexes_of_source = []
