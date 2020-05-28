@@ -619,6 +619,7 @@ def append_diseases(self, Item, information_to_insert_on_wikidata,
                 file.write(disease + "\n")
     return information_to_insert_on_wikidata
 
+
 def get_list_of_taxons(self, Item, folder_for_errors ):
 
     # OX : Taxon od origin
@@ -639,6 +640,48 @@ def get_list_of_taxons(self, Item, folder_for_errors ):
                     file.write(taxon_of_origin + "\n")
     return list_of_taxons_of_origin
 
+
+def get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin):
+
+    list_of_biological_sexes_of_source = []
+
+    for biological_sex_of_source in self.cellosaurus[Item]["SX"]:
+
+        if biological_sex_of_source == "Sex unspecified":
+
+            # P21 : gender
+            list_of_biological_sexes_of_source.append(wdi_core.WDString(
+                value="Unknow value",
+                prop_nr="P21",
+                is_qualifier=True,
+                snak_type='somevalue'))
+        else:
+            # else add the item corresponding to sex in sex or gender (P21)
+
+            dict_for_human_genders = {"Female": "Q6581072",
+                                      "Male": "Q6581097",
+                                      "Sex ambiguous": "Q1097630"}
+
+            dict_for_non_human_genders = {"Female": "Q43445",
+                                          "Male": "Q44148",
+                                          "Sex ambiguous": "Q28873047"}
+
+            id_for_homo_sapiens = "Q15978631"
+            if id_for_homo_sapiens in list_of_taxons_of_origin:
+                biological_sex_id = dict_for_human_genders[biological_sex_of_source]
+
+            else:
+                if biological_sex_of_source == "Mixed sex":
+                    biological_sex_id = "Q43445"
+                    list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
+                        value="Q44148", prop_nr="P21", is_qualifier=True))
+                else:
+                    biological_sex_id = dict_for_non_human_genders[biological_sex_of_source]
+
+            list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
+                value=biological_sex_id, prop_nr="P21", is_qualifier=True))
+
+    return list_of_biological_sexes_of_source
 
 def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
     """
@@ -690,56 +733,18 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
                                                             reference=wikidata_reference_for_statement,
                                                             folder_for_errors=folder_for_errors)
 
-
     if self.cellosaurus[Item]["OX"]:
         data_to_delete.append("P703")
 
-    list_of_taxons_of_origin = get_list_of_taxons(self, Item, folder_for_errors )
-
+    list_of_taxons_of_origin = get_list_of_taxons(self, Item, folder_for_errors)
 
     # SX : Sex of cell line
     if not self.cellosaurus[Item]["SX"]:
         data_to_delete.append("P21")
 
-    list_of_biological_sexes_of_source = []
+    list_of_biological_sexes_of_source = get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin)
 
-    for biological_sex_of_source in self.cellosaurus[Item]["SX"]:
-
-        if biological_sex_of_source == "Sex unspecified":
-
-            # P21 : gender
-            list_of_biological_sexes_of_source.append(wdi_core.WDString(
-                value="Unknow value",
-                prop_nr="P21",
-                is_qualifier=True,
-                snak_type='somevalue'))
-        else:
-            # else add the item corresponding to sex in sex or gender (P21)
-
-            dict_for_human_genders = {"Female": "Q6581072",
-                                      "Male": "Q6581097",
-                                      "Sex ambiguous": "Q1097630"}
-
-            dict_for_non_human_genders = {"Female": "Q43445",
-                                          "Male": "Q44148",
-                                          "Sex ambiguous": "Q28873047"}
-
-            id_for_homo_sapiens = "Q15978631"
-            if id_for_homo_sapiens in list_of_taxons_of_origin:
-                biological_sex_id = dict_for_human_genders[biological_sex_of_source]
-
-            else:
-                if biological_sex_of_source == "Mixed sex":
-                    biological_sex_id = "Q43445"
-                    list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
-                        value="Q44148", prop_nr="P21", is_qualifier=True))
-                else:
-                    biological_sex_id = dict_for_non_human_genders[biological_sex_of_source]
-
-            list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
-                value=biological_sex_id, prop_nr="P21", is_qualifier=True))
-
-    # add species information in found in taxon (P703)
+   # add species information in found in taxon (P703)
     if list_of_taxons_of_origin != []:
 
         for taxon_of_origin in list_of_taxons_of_origin:
