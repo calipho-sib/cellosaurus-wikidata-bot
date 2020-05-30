@@ -942,6 +942,30 @@ def create_wikidata_item_for_cell_line(self, Item, data):
             self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")
 
 
+def add_statements_to_cell_line_item_ready_for_update(self, Item, data):
+    item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'],
+                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
+            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+            'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
+
+    return item
+
+
+def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, Item,
+                                                                   item_with_statements_to_update,
+                                                                   label,
+                                                                   descriptions):
+    if self.cellosaurus[Item] != "NUL":
+        item_with_statements_to_update.set_aliases(
+            self.cellosaurus[Item]["SY"], lang='en', append=False)
+
+    for lang, description in descriptions.items():
+        item_with_statements_to_update.set_description(description, lang=lang)
+        item_with_statements_to_update.set_label(label=label, lang=lang)
+
+    return item_with_statements_to_update
+
+
 # Functions that actually interact with Wikidata API
 def update_wikidata_entry_for_this_cell_line(self, Item, data):
     """
@@ -956,21 +980,17 @@ def update_wikidata_entry_for_this_cell_line(self, Item, data):
 
     delete_old_statements(self, Item, data)
 
-    item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'],
-                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
-            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
-            'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
+    item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self, Item, data)
 
-    if self.cellosaurus[Item] != "NUL":
-        item.set_aliases(
-            self.cellosaurus[Item]["SY"], lang='en', append=False)
-
-    for lang, description in descriptions.items():
-        item.set_description(description, lang=lang)
-        item.set_label(label=label, lang=lang)
-
-    item.write(self.login, bot_account=False, edit_summary="update item {}".format(
-        self.cellosaurus[Item]["ID"]))
+    item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(self,
+                                                                                                                Item,
+                                                                                                                item_with_statements_to_update,
+                                                                                                                label,
+                                                                                                                descriptions)
+    item_with_statements_to_update_with_labels.write(self.login,
+                                                     bot_account=False,
+                                                     edit_summary="update item {}".format(
+                                                         self.cellosaurus[Item]["ID"]))
 
 
 def delete_old_statements(self, Item, data):
