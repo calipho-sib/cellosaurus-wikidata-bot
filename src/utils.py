@@ -951,24 +951,10 @@ def update_wikidata_entry_for_this_cell_line(self, Item, data):
         data and data_to_delete dictionnaries.
     """
 
-    to_delete = []
+    label = prepare_item_label_and_descriptions(self.cellosaurus, Item)['name']
+    descriptions = prepare_item_label_and_descriptions(self.cellosaurus, Item)['descriptions']
 
-    name = Set(self.cellosaurus, Item)['name']
-    descriptions = Set(self.cellosaurus, Item)['descriptions']
-
-    if data['data_to_delete'] != []:
-        old = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item])
-        olditem = old.get_wd_json_representation()
-        for statement in olditem['claims']:
-            if statement in data['data_to_delete']:
-                to_delete.append(
-                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
-
-        item_deletion = wdi_core.WDItemEngine(
-            wd_item_id=self.wikidata[Item], data=to_delete)
-        item_deletion.write(self.login, bot_account=False,
-                            edit_summary="delete statements before update the item {}".format(
-                                self.cellosaurus[Item]["ID"]))
+    delete_old_statements(self, Item, data)
 
     item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'],
                                  global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
@@ -981,10 +967,30 @@ def update_wikidata_entry_for_this_cell_line(self, Item, data):
 
     for lang, description in descriptions.items():
         item.set_description(description, lang=lang)
-        item.set_label(label=name, lang=lang)
+        item.set_label(label=label, lang=lang)
 
     item.write(self.login, bot_account=False, edit_summary="update item {}".format(
         self.cellosaurus[Item]["ID"]))
+
+
+def delete_old_statements(self, Item, data):
+    statements_to_delete = []
+
+    if data['data_to_delete']:
+        wikidata_item_for_this_cell_line = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item])
+        wikidata_item_for_this_cell_line_json = wikidata_item_for_this_cell_line.get_wd_json_representation()
+
+        for statement in wikidata_item_for_this_cell_line_json['claims']:
+            if statement in data['data_to_delete']:
+                statements_to_delete.append(
+                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
+
+        item_deletion = wdi_core.WDItemEngine(
+            wd_item_id=self.wikidata[Item], data=statements_to_delete)
+
+        item_name = self.cellosaurus[Item]["ID"]
+        item_deletion.write(self.login, bot_account=False,
+                            edit_summary="delete statements before update the item {}".format(item_name))
 
 
 def prepare_item_label_and_descriptions(cellosaurus, Item):
@@ -995,7 +1001,7 @@ def prepare_item_label_and_descriptions(cellosaurus, Item):
     :return : dictionnaries with the name and the description in english, french and deutch
     """
 
-    name = cellosaurus[Item]["ID"]
+    label = cellosaurus[Item]["ID"]
 
     descriptions = {
         "en": "cell line",
@@ -1004,13 +1010,13 @@ def prepare_item_label_and_descriptions(cellosaurus, Item):
         "pt": "linhagem celular"
     }
 
-    if " [" in name:
-        namecompose = name.split("[")
+    if " [" in label:
+        namecompose = label.split("[")
         descriptions = {
             "en": "cell line" + " (" + namecompose[1].strip("]") + ")",
             "fr": "lignée cellulaire" + " (" + namecompose[1].strip("]") + ")",
             "de": "Zelllinie" + " (" + namecompose[1].strip("]") + ")"
         }
-        name = namecompose[0].strip(" ")
+        label = namecompose[0].strip(" ")
 
-    return {'name': name, 'descriptions': descriptions}
+    return {'name': label, 'descriptions': descriptions}
