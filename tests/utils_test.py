@@ -114,7 +114,13 @@ class TestCreate_UpdateClass(unittest.TestCase):
 
         self.assertEqual(new_output_of_InitialisationData, old_output_of_InitialisationData)
 
+
     def test_InsertionWikidata(self):
+        self.assertEqual(2, 1)
+
+
+    def test_UpdateWikidata(self):
+
         the_so_called_correspondance = utils.load_pickle_file(
             "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
 
@@ -140,9 +146,10 @@ class TestCreate_UpdateClass(unittest.TestCase):
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
         old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
 
-        Release.InsertionWikidata(Item="CVCL_2260", data=old_output_of_InitialisationData)
-
+        Release.UpdateWikidata(Item="CVCL_2260",
+                               data=old_output_of_InitialisationData)
         self.assertEqual(1, 1)
+
 
 
 class TestMakeStatements(unittest.TestCase):
