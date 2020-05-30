@@ -882,39 +882,10 @@ def add_info_about_the_cell_line_source(self,
     return information_to_insert_on_wikidata
 
 
-def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
-    """
-    This function has to be run for each cell line in cellosaurus.
-    It create the information objects that will be in the Wikidata item
-        for the cell line.
-
-    :param Item: the Cellosaurus id for a cell line.
-    :return : a dictionary composed of 2 dictionnaries:
-        - data : is composed of information objects that are to add or
-              update for the wikidata cell line item.
-        - data_to_delete : is the information objects that are have to be
-              deleted in this release for a wikidata cell line item.
-    :folder_for_errors : The path to the folders where errors are stored.
-    """
-
-    information_to_insert_on_wikidata = []
-    data_to_delete = []
-
-    wikidata_reference_for_statement = get_WQ_reference(Item, cellosaurus_release_qid=self.releaseID)
-
-    data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete)
-
-    information_to_insert_on_wikidata = add_info_about_the_cell_line_identity(self,
-                                                                              Item,
-                                                                              information_to_insert_on_wikidata,
-                                                                              wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = add_info_about_the_cell_line_source(self,
-                                                                            Item,
-                                                                            information_to_insert_on_wikidata,
-                                                                            wikidata_reference_for_statement,
-                                                                            folder_for_errors)
-
+def add_info_about_related_cell_lines(self,
+                                      Item,
+                                      information_to_insert_on_wikidata,
+                                      wikidata_reference_for_statement):
     for parent_cell_line in self.cellosaurus[Item]["HI"]:
 
         information_to_insert_on_wikidata = append_parent_cell_line(self, parent_cell_line,
@@ -931,18 +902,77 @@ def create_information_objects_for_wikidata(self, Item, folder_for_errors="../do
             if Item not in self.AddParentCellline:
                 self.AddParentCellline.append(Item)
 
-    information_to_insert_on_wikidata = append_cellosaurus_id(Item, information_to_insert_on_wikidata,
-                                                              reference=wikidata_reference_for_statement)
+    return information_to_insert_on_wikidata
 
+
+def add_info_about_identifiers(self,
+                               Item,
+                               information_to_insert_on_wikidata,
+                               wikidata_reference_for_statement):
     if self.cellosaurus[Item]["MeSH"] != "NULL":
         information_to_insert_on_wikidata = append_mesh_id(self, Item, information_to_insert_on_wikidata,
                                                            reference=wikidata_reference_for_statement)
 
     information_to_insert_on_wikidata = append_obo_exact_matches(self, Item, information_to_insert_on_wikidata,
                                                                  reference=wikidata_reference_for_statement)
+    return information_to_insert_on_wikidata
+
+def add_info_about_references(self,
+                               Item,
+                               information_to_insert_on_wikidata,
+                               wikidata_reference_for_statement):
     #  RX         References identifiers
     if self.cellosaurus[Item]["RX"]:
         information_to_insert_on_wikidata = append_literature_descriptions(self, Item,
                                                                            information_to_insert_on_wikidata,
                                                                            wikidata_reference_for_statement)
+    return information_to_insert_on_wikidata
+
+def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
+    """
+    This function has to be run for each cell line in cellosaurus.
+    It create the information objects that will be in the Wikidata item
+        for the cell line.
+
+    :param Item: the Cellosaurus id for a cell line.
+    :return : a dictionary composed of 2 dictionaries:
+        - data : is composed of information objects that are to add or
+              update for the wikidata cell line item.
+        - data_to_delete : is the information objects that are have to be
+              deleted in this release for a wikidata cell line item.
+    :folder_for_errors : The path to the folders where errors are stored.
+    """
+
+    information_to_insert_on_wikidata = []
+    data_to_delete = []
+
+    wikidata_reference_for_statement = get_WQ_reference(Item, cellosaurus_release_qid=self.releaseID)
+
+    data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete)
+
+    information_to_insert_on_wikidata = add_info_about_the_cell_line_identity(self, Item,
+                                                                              information_to_insert_on_wikidata,
+                                                                              wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_the_cell_line_source(self, Item,
+                                                                            information_to_insert_on_wikidata,
+                                                                            wikidata_reference_for_statement,
+                                                                            folder_for_errors)
+
+    information_to_insert_on_wikidata = add_info_about_related_cell_lines(self, Item,
+                                                                          information_to_insert_on_wikidata,
+                                                                          wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = append_cellosaurus_id(Item, information_to_insert_on_wikidata,
+                                                              reference=wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_identifiers(self,
+                                                                   Item,
+                                                                   information_to_insert_on_wikidata,
+                                                                   wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_references(self,
+                                                                   Item,
+                                                                   information_to_insert_on_wikidata,
+                                                                   wikidata_reference_for_statement)
     return {'data': information_to_insert_on_wikidata, 'data_to_delete': data_to_delete}
