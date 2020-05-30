@@ -102,8 +102,8 @@ class Create_Update():
                                          'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '',
                                          'P248': '', 'P3289': '', 'P486': '', 'P2888': '', 'P1343': '', 'P5166': '',
                                          'P813': ''}, fast_run_use_refs=True)
-
-        if self.cellosaurus[Item]["SY"] != []:
+        #  SY         Synonyms
+        if self.cellosaurus[Item]["SY"]:
             item.set_aliases(
                 self.cellosaurus[Item]["SY"], lang='en', append=False)
 
@@ -112,7 +112,7 @@ class Create_Update():
             item.set_label(label=Set(self.cellosaurus, Item)
             ['name'], lang=lang)
 
-        with open("results/WikidataID.txt", "a") as file:
+        with open("../results/WikidataID.txt", "a") as file:
             file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(
                 self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")
 
@@ -913,7 +913,7 @@ def append_autologous_cell_line(self, autologous_cell_line, information_to_inser
         information_to_insert_on_wikidata.append(make_statement(
             statement_property="P3578",
             statement_value=autologous_cell_line_id,
-            references=wikidata_reference_for_statement
+            references=reference
         ))
     return information_to_insert_on_wikidata
 
@@ -975,3 +975,31 @@ def make_established_from_disease_statement(disease_id, references):
         references=references
     )
     return cell_line_from_patient_with_disease_statement
+
+def create_wikidata_item_for_cell_line(self, Item, data):
+    """
+    This function create a Wikidata item for the cell line with
+        cellosaurus informations.
+    :param Item : the Cellosaurus id for a cell line.
+    :param data : the dictionary from InitialisationData function.
+    :return : WikidataID.txt, a file which contains the Wikidata cell
+        lines items created.
+    """
+    item = wdi_core.WDItemEngine(data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True,
+                                 fast_run_base_filter={
+                                     'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '',
+                                     'P248': '', 'P3289': '', 'P486': '', 'P2888': '', 'P1343': '', 'P5166': '',
+                                     'P813': ''}, fast_run_use_refs=True)
+    #  SY         Synonyms
+    if self.cellosaurus[Item]["SY"]:
+        item.set_aliases(
+            self.cellosaurus[Item]["SY"], lang='en', append=False)
+
+    for lang, description in Set(self.cellosaurus, Item)['descriptions'].items():
+        item.set_description(description, lang=lang)
+        item.set_label(label=Set(self.cellosaurus, Item)
+        ['name'], lang=lang)
+
+    with open("results/WikidataID.txt", "a") as file:
+        file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(
+            self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")

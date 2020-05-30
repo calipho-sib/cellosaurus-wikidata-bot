@@ -106,7 +106,6 @@ class TestCreate_UpdateClass(unittest.TestCase):
                                       diseases=diseases)
 
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
-        utils.save_pickle_file(Release, "../tests/release_object_before_refactoring.pickle")
 
         new_output_of_InitialisationData = Release.InitialisationData(Item="CVCL_2260")
         old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
@@ -114,6 +113,36 @@ class TestCreate_UpdateClass(unittest.TestCase):
         print(new_output_of_InitialisationData)
 
         self.assertEqual(new_output_of_InitialisationData, old_output_of_InitialisationData)
+
+    def test_InsertionWikidata(self):
+        the_so_called_correspondance = utils.load_pickle_file(
+            "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
+
+        species = the_so_called_correspondance["species"]
+        references = the_so_called_correspondance["references"]
+        categories = utils.categories("../project/category.txt")
+        diseases = the_so_called_correspondance["diseases"]
+        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
+        wikidata = utils.QueryingWikidata()
+        utils.save_pickle_file(wikidata, "output_of_QueryingWikidata")
+        releaseID = "Q87574023"
+        login = wdi_login.WDLogin(WDUSER, WDPASS)
+
+        Release = utils.Create_Update(login=login,
+                                      releaseID=releaseID,
+                                      cellosaurus=cellosaurus_dump_in_dictionary_format,
+                                      wikidata=wikidata,
+                                      references=references,
+                                      species=species,
+                                      categories=categories,
+                                      diseases=diseases)
+
+        old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
+        old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
+
+        Release.InsertionWikidata(Item="CVCL_2260", data=old_output_of_InitialisationData)
+
+        self.assertEqual(1, 1)
 
 
 class TestMakeStatements(unittest.TestCase):
