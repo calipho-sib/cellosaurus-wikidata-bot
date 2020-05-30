@@ -525,98 +525,259 @@ def get_WQ_reference(Item, cellosaurus_release_qid):
     return (WQreference)
 
 
-###### Functions to make statements in the Wikidata Integrator format ######
-
-def make_statement(statement_property, statement_value, references):
-    statement = wdi_core.WDItemID(value=statement_value,
-                                  prop_nr=statement_property,
-                                  references=references)
-    return statement
-
-
-# Q21014462 -> "cell line" ; P31 -> "instance of"
-def make_instance_of_cell_line_statement(reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value="Q21014462",
-                               references=reference)
-    return statement
-
-
-def make_instance_of_statement(statement_value, reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value=statement_value,
-                               references=reference)
-    return statement
-
-
-def make_instance_of_contaminated_cell_line_statement(reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value="Q27971671",
-                               references=reference)
-    return statement
-
-
-def make_established_from_disease_statement(disease_id, references):
-    cell_line_from_patient_with_disease_statement = make_statement(
-        statement_property="5166",
-        statement_value=disease_id,
-        references=references
-    )
-    return cell_line_from_patient_with_disease_statement
-
-
 ###### Functions to create and append  Wikidata Integrator statements to lists ######
 
+def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
+    """
+    This function has to be run for each cell line in cellosaurus.
+    It create the information objects that will be in the Wikidata item
+        for the cell line.
 
-def append_category(self, Item, information_to_insert_on_wikidata, reference):
+    :param Item: the Cellosaurus id for a cell line.
+    :return : a dictionary composed of 2 dictionaries:
+        - data : is composed of information objects that are to add or
+              update for the wikidata cell line item.
+        - data_to_delete : is the information objects that are have to be
+              deleted in this release for a wikidata cell line item.
+    :folder_for_errors : The path to the folders where errors are stored.
+    """
+
+    information_to_insert_on_wikidata = []
+    data_to_delete = []
+
+    wikidata_reference_for_statement = get_WQ_reference(Item, cellosaurus_release_qid=self.releaseID)
+
+    data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete)
+
+    information_to_insert_on_wikidata = add_info_about_the_cell_line_identity(self, Item,
+                                                                              information_to_insert_on_wikidata,
+                                                                              wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_the_cell_line_source(self, Item,
+                                                                            information_to_insert_on_wikidata,
+                                                                            wikidata_reference_for_statement,
+                                                                            folder_for_errors)
+
+    information_to_insert_on_wikidata = add_info_about_related_cell_lines(self, Item,
+                                                                          information_to_insert_on_wikidata,
+                                                                          wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = append_cellosaurus_id(Item, information_to_insert_on_wikidata,
+                                                              reference=wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_identifiers(self,
+                                                                   Item,
+                                                                   information_to_insert_on_wikidata,
+                                                                   wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = add_info_about_references(self,
+                                                                  Item,
+                                                                  information_to_insert_on_wikidata,
+                                                                  wikidata_reference_for_statement)
+    return {'data': information_to_insert_on_wikidata, 'data_to_delete': data_to_delete}
+
+
+def verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete):
     # CA         Category
-    if self.cellosaurus[Item]["CA"] in self.categories:
-        cell_line_category = self.cellosaurus[Item]["CA"]
-        cell_line_category_id = self.categories[cell_line_category]
-
-        information_to_insert_on_wikidata.append(make_instance_of_statement(
-            statement_value=cell_line_category_id,
-            reference=reference
-        ))
-    return information_to_insert_on_wikidata
-
-
-def append_is_contaminated(self, Item, information_to_insert_on_wikidata, reference):
-    # Q27971671 -> contaminated/misidentified ;
-    # P31 -> "instance of"
     # CC         Comments
-    # Code currently assumes that if there is a comment, cell line is contaminated.
-    if self.cellosaurus[Item]["CC"]:
-        information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
-            reference=reference
-        ))
+    if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
+        data_to_delete.append("P31")
+
+    if self.cellosaurus[Item]["OX"]:
+        data_to_delete.append("P703")
+
+    # HI         Hierarchy (parent cell line)
+    if not self.cellosaurus[Item]["HI"]:
+        data_to_delete.append("P3432")
+
+    # DI : Diseases
+    if not self.cellosaurus[Item]["DI"]:
+        data_to_delete.append("P5166")
+
+    # SX : Sex of cell line
+    if not self.cellosaurus[Item]["SX"]:
+        data_to_delete.append("P21")
+
+    #  OI         Originate from same individual  (autologous cell line)
+    #  P3578 : autologous cell line
+    if not self.cellosaurus[Item]["OI"]:
+        data_to_delete.append("P3578")
+
+    for cell_line_id in ["CLO", "BTO", "EFO", "BCGO"]:
+        if not self.cellosaurus[Item][cell_line_id]:
+            data_to_delete.append("P2888")
+
+    if self.cellosaurus[Item]["MeSH"] == "NULL":
+        data_to_delete.append("P486")
+
+    if self.cellosaurus[Item]["RX"]:
+        data_to_delete.append("P1343")
+
+    return data_to_delete
+
+
+# Functions to that wrap different Wikidata Integrator statements to the list of statements
+
+def add_info_about_the_cell_line_identity(self, Item,
+                                          information_to_insert_on_wikidata,
+                                          wikidata_reference_for_statement):
+    information_to_insert_on_wikidata = append_is_cell_ine(
+        information_to_insert_on_wikidata,
+        wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = append_is_contaminated(self,
+                                                               Item,
+                                                               information_to_insert_on_wikidata,
+                                                               wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = append_category(self,
+                                                        Item,
+                                                        information_to_insert_on_wikidata,
+                                                        wikidata_reference_for_statement)
     return information_to_insert_on_wikidata
 
 
-def append_is_cell_ine(information_to_insert_on_wikidata, reference):
-    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
-        reference=reference
-    ))
+def add_info_about_the_cell_line_source(self, Item,
+                                        information_to_insert_on_wikidata,
+                                        wikidata_reference_for_statement,
+                                        folder_for_errors):
+    information_to_insert_on_wikidata = append_diseases(self,
+                                                        Item,
+                                                        information_to_insert_on_wikidata,
+                                                        reference=wikidata_reference_for_statement,
+                                                        folder_for_errors=folder_for_errors)
+
+    list_of_taxons_of_origin = get_list_of_taxons(self, Item, folder_for_errors)
+
+    list_of_biological_sexes_of_source = get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin)
+
+    information_to_insert_on_wikidata = append_taxon_and_gender(information_to_insert_on_wikidata,
+                                                                list_of_taxons_of_origin,
+                                                                list_of_biological_sexes_of_source,
+                                                                references=wikidata_reference_for_statement)
     return information_to_insert_on_wikidata
 
 
-def append_diseases(self, Item, information_to_insert_on_wikidata,
-                    reference, folder_for_errors):
-    if self.cellosaurus[Item]["DI"]:
-        diseases_in_wikidata = self.diseases
+def add_info_about_related_cell_lines(self, Item,
+                                      information_to_insert_on_wikidata,
+                                      wikidata_reference_for_statement):
+    for parent_cell_line in self.cellosaurus[Item]["HI"]:
 
-        for disease in self.cellosaurus[Item]["DI"]:
-            if disease in diseases_in_wikidata:
-                disease_id = diseases_in_wikidata[disease]
+        information_to_insert_on_wikidata = append_parent_cell_line(self, parent_cell_line,
+                                                                    information_to_insert_on_wikidata,
+                                                                    reference=wikidata_reference_for_statement)
+        if Item not in self.AddParentCellline:
+            self.AddParentCellline.append(Item)
 
-                information_to_insert_on_wikidata.append(make_established_from_disease_statement(
-                    disease_id=disease_id,
-                    references=reference
-                ))
+    if self.cellosaurus[Item]["OI"]:
+        for autologous_cell_line in self.cellosaurus[Item]["OI"]:
+            information_to_insert_on_wikidata = append_autologous_cell_line(self, autologous_cell_line,
+                                                                            information_to_insert_on_wikidata,
+                                                                            reference=wikidata_reference_for_statement)
+            if Item not in self.AddParentCellline:
+                self.AddParentCellline.append(Item)
 
+    return information_to_insert_on_wikidata
+
+
+def add_info_about_identifiers(self, Item,
+                               information_to_insert_on_wikidata,
+                               wikidata_reference_for_statement):
+    if self.cellosaurus[Item]["MeSH"] != "NULL":
+        information_to_insert_on_wikidata = append_mesh_id(self, Item, information_to_insert_on_wikidata,
+                                                           reference=wikidata_reference_for_statement)
+
+    information_to_insert_on_wikidata = append_obo_exact_matches(self, Item, information_to_insert_on_wikidata,
+                                                                 reference=wikidata_reference_for_statement)
+    return information_to_insert_on_wikidata
+
+
+def add_info_about_references(self, Item,
+                              information_to_insert_on_wikidata,
+                              wikidata_reference_for_statement):
+    #  RX         References identifiers
+    if self.cellosaurus[Item]["RX"]:
+        information_to_insert_on_wikidata = append_literature_descriptions(self, Item,
+                                                                           information_to_insert_on_wikidata,
+                                                                           wikidata_reference_for_statement)
+    return information_to_insert_on_wikidata
+
+
+def append_obo_exact_matches(self, Item, information_to_insert_on_wikidata, reference):
+    if self.cellosaurus[Item]["CLO"]:
+        for CLO in self.cellosaurus[Item]["CLO"]:
+            # P2888: exact match
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + CLO,
+                prop_nr="P2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["BTO"]:
+        for BTO in self.cellosaurus[Item]["BTO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BTO,
+                prop_nr="2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["EFO"]:
+        for EFO in self.cellosaurus[Item]["EFO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + EFO,
+                prop_nr="2888",
+                references=reference))
+
+    if self.cellosaurus[Item]["BCGO"]:
+        for BCGO in self.cellosaurus[Item]["BCGO"]:
+            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BCGO,
+                prop_nr="2888",
+                references=reference))
+    return information_to_insert_on_wikidata
+
+
+# Functions to append Wikidata Integrator statements to the list of statements
+def append_literature_descriptions(self, Item, information_to_insert_on_wikidata, wikidata_reference_for_statement):
+    for reference in self.cellosaurus[Item]["RX"]:
+
+        if reference.startswith("PubMed"):
+            pubmed = reference.strip("PubMed=")
+
+            if pubmed in self.references:
+                # P1343:described by source
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=self.references[pubmed],
+                    prop_nr="P1343",
+                    references=wikidata_reference_for_statement))
+
+        elif reference.startswith("DOI"):
+            doi = reference.strip("DOI=")
+
+            if doi in self.references:
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=self.references[doi],
+                    prop_nr="P1343",
+                    references=wikidata_reference_for_statement))
+
+    return information_to_insert_on_wikidata
+
+
+def append_taxon_and_gender(information_to_insert_on_wikidata,
+                            list_of_taxons_of_origin, list_of_biological_sexes_of_source, references):
+    if list_of_taxons_of_origin:
+        for taxon_of_origin in list_of_taxons_of_origin:
+
+            if taxon_of_origin == "Unknow value":
+                information_to_insert_on_wikidata.append(wdi_core.WDString(
+                    value="Unknow value",
+                    prop_nr="P703",
+                    qualifiers=list_of_biological_sexes_of_source,
+                    references=references,
+                    snak_type='somevalue'))
             else:
-                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
-                    file.write(disease + "\n")
+                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
+                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    references=references))
+
     return information_to_insert_on_wikidata
 
 
@@ -682,23 +843,55 @@ def get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin):
     return list_of_biological_sexes_of_source
 
 
-def append_taxon_and_gender(information_to_insert_on_wikidata,
-                            list_of_taxons_of_origin, list_of_biological_sexes_of_source, references):
-    if list_of_taxons_of_origin:
-        for taxon_of_origin in list_of_taxons_of_origin:
+def append_category(self, Item, information_to_insert_on_wikidata, reference):
+    # CA         Category
+    if self.cellosaurus[Item]["CA"] in self.categories:
+        cell_line_category = self.cellosaurus[Item]["CA"]
+        cell_line_category_id = self.categories[cell_line_category]
 
-            if taxon_of_origin == "Unknow value":
-                information_to_insert_on_wikidata.append(wdi_core.WDString(
-                    value="Unknow value",
-                    prop_nr="P703",
-                    qualifiers=list_of_biological_sexes_of_source,
-                    references=references,
-                    snak_type='somevalue'))
+        information_to_insert_on_wikidata.append(make_instance_of_statement(
+            statement_value=cell_line_category_id,
+            reference=reference
+        ))
+    return information_to_insert_on_wikidata
+
+
+def append_is_contaminated(self, Item, information_to_insert_on_wikidata, reference):
+    # Q27971671 -> contaminated/misidentified ;
+    # P31 -> "instance of"
+    # CC         Comments
+    # Code currently assumes that if there is a comment, cell line is contaminated.
+    if self.cellosaurus[Item]["CC"]:
+        information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
+            reference=reference
+        ))
+    return information_to_insert_on_wikidata
+
+
+def append_is_cell_ine(information_to_insert_on_wikidata, reference):
+    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
+        reference=reference
+    ))
+    return information_to_insert_on_wikidata
+
+
+def append_diseases(self, Item, information_to_insert_on_wikidata,
+                    reference, folder_for_errors):
+    if self.cellosaurus[Item]["DI"]:
+        diseases_in_wikidata = self.diseases
+
+        for disease in self.cellosaurus[Item]["DI"]:
+            if disease in diseases_in_wikidata:
+                disease_id = diseases_in_wikidata[disease]
+
+                information_to_insert_on_wikidata.append(make_established_from_disease_statement(
+                    disease_id=disease_id,
+                    references=reference
+                ))
+
             else:
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
-                    references=references))
-
+                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
+                    file.write(disease + "\n")
     return information_to_insert_on_wikidata
 
 
@@ -744,235 +937,41 @@ def append_mesh_id(self, Item, information_to_insert_on_wikidata, reference):
     return information_to_insert_on_wikidata
 
 
-def append_obo_exact_matches(self, Item, information_to_insert_on_wikidata, reference):
-    if self.cellosaurus[Item]["CLO"]:
-        for CLO in self.cellosaurus[Item]["CLO"]:
-            # P2888: exact match
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + CLO,
-                prop_nr="P2888",
-                references=reference))
+# Functions to make statements in the Wikidata Integrator format
 
-    if self.cellosaurus[Item]["BTO"]:
-        for BTO in self.cellosaurus[Item]["BTO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BTO,
-                prop_nr="2888",
-                references=reference))
-
-    if self.cellosaurus[Item]["EFO"]:
-        for EFO in self.cellosaurus[Item]["EFO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + EFO,
-                prop_nr="2888",
-                references=reference))
-
-    if self.cellosaurus[Item]["BCGO"]:
-        for BCGO in self.cellosaurus[Item]["BCGO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BCGO,
-                prop_nr="2888",
-                references=reference))
-    return information_to_insert_on_wikidata
+def make_statement(statement_property, statement_value, references):
+    statement = wdi_core.WDItemID(value=statement_value,
+                                  prop_nr=statement_property,
+                                  references=references)
+    return statement
 
 
-def append_literature_descriptions(self, Item, information_to_insert_on_wikidata, wikidata_reference_for_statement):
-    for reference in self.cellosaurus[Item]["RX"]:
-
-        if reference.startswith("PubMed"):
-            pubmed = reference.strip("PubMed=")
-
-            if pubmed in self.references:
-                # P1343:described by source
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=self.references[pubmed],
-                    prop_nr="P1343",
-                    references=wikidata_reference_for_statement))
-
-        elif reference.startswith("DOI"):
-            doi = reference.strip("DOI=")
-
-            if doi in self.references:
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=self.references[doi],
-                    prop_nr="P1343",
-                    references=wikidata_reference_for_statement))
-
-    return information_to_insert_on_wikidata
+# Q21014462 -> "cell line" ; P31 -> "instance of"
+def make_instance_of_cell_line_statement(reference):
+    statement = make_statement(statement_property="P31",
+                               statement_value="Q21014462",
+                               references=reference)
+    return statement
 
 
-def verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete):
-    # CA         Category
-    # CC         Comments
-    if self.cellosaurus[Item]["CA"] == "NULL" or self.cellosaurus[Item]["CC"] == []:
-        data_to_delete.append("P31")
-
-    if self.cellosaurus[Item]["OX"]:
-        data_to_delete.append("P703")
-
-    # HI         Hierarchy (parent cell line)
-    if not self.cellosaurus[Item]["HI"]:
-        data_to_delete.append("P3432")
-
-    # DI : Diseases
-    if not self.cellosaurus[Item]["DI"]:
-        data_to_delete.append("P5166")
-
-    # SX : Sex of cell line
-    if not self.cellosaurus[Item]["SX"]:
-        data_to_delete.append("P21")
-
-    #  OI         Originate from same individual  (autologous cell line)
-    #  P3578 : autologous cell line
-    if not self.cellosaurus[Item]["OI"]:
-        data_to_delete.append("P3578")
-
-    for cell_line_id in ["CLO", "BTO", "EFO", "BCGO"]:
-        if not self.cellosaurus[Item][cell_line_id]:
-            data_to_delete.append("P2888")
-
-    if self.cellosaurus[Item]["MeSH"] == "NULL":
-        data_to_delete.append("P486")
-
-    if self.cellosaurus[Item]["RX"]:
-        data_to_delete.append("P1343")
-
-    return data_to_delete
+def make_instance_of_statement(statement_value, reference):
+    statement = make_statement(statement_property="P31",
+                               statement_value=statement_value,
+                               references=reference)
+    return statement
 
 
-def add_info_about_the_cell_line_identity(self,
-                                          Item,
-                                          information_to_insert_on_wikidata,
-                                          wikidata_reference_for_statement):
-    information_to_insert_on_wikidata = append_is_cell_ine(
-        information_to_insert_on_wikidata,
-        wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = append_is_contaminated(self,
-                                                               Item,
-                                                               information_to_insert_on_wikidata,
-                                                               wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = append_category(self,
-                                                        Item,
-                                                        information_to_insert_on_wikidata,
-                                                        wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
+def make_instance_of_contaminated_cell_line_statement(reference):
+    statement = make_statement(statement_property="P31",
+                               statement_value="Q27971671",
+                               references=reference)
+    return statement
 
 
-def add_info_about_the_cell_line_source(self,
-                                        Item,
-                                        information_to_insert_on_wikidata,
-                                        wikidata_reference_for_statement,
-                                        folder_for_errors):
-    information_to_insert_on_wikidata = append_diseases(self,
-                                                        Item,
-                                                        information_to_insert_on_wikidata,
-                                                        reference=wikidata_reference_for_statement,
-                                                        folder_for_errors=folder_for_errors)
-
-    list_of_taxons_of_origin = get_list_of_taxons(self, Item, folder_for_errors)
-
-    list_of_biological_sexes_of_source = get_list_of_biological_sexes(self, Item, list_of_taxons_of_origin)
-
-    information_to_insert_on_wikidata = append_taxon_and_gender(information_to_insert_on_wikidata,
-                                                                list_of_taxons_of_origin,
-                                                                list_of_biological_sexes_of_source,
-                                                                references=wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
-
-
-def add_info_about_related_cell_lines(self,
-                                      Item,
-                                      information_to_insert_on_wikidata,
-                                      wikidata_reference_for_statement):
-    for parent_cell_line in self.cellosaurus[Item]["HI"]:
-
-        information_to_insert_on_wikidata = append_parent_cell_line(self, parent_cell_line,
-                                                                    information_to_insert_on_wikidata,
-                                                                    reference=wikidata_reference_for_statement)
-        if Item not in self.AddParentCellline:
-            self.AddParentCellline.append(Item)
-
-    if self.cellosaurus[Item]["OI"]:
-        for autologous_cell_line in self.cellosaurus[Item]["OI"]:
-            information_to_insert_on_wikidata = append_autologous_cell_line(self, autologous_cell_line,
-                                                                            information_to_insert_on_wikidata,
-                                                                            reference=wikidata_reference_for_statement)
-            if Item not in self.AddParentCellline:
-                self.AddParentCellline.append(Item)
-
-    return information_to_insert_on_wikidata
-
-
-def add_info_about_identifiers(self,
-                               Item,
-                               information_to_insert_on_wikidata,
-                               wikidata_reference_for_statement):
-    if self.cellosaurus[Item]["MeSH"] != "NULL":
-        information_to_insert_on_wikidata = append_mesh_id(self, Item, information_to_insert_on_wikidata,
-                                                           reference=wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = append_obo_exact_matches(self, Item, information_to_insert_on_wikidata,
-                                                                 reference=wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
-
-def add_info_about_references(self,
-                               Item,
-                               information_to_insert_on_wikidata,
-                               wikidata_reference_for_statement):
-    #  RX         References identifiers
-    if self.cellosaurus[Item]["RX"]:
-        information_to_insert_on_wikidata = append_literature_descriptions(self, Item,
-                                                                           information_to_insert_on_wikidata,
-                                                                           wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
-
-def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
-    """
-    This function has to be run for each cell line in cellosaurus.
-    It create the information objects that will be in the Wikidata item
-        for the cell line.
-
-    :param Item: the Cellosaurus id for a cell line.
-    :return : a dictionary composed of 2 dictionaries:
-        - data : is composed of information objects that are to add or
-              update for the wikidata cell line item.
-        - data_to_delete : is the information objects that are have to be
-              deleted in this release for a wikidata cell line item.
-    :folder_for_errors : The path to the folders where errors are stored.
-    """
-
-    information_to_insert_on_wikidata = []
-    data_to_delete = []
-
-    wikidata_reference_for_statement = get_WQ_reference(Item, cellosaurus_release_qid=self.releaseID)
-
-    data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, Item, data_to_delete)
-
-    information_to_insert_on_wikidata = add_info_about_the_cell_line_identity(self, Item,
-                                                                              information_to_insert_on_wikidata,
-                                                                              wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = add_info_about_the_cell_line_source(self, Item,
-                                                                            information_to_insert_on_wikidata,
-                                                                            wikidata_reference_for_statement,
-                                                                            folder_for_errors)
-
-    information_to_insert_on_wikidata = add_info_about_related_cell_lines(self, Item,
-                                                                          information_to_insert_on_wikidata,
-                                                                          wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = append_cellosaurus_id(Item, information_to_insert_on_wikidata,
-                                                              reference=wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = add_info_about_identifiers(self,
-                                                                   Item,
-                                                                   information_to_insert_on_wikidata,
-                                                                   wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = add_info_about_references(self,
-                                                                   Item,
-                                                                   information_to_insert_on_wikidata,
-                                                                   wikidata_reference_for_statement)
-    return {'data': information_to_insert_on_wikidata, 'data_to_delete': data_to_delete}
+def make_established_from_disease_statement(disease_id, references):
+    cell_line_from_patient_with_disease_statement = make_statement(
+        statement_property="5166",
+        statement_value=disease_id,
+        references=references
+    )
+    return cell_line_from_patient_with_disease_statement
