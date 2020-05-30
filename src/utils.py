@@ -117,75 +117,11 @@ class Create_Update():
                 self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")
 
     def UpdateWikidata(self, Item, data):
-        """
-        This function update a Wikidata item (add or delete informations).
-        :param Item : the Cellosaurus id for a cell line.
-        :param data : the dictionary from InitialisationData function within
-            data and data_to_delete dictionnaries.
-        """
-
-        to_delete = []
-
-        name = Set(self.cellosaurus, Item)['name']
-        descriptions = Set(self.cellosaurus, Item)['descriptions']
-
-        if data['data_to_delete'] != []:
-            old = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item])
-            olditem = old.get_wd_json_representation()
-            for statement in olditem['claims']:
-                if statement in data['data_to_delete']:
-                    to_delete.append(
-                        wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
-
-            item_deletion = wdi_core.WDItemEngine(
-                wd_item_id=self.wikidata[Item], data=to_delete)
-            item_deletion.write(self.login, bot_account=False,
-                                edit_summary="delete statements before update the item {}".format(
-                                    self.cellosaurus[Item]["ID"]))
-
-        item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'],
-                                     global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
-                'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
-                'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
-
-        if self.cellosaurus[Item] != "NUL":
-            item.set_aliases(
-                self.cellosaurus[Item]["SY"], lang='en', append=False)
-
-        for lang, description in descriptions.items():
-            item.set_description(description, lang=lang)
-            item.set_label(label=name, lang=lang)
-
-        item.write(self.login, bot_account=False, edit_summary="update item {}".format(
-            self.cellosaurus[Item]["ID"]))
+        update_wikidata_entry_for_this_cell_line(self, Item, data)
 
 
 def Set(cellosaurus, Item):
-    """
-    This function is using for give name and description in english, french
-    and deutch.
-    :param Item : the Cellosaurus id for a cell line.
-    :return : dictionnaries with the name and the description in english, french and deutch
-    """
-
-    name = cellosaurus[Item]["ID"]
-
-    descriptions = {
-        "en": "cell line",
-        "fr": "lignée cellulaire",
-        "de": "Zelllinie"
-    }
-
-    if " [" in name:
-        namecompose = name.split("[")
-        descriptions = {
-            "en": "cell line" + " (" + namecompose[1].strip("]") + ")",
-            "fr": "lignée cellulaire" + " (" + namecompose[1].strip("]") + ")",
-            "de": "Zelllinie" + " (" + namecompose[1].strip("]") + ")"
-        }
-        name = namecompose[0].strip(" ")
-
-    return {'name': name, 'descriptions': descriptions}
+    return prepare_item_label_and_descriptions(cellosaurus, Item)
 
 
 def CellosaurusToDictionary(file):
@@ -976,6 +912,7 @@ def make_established_from_disease_statement(disease_id, references):
     )
     return cell_line_from_patient_with_disease_statement
 
+
 def create_wikidata_item_for_cell_line(self, Item, data):
     """
     This function create a Wikidata item for the cell line with
@@ -1003,3 +940,77 @@ def create_wikidata_item_for_cell_line(self, Item, data):
     with open("results/WikidataID.txt", "a") as file:
         file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(
             self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")
+
+
+# Functions that actually interact with Wikidata API
+def update_wikidata_entry_for_this_cell_line(self, Item, data):
+    """
+    This function update a Wikidata item (add or delete informations).
+    :param Item : the Cellosaurus id for a cell line.
+    :param data : the dictionary from InitialisationData function within
+        data and data_to_delete dictionnaries.
+    """
+
+    to_delete = []
+
+    name = Set(self.cellosaurus, Item)['name']
+    descriptions = Set(self.cellosaurus, Item)['descriptions']
+
+    if data['data_to_delete'] != []:
+        old = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item])
+        olditem = old.get_wd_json_representation()
+        for statement in olditem['claims']:
+            if statement in data['data_to_delete']:
+                to_delete.append(
+                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
+
+        item_deletion = wdi_core.WDItemEngine(
+            wd_item_id=self.wikidata[Item], data=to_delete)
+        item_deletion.write(self.login, bot_account=False,
+                            edit_summary="delete statements before update the item {}".format(
+                                self.cellosaurus[Item]["ID"]))
+
+    item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[Item], data=data['data'],
+                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
+            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+            'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
+
+    if self.cellosaurus[Item] != "NUL":
+        item.set_aliases(
+            self.cellosaurus[Item]["SY"], lang='en', append=False)
+
+    for lang, description in descriptions.items():
+        item.set_description(description, lang=lang)
+        item.set_label(label=name, lang=lang)
+
+    item.write(self.login, bot_account=False, edit_summary="update item {}".format(
+        self.cellosaurus[Item]["ID"]))
+
+
+def prepare_item_label_and_descriptions(cellosaurus, Item):
+    """
+    This function is using for give name and description in english, french
+    and deutch.
+    :param Item : the Cellosaurus id for a cell line.
+    :return : dictionnaries with the name and the description in english, french and deutch
+    """
+
+    name = cellosaurus[Item]["ID"]
+
+    descriptions = {
+        "en": "cell line",
+        "fr": "lignée cellulaire",
+        "de": "Zelllinie",
+        "pt": "linhagem celular"
+    }
+
+    if " [" in name:
+        namecompose = name.split("[")
+        descriptions = {
+            "en": "cell line" + " (" + namecompose[1].strip("]") + ")",
+            "fr": "lignée cellulaire" + " (" + namecompose[1].strip("]") + ")",
+            "de": "Zelllinie" + " (" + namecompose[1].strip("]") + ")"
+        }
+        name = namecompose[0].strip(" ")
+
+    return {'name': name, 'descriptions': descriptions}
