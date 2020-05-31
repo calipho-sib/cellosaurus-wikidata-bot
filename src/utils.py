@@ -82,9 +82,6 @@ class Create_Update():
         self.PublicationNotReferencing = []
         self.WIDs = []
 
-    def Update_Wikidata(self, newWikidata):
-        self.wikidata = newWikidata
-
     def InitialisationData(self, Item):
         return create_information_objects_for_wikidata(self, Item)
 
@@ -113,8 +110,9 @@ class Create_Update():
             ['name'], lang=lang)
 
         with open("../results/WikidataID.txt", "a") as file:
-            file.write(item.write(self.login, bot_account=False, edit_summary="create item {}".format(
-                self.cellosaurus[Item]["ID"])) + "\t" + Item + "\n")
+            newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
+                self.cellosaurus[Item]["ID"]))
+            file.write(newly_created_item_qid + "\t" + Item + "\n")
 
     def UpdateWikidata(self, Item, data):
         update_wikidata_entry_for_this_cell_line(self, Item, data)
@@ -463,7 +461,9 @@ def get_WQ_reference(Item, cellosaurus_release_qid):
 
 ###### Functions to create and append  Wikidata Integrator statements to lists ######
 
-def create_information_objects_for_wikidata(self, Item, folder_for_errors="../doc/ERRORS/"):
+def create_information_objects_for_wikidata(self,
+                                            Item,
+                                            folder_for_errors="doc/ERRORS/"):
     """
     This function has to be run for each cell line in cellosaurus.
     It create the information objects that will be in the Wikidata item
@@ -577,6 +577,7 @@ def add_info_about_the_cell_line_source(self, Item,
                                         information_to_insert_on_wikidata,
                                         wikidata_reference_for_statement,
                                         folder_for_errors):
+
     information_to_insert_on_wikidata = append_diseases(self,
                                                         Item,
                                                         information_to_insert_on_wikidata,
@@ -725,6 +726,11 @@ def get_list_of_taxons(self, Item, folder_for_errors):
     if self.cellosaurus[Item]["OX"]:
 
         for taxon_of_origin in self.cellosaurus[Item]["OX"]:
+
+            # Format is TaxID=9606 (example)
+            # It is split to get "9606"
+            taxon_of_origin = taxon_of_origin.split("=")[1]
+            print(taxon_of_origin)
             if taxon_of_origin in self.species:
                 list_of_taxons_of_origin.append(self.species[taxon_of_origin])
 
@@ -734,6 +740,7 @@ def get_list_of_taxons(self, Item, folder_for_errors):
             else:
                 with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
                     file.write(taxon_of_origin + "\n")
+
     return list_of_taxons_of_origin
 
 
@@ -968,12 +975,6 @@ def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, Item,
 
 # Functions that actually interact with Wikidata API
 def update_wikidata_entry_for_this_cell_line(self, Item, data):
-    """
-    This function update a Wikidata item (add or delete informations).
-    :param Item : the Cellosaurus id for a cell line.
-    :param data : the dictionary from InitialisationData function within
-        data and data_to_delete dictionnaries.
-    """
 
     label = prepare_item_label_and_descriptions(self.cellosaurus, Item)['name']
     descriptions = prepare_item_label_and_descriptions(self.cellosaurus, Item)['descriptions']
@@ -988,7 +989,7 @@ def update_wikidata_entry_for_this_cell_line(self, Item, data):
                                                                                                                 label,
                                                                                                                 descriptions)
     item_with_statements_to_update_with_labels.write(self.login,
-                                                     bot_account=False,
+                                                     bot_account=True,
                                                      edit_summary="update item {}".format(
                                                          self.cellosaurus[Item]["ID"]))
 
@@ -1011,7 +1012,6 @@ def delete_old_statements(self, Item, data):
         item_name = self.cellosaurus[Item]["ID"]
         item_deletion.write(self.login, bot_account=False,
                             edit_summary="delete statements before update the item {}".format(item_name))
-
 
 def prepare_item_label_and_descriptions(cellosaurus, Item):
     """

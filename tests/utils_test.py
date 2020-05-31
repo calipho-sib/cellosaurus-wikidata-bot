@@ -116,7 +116,35 @@ class TestCreate_UpdateClass(unittest.TestCase):
 
 
     def test_InsertionWikidata(self):
-        self.assertEqual(2, 1)
+
+        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus_create.txt")
+        cellosaurus_informations_to_wikidata_ids = utils.correspondance(cellosaurus_dump_in_dictionary_format)
+        print("got here")
+        the_so_called_correspondance = cellosaurus_informations_to_wikidata_ids
+
+        species = the_so_called_correspondance["species"]
+        references = the_so_called_correspondance["references"]
+        categories = utils.categories("../project/category.txt")
+        diseases = the_so_called_correspondance["diseases"]
+        wikidata = utils.QueryingWikidata()
+        utils.save_pickle_file(wikidata, "output_of_QueryingWikidata")
+        releaseID = "Q87574023"
+        login = wdi_login.WDLogin(WDUSER, WDPASS)
+
+        Release = utils.Create_Update(login=login,
+                                      releaseID=releaseID,
+                                      cellosaurus=cellosaurus_dump_in_dictionary_format,
+                                      wikidata=wikidata,
+                                      references=references,
+                                      species=species,
+                                      categories=categories,
+                                      diseases=diseases)
+
+        output_of_InitialisationData = Release.InitialisationData(Item="CVCL_VR94")
+
+        Release.InsertionWikidata(Item="CVCL_VR94",
+                               data=output_of_InitialisationData)
+        self.assertEqual(1, 1)
 
 
     def test_UpdateWikidata(self):
