@@ -118,9 +118,10 @@ class TestCreate_UpdateClass(unittest.TestCase):
     def test_InsertionWikidata(self):
 
         cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus_create.txt")
-        cellosaurus_informations_to_wikidata_ids = utils.correspondance(cellosaurus_dump_in_dictionary_format)
-        print("got here")
-        the_so_called_correspondance = cellosaurus_informations_to_wikidata_ids
+
+        the_so_called_correspondance = utils.load_pickle_file(
+            "../tests/test_full_cellosaurus_to_wikidata_create.pickle")
+
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]

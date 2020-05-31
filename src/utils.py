@@ -106,8 +106,7 @@ class Create_Update():
 
         for lang, description in Set(self.cellosaurus, Item)['descriptions'].items():
             item.set_description(description, lang=lang)
-            item.set_label(label=Set(self.cellosaurus, Item)
-            ['name'], lang=lang)
+            item.set_label(label=Set(self.cellosaurus, Item)['name'], lang=lang)
 
         with open("../results/WikidataID.txt", "a") as file:
             newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
@@ -577,7 +576,6 @@ def add_info_about_the_cell_line_source(self, Item,
                                         information_to_insert_on_wikidata,
                                         wikidata_reference_for_statement,
                                         folder_for_errors):
-
     information_to_insert_on_wikidata = append_diseases(self,
                                                         Item,
                                                         information_to_insert_on_wikidata,
@@ -975,7 +973,6 @@ def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, Item,
 
 # Functions that actually interact with Wikidata API
 def update_wikidata_entry_for_this_cell_line(self, Item, data):
-
     label = prepare_item_label_and_descriptions(self.cellosaurus, Item)['name']
     descriptions = prepare_item_label_and_descriptions(self.cellosaurus, Item)['descriptions']
 
@@ -1012,6 +1009,7 @@ def delete_old_statements(self, Item, data):
         item_name = self.cellosaurus[Item]["ID"]
         item_deletion.write(self.login, bot_account=False,
                             edit_summary="delete statements before update the item {}".format(item_name))
+
 
 def prepare_item_label_and_descriptions(cellosaurus, Item):
     """
