@@ -108,7 +108,7 @@ class Create_Update():
             item.set_description(description, lang=lang)
             item.set_label(label=Set(self.cellosaurus, Item)['name'], lang=lang)
 
-        with open("../results/WikidataID.txt", "a") as file:
+        with open("./results/WikidataID.txt", "a") as file:
             newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
                 self.cellosaurus[Item]["ID"]))
             file.write(newly_created_item_qid + "\t" + Item + "\n")
@@ -272,8 +272,7 @@ def save_pickle_file(dictionary, pickleFileName):
         pickle.dump(dictionary, file)
 
 
-###### Functions to query and match to wikidata ###### 
-
+# Functions to query and match to Wikidata
 def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
     This function create dictionnaries of list of pre-requisite wikidata
