@@ -119,6 +119,58 @@ class Create_Update():
         update_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data)
 
 
+
+
+class CellossaurusCellLine():
+    """
+    :param wdi_login : wdi_login object
+    :param release_qid: the wikidata qid for the Cellosaurus release of interest.
+    :param cellosaurus_dictionary : the  dictionary which contains cellosaurus dump information.
+    :param wikidata_dictionary_with_existing_cell_lines :  wikidata cell lines items that already exit.
+    :param references : the references dictionary creating with correspondance function.
+    :param species : the species dictionary creating with correspondance function.
+    :param categories : the categories dictionary creating with  categories function.
+    :param diseases : the diseases dictionary creating with correspondance function.
+    """
+
+    def __init__(self, wdi_login_object='', release_qid='', cellosaurus_dictionary='',
+                 wikidata_dictionary_with_existing_cell_lines='', references='',
+                 species='', categories='', diseases=''):
+        """
+        :param login : login correspond to a wdi_login object (..seealso::
+            login in Main.py).
+        :param releaseID : the wikidata item id which corresponding to the
+            Cellosaurus release.
+        :param cellosaurus : the cellosaurus dictionary which contains
+            cellosaurus dump information.
+        :param wikidata : the wikidata dictionary which contains wikidata
+            cell lines items that already exit.
+        :param references : the references dictionary creating with
+            correspondance function.
+        :param species : the species dictionary creating with correspondance
+            function.
+        :param categories : the categories dictionary creating with
+            categories function.
+        :param diseases : the diseases dictionary creating with
+            correspondance function.
+        """
+
+        self.wdi_login_object = wdi_login_object
+        self.release_qid = release_qid
+        self.cellosaurus_dictionary = cellosaurus_dictionary
+        self.wikidata_dictionary_with_existing_cell_lines = wikidata_dictionary_with_existing_cell_lines
+        self.references = references
+        self.species = species
+        self.categories = categories
+        self.diseases = diseases
+
+        self.parent_cell_line_to_add = []
+        self.PublicationNotReferencing = []
+        self.WIDs = []
+
+
+
+
 def Set(cellosaurus, cellosaurus_cell_line_id):
     return prepare_item_label_and_descriptions(cellosaurus, cellosaurus_cell_line_id)
 
