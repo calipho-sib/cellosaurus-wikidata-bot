@@ -107,8 +107,8 @@ class TestCreate_UpdateClass(unittest.TestCase):
 
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
 
-        new_output_of_InitialisationData = Release.InitialisationData(Item="CVCL_2260")
-        old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
+        new_output_of_InitialisationData = Release.InitialisationData("CVCL_2260")
+        old_output_of_InitialisationData = old_release.InitialisationData("CVCL_2260")
 
         print(new_output_of_InitialisationData)
 
@@ -141,9 +141,9 @@ class TestCreate_UpdateClass(unittest.TestCase):
                                       categories=categories,
                                       diseases=diseases)
 
-        output_of_InitialisationData = Release.InitialisationData(Item="CVCL_VR94")
+        output_of_InitialisationData = Release.InitialisationData("CVCL_VR94")
 
-        Release.InsertionWikidata(Item="CVCL_VR94",
+        Release.InsertionWikidata("CVCL_VR94",
                                data=output_of_InitialisationData)
         self.assertEqual(1, 1)
 
@@ -173,9 +173,9 @@ class TestCreate_UpdateClass(unittest.TestCase):
                                       diseases=diseases)
 
         old_release = utils.load_pickle_file("../tests/release_object_before_refactoring.pickle")
-        old_output_of_InitialisationData = old_release.InitialisationData(Item="CVCL_2260")
+        old_output_of_InitialisationData = old_release.InitialisationData("CVCL_2260")
 
-        Release.UpdateWikidata(Item="CVCL_2260",
+        Release.UpdateWikidata("CVCL_2260",
                                data=old_output_of_InitialisationData)
         self.assertEqual(1, 1)
 
