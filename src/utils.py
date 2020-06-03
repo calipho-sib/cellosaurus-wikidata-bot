@@ -86,38 +86,10 @@ class Create_Update():
         return create_information_objects_for_wikidata(self, cellosaurus_cell_line_id)
 
     def InsertionWikidata(self, cellosaurus_cell_line_id, data):
-        create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data)
-
-        """
-        This function create a Wikidata item for the cell line with
-            cellosaurus informations.
-        :param Item : the Cellosaurus id for a cell line.
-        :param data : the dictionary from InitialisationData function.
-        :return : WikidataID.txt, a file which contains the Wikidata cell
-            lines items created.
-        """
-        item = wdi_core.WDItemEngine(data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True,
-                                     fast_run_base_filter={
-                                         'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '',
-                                         'P248': '', 'P3289': '', 'P486': '', 'P2888': '', 'P1343': '', 'P5166': '',
-                                         'P813': ''}, fast_run_use_refs=True)
-        #  SY         Synonyms
-        if self.cellosaurus[cellosaurus_cell_line_id]["SY"]:
-            item.set_aliases(
-                self.cellosaurus[cellosaurus_cell_line_id]["SY"], lang='en', append=False)
-
-        for lang, description in prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['descriptions'].items():
-            item.set_description(description, lang=lang)
-            item.set_label(label=prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['name'], lang=lang)
-
-        with open("./results/WikidataID.txt", "a") as file:
-            newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
-                self.cellosaurus[cellosaurus_cell_line_id]["ID"]))
-            file.write(newly_created_item_qid + "\t" + cellosaurus_cell_line_id + "\n")
+        return create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data)
 
     def UpdateWikidata(self, cellosaurus_cell_line_id, data):
-        update_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data)
-
+        return update_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data)
 
 
 
@@ -135,7 +107,7 @@ class CellossaurusCellLine():
 
     def __init__(self, wdi_login_object='', release_qid='', cellosaurus_dictionary='',
                  wikidata_dictionary_with_existing_cell_lines='', references='',
-                 species='', categories='', diseases=''):
+                 species='', categories='', diseases='', cell_line_id=""):
         """
         :param login : login correspond to a wdi_login object (..seealso::
             login in Main.py).
@@ -164,11 +136,20 @@ class CellossaurusCellLine():
         self.categories = categories
         self.diseases = diseases
 
+        self.cell_line_id = cell_line_id
+
         self.parent_cell_line_to_add = []
         self.PublicationNotReferencing = []
         self.WIDs = []
 
+    def prepare_wikidata_integration(self):
+        return create_information_objects_for_wikidata(self, self.cell_line_id)
 
+    def add_to_wikidata(self):
+        return create_information_objects_for_wikidata(self, self.cell_line_id, data)
+
+    def update_item_on_wikidata(self):
+        return create_information_objects_for_wikidata(self, self.cell_line_id, data)
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
