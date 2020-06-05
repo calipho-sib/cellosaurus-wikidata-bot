@@ -197,7 +197,7 @@ class TestCellossaurusCellLine(unittest.TestCase):
 
         cell_line = utils.CellossaurusCellLine(wdi_login_object=login,
                                       release_qid=releaseID,
-                                      cellosaurus_dictionary=cellosaurus_dump_in_dictionary_format,
+                                      cellosaurus_dump =cellosaurus_dump_in_dictionary_format,
                                       wikidata_dictionary_with_existing_cell_lines=wikidata,
                                       references=references,
                                       species=species,
@@ -208,6 +208,35 @@ class TestCellossaurusCellLine(unittest.TestCase):
         print(cell_line)
 
         self.assertEqual(cell_line.cell_line_id, "CVCL_2260")
+
+    def test_prepare_for_wikidata_function(self):
+        the_so_called_correspondance = utils.load_pickle_file(
+            "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
+
+        species = the_so_called_correspondance["species"]
+        references = the_so_called_correspondance["references"]
+        categories = utils.categories("../project/category.txt")
+        diseases = the_so_called_correspondance["diseases"]
+        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
+        wikidata = utils.QueryingWikidata()
+        releaseID = "Q87574023"
+        login = wdi_login.WDLogin(WDUSER, WDPASS)
+
+        cell_line = utils.CellossaurusCellLine(wdi_login_object=login,
+                                      release_qid=releaseID,
+                                      cellosaurus_dump=cellosaurus_dump_in_dictionary_format,
+                                      wikidata_dictionary_with_existing_cell_lines=wikidata,
+                                      references=references,
+                                      species=species,
+                                      categories=categories,
+                                      diseases=diseases,
+                                      cell_line_id="CVCL_2260")
+        data, data_to_delete = cell_line.prepare_for_wikidata()
+        print(data)
+        print(data_to_delete)
+
+        self.assertEqual(cell_line.cell_line_id, "CVCL_2260")
+
 
 
 
