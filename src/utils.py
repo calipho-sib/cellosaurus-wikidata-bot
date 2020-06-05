@@ -51,7 +51,7 @@ class CellossaurusCellLine():
     :param wikidata_dictionary_with_existing_cell_lines :  wikidata cell lines items that already exit.
     :param references : the references dictionary creating with correspondance function.
     :param species : the species dictionary creating with correspondance function.
-    :param categories : the categories dictionary creating with  categories function.
+    :param cell_line_categories : the categories dictionary creating with  categories function.
     :param diseases : the diseases dictionary creating with correspondance function.
     :param wdi_cell_line_to_add : the cell line information to add in Wikidata Integrator format
     :param wdi_cell_line_to_delete : the cell line information to delete in Wikidata Integrator format
@@ -61,7 +61,7 @@ class CellossaurusCellLine():
 
     def __init__(self, wdi_login_object='', release_qid='', cellosaurus_dump='',
                  wikidata_dictionary_with_existing_cell_lines='', references='',
-                 species='', categories='', diseases='', cell_line_id=""):
+                 species='', cell_line_categories='', diseases='', cell_line_id=""):
         """
         :param login : login correspond to a wdi_login object (..seealso::
             login in Main.py).
@@ -75,7 +75,7 @@ class CellossaurusCellLine():
             correspondance function.
         :param species : the species dictionary creating with correspondance
             function.
-        :param categories : the categories dictionary creating with
+        :param cell_line_categories : the categories dictionary creating with
             categories function.
         :param diseases : the diseases dictionary creating with
             correspondance function.
@@ -88,7 +88,7 @@ class CellossaurusCellLine():
         self.wikidata_dictionary_with_existing_cell_lines = wikidata_dictionary_with_existing_cell_lines
         self.references = references
         self.species = species
-        self.categories = categories
+        self.cell_line_categories = cell_line_categories
         self.diseases = diseases
         self.cell_line_id = cell_line_id
 
@@ -110,7 +110,7 @@ class CellossaurusCellLine():
         data_to_delete = []
         data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, data_to_delete)
 
-        data_to_add_to_wikidata = add_info_about_the_cell_line_identity(self, data_to_add_to_wikidata, wikidata_reference_for_statement)
+        data_to_add_to_wikidata = add_info_about_the_cell_line_identity(self, data_to_add_to_wikidata)
 
         data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, self.cell_line_id,
                                                                                 data_to_add_to_wikidata,
@@ -180,22 +180,40 @@ def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_dele
 
     return data_to_delete
 
+
 def add_info_about_the_cell_line_identity(cell_line_object,
-                                          information_to_insert_on_wikidata,
-                                          wikidata_reference_for_statement):
+                                          data_to_add_to_wikidata):
 
-    information_to_insert_on_wikidata = append_is_cell_ine(
-        information_to_insert_on_wikidata,
-        wikidata_reference_for_statement)
+    data_to_add_to_wikidata = append_is_cell_ine(data_to_add_to_wikidata, cell_line_object.references_in_wdi_format)
 
-    information_to_insert_on_wikidata = append_is_contaminated(cell_line_object, information_to_insert_on_wikidata)
+    data_to_add_to_wikidata = append_is_contaminated(cell_line_object, data_to_add_to_wikidata)
 
-    information_to_insert_on_wikidata = append_category(cell_line_object,
-                                                        cellosaurus_cell_line_id,
-                                                        information_to_insert_on_wikidata,
-                                                        wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
+    data_to_add_to_wikidata = append_category(cell_line_object, data_to_add_to_wikidata)
+    return data_to_add_to_wikidata
 
+
+def append_is_contaminated(cell_line_object, data_to_add_to_wikidata):
+    cell_line_comments = cell_line_object.cell_line_dump  ["CC"]
+    if cell_line_comments:
+        data_to_add_to_wikidata.append(make_instance_of_contaminated_cell_line_statement(
+            reference=cell_line_object.references_in_wdi_format
+        ))
+    return data_to_add_to_wikidata
+
+
+def append_category(cell_line_object, data_to_add_to_wikidata):
+
+    cell_line_category = cell_line_object.cell_line_dump["CA"]
+    category_to_wikidata = cell_line_object.cell_line_categories
+
+    if cell_line_category in category_to_wikidata:
+        cell_line_category_id = category_to_wikidata[cell_line_category]
+        data_to_add_to_wikidata.append(make_instance_of_statement(
+            statement_value=cell_line_category_id,
+            reference=cell_line_object.references_in_wdi_format
+        ))
+
+    return data_to_add_to_wikidata
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
@@ -752,28 +770,6 @@ def get_list_of_biological_sexes(self, cellosaurus_cell_line_id, list_of_taxons_
                 value=biological_sex_id, prop_nr="P21", is_qualifier=True))
 
     return list_of_biological_sexes_of_source
-
-
-def append_category(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
-    # CA         Category
-    if self.cellosaurus[cellosaurus_cell_line_id]["CA"] in self.categories:
-        cell_line_category = self.cellosaurus[cellosaurus_cell_line_id]["CA"]
-        cell_line_category_id = self.categories[cell_line_category]
-
-        information_to_insert_on_wikidata.append(make_instance_of_statement(
-            statement_value=cell_line_category_id,
-            reference=reference
-        ))
-    return information_to_insert_on_wikidata
-
-
-def append_is_contaminated(cell_line_object, information_to_insert_on_wikidata):
-    cell_line_comments = cell_line_object.cellosaurus_dump["CC"]
-    if cell_line_comments:
-        information_to_insert_on_wikidata.append(make_instance_of_contaminated_cell_line_statement(
-            reference=cell_line_object.references_in_wdi_format
-        ))
-    return information_to_insert_on_wikidata
 
 
 def append_is_cell_ine(information_to_insert_on_wikidata, reference):

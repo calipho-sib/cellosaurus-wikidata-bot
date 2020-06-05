@@ -201,7 +201,7 @@ class TestCellossaurusCellLine(unittest.TestCase):
                                       wikidata_dictionary_with_existing_cell_lines=wikidata,
                                       references=references,
                                       species=species,
-                                      categories=categories,
+                                      cell_line_categories=categories,
                                       diseases=diseases,
                                       cell_line_id="CVCL_2260")
 
@@ -228,7 +228,7 @@ class TestCellossaurusCellLine(unittest.TestCase):
                                       wikidata_dictionary_with_existing_cell_lines=wikidata,
                                       references=references,
                                       species=species,
-                                      categories=categories,
+                                      cell_line_categories=categories,
                                       diseases=diseases,
                                       cell_line_id="CVCL_2260")
         data, data_to_delete = cell_line.prepare_for_wikidata()
