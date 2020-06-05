@@ -100,7 +100,7 @@ class CellossaurusCellLine():
         self.wdi_cell_line_to_add = []
         self.wdi_cell_line_to_delete = []
 
-        self.parent_cell_line_to_add = []
+        self.related_cell_line_to_add = []
         self.PublicationNotReferencing = []
         self.WIDs = []
 
@@ -114,9 +114,10 @@ class CellossaurusCellLine():
         data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, data_to_add_to_wikidata,
                                                                       folder_for_errors)
 
-        data_to_add_to_wikidata = add_info_about_related_cell_lines(self, self.cell_line_id,
-                                                                    data_to_add_to_wikidata,
-                                                                    wikidata_reference_for_statement)
+        data_to_add_to_wikidata,  related_cell_line_to_add = add_info_about_related_cell_lines(self,
+                                                                    data_to_add_to_wikidata)
+
+        self.related_cell_line_to_add = related_cell_line_to_add
 
         data_to_add_to_wikidata = append_cellosaurus_id(self.cell_line_id,
                                                         data_to_add_to_wikidata,
@@ -258,7 +259,6 @@ def append_diseases(cell_line_object, data_to_add_to_wikidata, folder_for_errors
 
 def append_taxon_and_gender(cell_line_object, data_to_add_to_wikidata,
                             list_of_taxons_of_origin, list_of_biological_sexes_of_source):
-
     cell_line_references = cell_line_object.references_in_wdi_format
 
     if list_of_taxons_of_origin:
@@ -345,6 +345,72 @@ def get_list_of_taxons(cell_line_object, folder_for_errors):
                     file.write(taxon_of_origin + "\n")
 
     return list_of_taxons_of_origin
+
+
+def get_WQ_reference(cellosaurus_cell_line_id, cellosaurus_release_qid):
+    release = wdi_core.WDItemID(
+        value=cellosaurus_release_qid, prop_nr="P248", is_reference=True)
+
+    date = datetime.now()
+    timeStringNow = date.strftime("+%Y-%m-%dT00:00:00Z")
+    refRetrieved = wdi_core.WDTime(
+        timeStringNow, prop_nr='P813', is_reference=True)
+
+    cellosaurusref = wdi_core.WDExternalID(
+        value=cellosaurus_cell_line_id, prop_nr="P3289", is_reference=True)
+
+    WQreference = [[release, refRetrieved, cellosaurusref]]
+    return (WQreference)
+
+
+def add_info_about_related_cell_lines(cell_line_object, data_to_add_to_wikidata):
+    parent_cell_lines = cell_line_object.cell_line_dump["HI"]
+    wikidata_reference_for_statement = cell_line_object.references_in_wdi_format
+    cellosaurus_cell_line_id = cell_line_object.cell_line_id
+    for parent_cell_line in parent_cell_lines:
+
+        data_to_add_to_wikidata = append_parent_cell_line(cell_line_object, parent_cell_line,
+                                                          data_to_add_to_wikidata)
+
+        list_of_related_cell_lines_to_add = cell_line_object.related_cell_line_to_add
+        if cellosaurus_cell_line_id not in list_of_related_cell_lines_to_add:
+            cell_line_object.related_cell_line_to_add.append(cellosaurus_cell_line_id)
+
+    cell_lines_from_same_individual = cell_line_object.cell_line_dump["OI"]
+    if cell_lines_from_same_individual:
+        for autologous_cell_line in cell_lines_from_same_individual:
+            data_to_add_to_wikidata = append_autologous_cell_line(cell_line_object, autologous_cell_line,
+                                                                  data_to_add_to_wikidata,
+                                                                  reference=wikidata_reference_for_statement)
+            if cellosaurus_cell_line_id not in cell_line_object.related_cell_line_to_add:
+                cell_line_object.related_cell_line_to_add.append(cellosaurus_cell_line_id)
+
+    return data_to_add_to_wikidata, cell_line_object.related_cell_line_to_add
+
+
+def append_parent_cell_line(cell_line_object, parent_cell_line, data_to_add_to_wikidata):
+    reference = cell_line_object.references_in_wdi_format
+    cell_lines_in_wikidata = cell_line_object.wikidata_dictionary_with_existing_cell_lines
+    if parent_cell_line in cell_lines_in_wikidata:
+        # P3432 : parent cell line
+        parent_cell_line_id = cell_lines_in_wikidata[parent_cell_line]
+        data_to_add_to_wikidata.append(make_statement(
+            statement_property="P3432",
+            statement_value=parent_cell_line_id,
+            references=reference
+        ))
+    return data_to_add_to_wikidata
+
+
+def append_autologous_cell_line(self, autologous_cell_line, information_to_insert_on_wikidata, reference):
+    if autologous_cell_line in self.wikidata:
+        autologous_cell_line_id = self.wikidata[autologous_cell_line]
+        information_to_insert_on_wikidata.append(make_statement(
+            statement_property="P3578",
+            statement_value=autologous_cell_line_id,
+            references=reference
+        ))
+    return information_to_insert_on_wikidata
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
@@ -671,47 +737,6 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
     return (species_ids, problematic_species_ids)
 
 
-def get_WQ_reference(cellosaurus_cell_line_id, cellosaurus_release_qid):
-    release = wdi_core.WDItemID(
-        value=cellosaurus_release_qid, prop_nr="P248", is_reference=True)
-
-    date = datetime.now()
-    timeStringNow = date.strftime("+%Y-%m-%dT00:00:00Z")
-    refRetrieved = wdi_core.WDTime(
-        timeStringNow, prop_nr='P813', is_reference=True)
-
-    cellosaurusref = wdi_core.WDExternalID(
-        value=cellosaurus_cell_line_id, prop_nr="P3289", is_reference=True)
-
-    WQreference = [[release, refRetrieved, cellosaurusref]]
-    return (WQreference)
-
-
-# Functions to that wrap different Wikidata Integrator statements to the list of statements
-
-
-def add_info_about_related_cell_lines(self, cellosaurus_cell_line_id,
-                                      information_to_insert_on_wikidata,
-                                      wikidata_reference_for_statement):
-    for parent_cell_line in self.cellosaurus[cellosaurus_cell_line_id]["HI"]:
-
-        information_to_insert_on_wikidata = append_parent_cell_line(self, parent_cell_line,
-                                                                    information_to_insert_on_wikidata,
-                                                                    reference=wikidata_reference_for_statement)
-        if cellosaurus_cell_line_id not in self.AddParentCellline:
-            self.AddParentCellline.append(cellosaurus_cell_line_id)
-
-    if self.cellosaurus[cellosaurus_cell_line_id]["OI"]:
-        for autologous_cell_line in self.cellosaurus[cellosaurus_cell_line_id]["OI"]:
-            information_to_insert_on_wikidata = append_autologous_cell_line(self, autologous_cell_line,
-                                                                            information_to_insert_on_wikidata,
-                                                                            reference=wikidata_reference_for_statement)
-            if cellosaurus_cell_line_id not in self.AddParentCellline:
-                self.AddParentCellline.append(cellosaurus_cell_line_id)
-
-    return information_to_insert_on_wikidata
-
-
 def add_info_about_identifiers(self, cellosaurus_cell_line_id,
                                information_to_insert_on_wikidata,
                                wikidata_reference_for_statement):
@@ -795,30 +820,6 @@ def append_literature_descriptions(self, cellosaurus_cell_line_id, information_t
 
     return information_to_insert_on_wikidata
 
-
-
-
-def append_parent_cell_line(self, parent_cell_line, information_to_insert_on_wikidata, reference):
-    if parent_cell_line in self.wikidata:
-        # P3432 : parent cell line
-        parent_cell_line_id = self.wikidata[parent_cell_line]
-        information_to_insert_on_wikidata.append(make_statement(
-            statement_property="P3432",
-            statement_value=parent_cell_line_id,
-            references=reference
-        ))
-    return information_to_insert_on_wikidata
-
-
-def append_autologous_cell_line(self, autologous_cell_line, information_to_insert_on_wikidata, reference):
-    if autologous_cell_line in self.wikidata:
-        autologous_cell_line_id = self.wikidata[autologous_cell_line]
-        information_to_insert_on_wikidata.append(make_statement(
-            statement_property="P3578",
-            statement_value=autologous_cell_line_id,
-            references=reference
-        ))
-    return information_to_insert_on_wikidata
 
 
 def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
