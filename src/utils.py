@@ -43,6 +43,7 @@ def categories(file):
 def correspondance(cellosaurus):
     return (match_cellosaurus_to_wikidata_items(cellosaurus))
 
+
 class CellossaurusCellLine():
     """
     :param wdi_login : wdi_login object
@@ -97,13 +98,11 @@ class CellossaurusCellLine():
                                                          cellosaurus_release_qid=self.release_qid)
 
         self.wdi_cell_line_to_add = []
-        self.wdi_cell_line_to_delete =  []
+        self.wdi_cell_line_to_delete = []
 
         self.parent_cell_line_to_add = []
         self.PublicationNotReferencing = []
         self.WIDs = []
-
-
 
     def prepare_for_wikidata(self, folder_for_errors="doc/ERRORS/"):
         data_to_add_to_wikidata = []
@@ -112,33 +111,30 @@ class CellossaurusCellLine():
 
         data_to_add_to_wikidata = add_info_about_the_cell_line_identity(self, data_to_add_to_wikidata)
 
-        data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, self.cell_line_id,
-                                                                                data_to_add_to_wikidata,
-                                                                                wikidata_reference_for_statement,
-                                                                                folder_for_errors)
+        data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, data_to_add_to_wikidata,
+                                                                      folder_for_errors)
 
         data_to_add_to_wikidata = add_info_about_related_cell_lines(self, self.cell_line_id,
-                                                                              data_to_add_to_wikidata,
-                                                                              wikidata_reference_for_statement)
+                                                                    data_to_add_to_wikidata,
+                                                                    wikidata_reference_for_statement)
 
         data_to_add_to_wikidata = append_cellosaurus_id(self.cell_line_id,
-                                                                  data_to_add_to_wikidata,
-                                                                  reference=wikidata_reference_for_statement)
+                                                        data_to_add_to_wikidata,
+                                                        reference=wikidata_reference_for_statement)
 
         data_to_add_to_wikidata = add_info_about_identifiers(self,
-                                                                       self.cell_line_id,
-                                                                       data_to_add_to_wikidata,
-                                                                       wikidata_reference_for_statement)
+                                                             self.cell_line_id,
+                                                             data_to_add_to_wikidata,
+                                                             wikidata_reference_for_statement)
 
         data_to_add_to_wikidata = add_info_about_references(self,
-                                                                      self.cell_line_id,
-                                                                      data_to_add_to_wikidata,
-                                                                      wikidata_reference_for_statement)
+                                                            self.cell_line_id,
+                                                            data_to_add_to_wikidata,
+                                                            wikidata_reference_for_statement)
         return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
 
 
 def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_delete):
-
     cell_line_dump = cell_line_object.cell_line_dump
 
     cell_line_comments = cell_line_dump["CC"]
@@ -183,7 +179,6 @@ def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_dele
 
 def add_info_about_the_cell_line_identity(cell_line_object,
                                           data_to_add_to_wikidata):
-
     data_to_add_to_wikidata = append_is_cell_ine(data_to_add_to_wikidata, cell_line_object.references_in_wdi_format)
 
     data_to_add_to_wikidata = append_is_contaminated(cell_line_object, data_to_add_to_wikidata)
@@ -192,8 +187,15 @@ def add_info_about_the_cell_line_identity(cell_line_object,
     return data_to_add_to_wikidata
 
 
+def append_is_cell_ine(information_to_insert_on_wikidata, reference):
+    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
+        reference=reference
+    ))
+    return information_to_insert_on_wikidata
+
+
 def append_is_contaminated(cell_line_object, data_to_add_to_wikidata):
-    cell_line_comments = cell_line_object.cell_line_dump  ["CC"]
+    cell_line_comments = cell_line_object.cell_line_dump["CC"]
     if cell_line_comments:
         data_to_add_to_wikidata.append(make_instance_of_contaminated_cell_line_statement(
             reference=cell_line_object.references_in_wdi_format
@@ -202,7 +204,6 @@ def append_is_contaminated(cell_line_object, data_to_add_to_wikidata):
 
 
 def append_category(cell_line_object, data_to_add_to_wikidata):
-
     cell_line_category = cell_line_object.cell_line_dump["CA"]
     category_to_wikidata = cell_line_object.cell_line_categories
 
@@ -214,6 +215,136 @@ def append_category(cell_line_object, data_to_add_to_wikidata):
         ))
 
     return data_to_add_to_wikidata
+
+
+def add_info_about_the_cell_line_source(cell_line_object, data_to_add_to_wikidata,
+                                        folder_for_errors):
+    data_to_add_to_wikidata = append_diseases(cell_line_object,
+                                              data_to_add_to_wikidata,
+                                              folder_for_errors=folder_for_errors)
+
+    list_of_taxons_of_origin = get_list_of_taxons(cell_line_object, folder_for_errors)
+
+    list_of_biological_sexes_of_source = get_list_of_biological_sexes(cell_line_object,
+                                                                      list_of_taxons_of_origin)
+
+    data_to_add_to_wikidata = append_taxon_and_gender(cell_line_object,
+                                                      data_to_add_to_wikidata,
+                                                      list_of_taxons_of_origin,
+                                                      list_of_biological_sexes_of_source)
+    return data_to_add_to_wikidata
+
+
+def append_diseases(cell_line_object, data_to_add_to_wikidata, folder_for_errors):
+    reference = cell_line_object.references_in_wdi_format
+    cell_line_diseases_of_source = cell_line_object.cell_line_dump["DI"]
+    diseases_in_wikidata = cell_line_object.diseases
+
+    if cell_line_diseases_of_source:
+        for disease in cell_line_diseases_of_source:
+            if disease in diseases_in_wikidata:
+                disease_id = diseases_in_wikidata[disease]
+
+                data_to_add_to_wikidata.append(make_established_from_disease_statement(
+                    disease_id=disease_id,
+                    references=reference
+                ))
+
+            else:
+                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
+                    file.write(disease + "\n")
+    return data_to_add_to_wikidata
+
+
+def append_taxon_and_gender(cell_line_object, data_to_add_to_wikidata,
+                            list_of_taxons_of_origin, list_of_biological_sexes_of_source):
+
+    cell_line_references = cell_line_object.references_in_wdi_format
+
+    if list_of_taxons_of_origin:
+        for taxon_of_origin in list_of_taxons_of_origin:
+
+            if taxon_of_origin == "Unknow value":
+                data_to_add_to_wikidata.append(wdi_core.WDString(
+                    value="Unknow value", prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    references=cell_line_references,
+                    snak_type='somevalue'))
+            else:
+                data_to_add_to_wikidata.append(wdi_core.WDItemID(
+                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    references=cell_line_references))
+
+    return data_to_add_to_wikidata
+
+
+def get_list_of_biological_sexes(cell_line_object, list_of_taxons_of_origin):
+    list_of_biological_sexes_of_source = []
+
+    cell_line_sexes_of_source = cell_line_object.cell_line_dump["SX"]
+
+    for biological_sex_of_source in cell_line_sexes_of_source:
+
+        if biological_sex_of_source == "Sex unspecified":
+            list_of_biological_sexes_of_source.append(wdi_core.WDString(
+                value="Unknow value", prop_nr="P21", is_qualifier=True, snak_type='somevalue'))
+
+        else:
+            dict_for_human_sexes = {"Female": "Q6581072",
+                                    "Male": "Q6581097",
+                                    "Sex ambiguous": "Q1097630"}
+
+            dict_for_non_human_sexes = {"Female": "Q43445",
+                                        "Male": "Q44148",
+                                        "Sex ambiguous": "Q28873047"}
+
+            id_for_homo_sapiens = "Q15978631"
+
+            if id_for_homo_sapiens in list_of_taxons_of_origin:
+                biological_sex_id = dict_for_human_sexes[biological_sex_of_source]
+
+            else:
+                if biological_sex_of_source == "Mixed sex":
+                    biological_sex_id = "Q43445"
+                    list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
+                        value="Q44148", prop_nr="P21", is_qualifier=True))
+
+                else:
+                    biological_sex_id = dict_for_non_human_sexes[biological_sex_of_source]
+
+            list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
+                value=biological_sex_id, prop_nr="P21", is_qualifier=True))
+
+    return list_of_biological_sexes_of_source
+
+
+def get_list_of_taxons(cell_line_object, folder_for_errors):
+    # OX : Taxon od origin
+    # P703 : Found in taxon
+    list_of_taxons_of_origin = []
+    cell_line_taxons = cell_line_object.cell_line_dump["OX"]
+
+    wikidata_species = cell_line_object.species
+
+    if cell_line_taxons:
+
+        for taxon_of_origin in cell_line_taxons:
+            # Format is TaxID=9606 (example)
+            # It is split to get "9606"
+            taxon_of_origin = taxon_of_origin.split("=")[1]
+
+            if taxon_of_origin in wikidata_species:
+                wikidata_taxon_qid = wikidata_species[taxon_of_origin]
+                list_of_taxons_of_origin.append(wikidata_taxon_qid)
+
+            elif taxon_of_origin == "32644":
+                # if the species is unknow
+                list_of_taxons_of_origin.append("Unknow value")
+
+            else:
+                with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
+                    file.write(taxon_of_origin + "\n")
+
+    return list_of_taxons_of_origin
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
@@ -556,29 +687,7 @@ def get_WQ_reference(cellosaurus_cell_line_id, cellosaurus_release_qid):
     return (WQreference)
 
 
-
 # Functions to that wrap different Wikidata Integrator statements to the list of statements
-
-
-def add_info_about_the_cell_line_source(self, cellosaurus_cell_line_id,
-                                        information_to_insert_on_wikidata,
-                                        wikidata_reference_for_statement,
-                                        folder_for_errors):
-    information_to_insert_on_wikidata = append_diseases(self,
-                                                        cellosaurus_cell_line_id,
-                                                        information_to_insert_on_wikidata,
-                                                        reference=wikidata_reference_for_statement,
-                                                        folder_for_errors=folder_for_errors)
-
-    list_of_taxons_of_origin = get_list_of_taxons(self, cellosaurus_cell_line_id, folder_for_errors)
-
-    list_of_biological_sexes_of_source = get_list_of_biological_sexes(self, cellosaurus_cell_line_id, list_of_taxons_of_origin)
-
-    information_to_insert_on_wikidata = append_taxon_and_gender(information_to_insert_on_wikidata,
-                                                                list_of_taxons_of_origin,
-                                                                list_of_biological_sexes_of_source,
-                                                                references=wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
 
 
 def add_info_about_related_cell_lines(self, cellosaurus_cell_line_id,
@@ -607,10 +716,12 @@ def add_info_about_identifiers(self, cellosaurus_cell_line_id,
                                information_to_insert_on_wikidata,
                                wikidata_reference_for_statement):
     if self.cellosaurus[cellosaurus_cell_line_id]["MeSH"] != "NULL":
-        information_to_insert_on_wikidata = append_mesh_id(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata,
+        information_to_insert_on_wikidata = append_mesh_id(self, cellosaurus_cell_line_id,
+                                                           information_to_insert_on_wikidata,
                                                            reference=wikidata_reference_for_statement)
 
-    information_to_insert_on_wikidata = append_obo_exact_matches(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata,
+    information_to_insert_on_wikidata = append_obo_exact_matches(self, cellosaurus_cell_line_id,
+                                                                 information_to_insert_on_wikidata,
                                                                  reference=wikidata_reference_for_statement)
     return information_to_insert_on_wikidata
 
@@ -659,7 +770,8 @@ def append_obo_exact_matches(self, cellosaurus_cell_line_id, information_to_inse
 
 
 # Functions to append Wikidata Integrator statements to the list of statements
-def append_literature_descriptions(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata, wikidata_reference_for_statement):
+def append_literature_descriptions(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata,
+                                   wikidata_reference_for_statement):
     for reference in self.cellosaurus[cellosaurus_cell_line_id]["RX"]:
 
         if reference.startswith("PubMed"):
@@ -684,119 +796,6 @@ def append_literature_descriptions(self, cellosaurus_cell_line_id, information_t
     return information_to_insert_on_wikidata
 
 
-def append_taxon_and_gender(information_to_insert_on_wikidata,
-                            list_of_taxons_of_origin, list_of_biological_sexes_of_source, references):
-    if list_of_taxons_of_origin:
-        for taxon_of_origin in list_of_taxons_of_origin:
-
-            if taxon_of_origin == "Unknow value":
-                information_to_insert_on_wikidata.append(wdi_core.WDString(
-                    value="Unknow value",
-                    prop_nr="P703",
-                    qualifiers=list_of_biological_sexes_of_source,
-                    references=references,
-                    snak_type='somevalue'))
-            else:
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
-                    references=references))
-
-    return information_to_insert_on_wikidata
-
-
-def get_list_of_taxons(self, cellosaurus_cell_line_id, folder_for_errors):
-    # OX : Taxon od origin
-    # P703 : Found in taxon
-    list_of_taxons_of_origin = []
-
-    if self.cellosaurus[cellosaurus_cell_line_id]["OX"]:
-
-        for taxon_of_origin in self.cellosaurus[cellosaurus_cell_line_id]["OX"]:
-
-            # Format is TaxID=9606 (example)
-            # It is split to get "9606"
-            taxon_of_origin = taxon_of_origin.split("=")[1]
-            print(taxon_of_origin)
-            if taxon_of_origin in self.species:
-                list_of_taxons_of_origin.append(self.species[taxon_of_origin])
-
-            elif taxon_of_origin == "32644":
-                # if the species is unkown
-                list_of_taxons_of_origin.append("Unknow value")
-            else:
-                with open(folder_for_errors + "species_that_are_not_in_wikidata.txt", "a") as file:
-                    file.write(taxon_of_origin + "\n")
-
-    return list_of_taxons_of_origin
-
-
-def get_list_of_biological_sexes(self, cellosaurus_cell_line_id, list_of_taxons_of_origin):
-    list_of_biological_sexes_of_source = []
-
-    for biological_sex_of_source in self.cellosaurus[cellosaurus_cell_line_id]["SX"]:
-
-        if biological_sex_of_source == "Sex unspecified":
-
-            # P21 : gender
-            list_of_biological_sexes_of_source.append(wdi_core.WDString(
-                value="Unknow value",
-                prop_nr="P21",
-                is_qualifier=True,
-                snak_type='somevalue'))
-        else:
-            # else add the item corresponding to sex in sex or gender (P21)
-
-            dict_for_human_genders = {"Female": "Q6581072",
-                                      "Male": "Q6581097",
-                                      "Sex ambiguous": "Q1097630"}
-
-            dict_for_non_human_genders = {"Female": "Q43445",
-                                          "Male": "Q44148",
-                                          "Sex ambiguous": "Q28873047"}
-
-            id_for_homo_sapiens = "Q15978631"
-            if id_for_homo_sapiens in list_of_taxons_of_origin:
-                biological_sex_id = dict_for_human_genders[biological_sex_of_source]
-
-            else:
-                if biological_sex_of_source == "Mixed sex":
-                    biological_sex_id = "Q43445"
-                    list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
-                        value="Q44148", prop_nr="P21", is_qualifier=True))
-                else:
-                    biological_sex_id = dict_for_non_human_genders[biological_sex_of_source]
-
-            list_of_biological_sexes_of_source.append(wdi_core.WDItemID(
-                value=biological_sex_id, prop_nr="P21", is_qualifier=True))
-
-    return list_of_biological_sexes_of_source
-
-
-def append_is_cell_ine(information_to_insert_on_wikidata, reference):
-    information_to_insert_on_wikidata.append(make_instance_of_cell_line_statement(
-        reference=reference
-    ))
-    return information_to_insert_on_wikidata
-
-
-def append_diseases(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata,
-                    reference, folder_for_errors):
-    if self.cellosaurus[cellosaurus_cell_line_id]["DI"]:
-        diseases_in_wikidata = self.diseases
-
-        for disease in self.cellosaurus[cellosaurus_cell_line_id]["DI"]:
-            if disease in diseases_in_wikidata:
-                disease_id = diseases_in_wikidata[disease]
-
-                information_to_insert_on_wikidata.append(make_established_from_disease_statement(
-                    disease_id=disease_id,
-                    references=reference
-                ))
-
-            else:
-                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
-                    file.write(disease + "\n")
-    return information_to_insert_on_wikidata
 
 
 def append_parent_cell_line(self, parent_cell_line, information_to_insert_on_wikidata, reference):
@@ -912,7 +911,8 @@ def update_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, dat
 
     delete_old_statements(self, cellosaurus_cell_line_id, data)
 
-    item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id, data)
+    item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id,
+                                                                                       data)
 
     item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(self,
                                                                                                                 cellosaurus_cell_line_id,
@@ -993,9 +993,11 @@ def create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, dat
         item.set_aliases(
             self.cellosaurus[cellosaurus_cell_line_id]["SY"], lang='en', append=False)
 
-    for lang, description in prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['descriptions'].items():
+    for lang, description in prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)[
+        'descriptions'].items():
         item.set_description(description, lang=lang)
-        item.set_label(label=prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['name'], lang=lang)
+        item.set_label(label=prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['name'],
+                       lang=lang)
 
     with open("./results/WikidataID.txt", "a") as file:
         newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
