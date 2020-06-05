@@ -103,6 +103,9 @@ class CellossaurusCellLine():
     :param species : the species dictionary creating with correspondance function.
     :param categories : the categories dictionary creating with  categories function.
     :param diseases : the diseases dictionary creating with correspondance function.
+    :param wdi_cell_line_to_add : the cell line information to add in Wikidata Integrator format
+    :param wdi_cell_line_to_delete : the cell line information to delete in Wikidata Integrator format
+
     """
 
     def __init__(self, wdi_login_object='', release_qid='', cellosaurus_dictionary='',
@@ -125,6 +128,7 @@ class CellossaurusCellLine():
             categories function.
         :param diseases : the diseases dictionary creating with
             correspondance function.
+
         """
 
         self.wdi_login_object = wdi_login_object
@@ -137,19 +141,75 @@ class CellossaurusCellLine():
         self.diseases = diseases
 
         self.cell_line_id = cell_line_id
+        self.wdi_cell_line_to_add = []
+        self.wdi_cell_line_to_delete =  []
 
         self.parent_cell_line_to_add = []
         self.PublicationNotReferencing = []
         self.WIDs = []
 
-    def prepare_wikidata_integration(self):
-        return create_information_objects_for_wikidata(self, self.cell_line_id)
+    def prepare_for_wikidata(self):
+        data_to_add_to_wikidata = []
+        data_to_delete = []
+        wikidata_reference_for_statement = get_WQ_reference(self.cell_line_id,
+                                                            cellosaurus_release_qid=self.releaseID)
+
+        data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, self.cell_line_id, data_to_delete)
+
+        data_to_add_to_wikidata = add_info_about_the_cell_line_identity(self, self.cell_line_id,
+                                                                                  data_to_add_to_wikidata,
+                                                                                  wikidata_reference_for_statement)
+
+        data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, self.cell_line_id,
+                                                                                data_to_add_to_wikidata,
+                                                                                wikidata_reference_for_statement,
+                                                                                folder_for_errors)
+
+        data_to_add_to_wikidata = add_info_about_related_cell_lines(self, self.cell_line_id,
+                                                                              data_to_add_to_wikidata,
+                                                                              wikidata_reference_for_statement)
+
+        data_to_add_to_wikidata = append_cellosaurus_id(self.cell_line_id,
+                                                                  data_to_add_to_wikidata,
+                                                                  reference=wikidata_reference_for_statement)
+
+        data_to_add_to_wikidata = add_info_about_identifiers(self,
+                                                                       self.cell_line_id,
+                                                                       data_to_add_to_wikidata,
+                                                                       wikidata_reference_for_statement)
+
+        data_to_add_to_wikidata = add_info_about_references(self,
+                                                                      self.cell_line_id,
+                                                                      data_to_add_to_wikidata,
+                                                                      wikidata_reference_for_statement)
+        return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
 
     def add_to_wikidata(self):
         return create_information_objects_for_wikidata(self, self.cell_line_id, data)
 
     def update_item_on_wikidata(self):
         return create_information_objects_for_wikidata(self, self.cell_line_id, data)
+
+
+                                            cellosaurus_cell_line_id,
+                                            folder_for_errors="doc/ERRORS/"):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
