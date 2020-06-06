@@ -114,19 +114,19 @@ class CellossaurusCellLine():
         data_to_add_to_wikidata = add_info_about_the_cell_line_source(self, data_to_add_to_wikidata,
                                                                       folder_for_errors)
 
-        data_to_add_to_wikidata,  related_cell_line_to_add = add_info_about_related_cell_lines(self,
-                                                                    data_to_add_to_wikidata)
+        data_to_add_to_wikidata, related_cell_line_to_add = add_info_about_related_cell_lines(self,
+                                                                                              data_to_add_to_wikidata)
 
         self.related_cell_line_to_add = related_cell_line_to_add
 
         data_to_add_to_wikidata = append_cellosaurus_id(self.cell_line_id,
                                                         data_to_add_to_wikidata,
-                                                        reference=wikidata_reference_for_statement)
+                                                        reference=self.references_in_wdi_format)
 
         data_to_add_to_wikidata = add_info_about_identifiers(self,
                                                              self.cell_line_id,
                                                              data_to_add_to_wikidata,
-                                                             wikidata_reference_for_statement)
+                                                             self.references_in_wdi_format)
 
         data_to_add_to_wikidata = add_info_about_references(self,
                                                             self.cell_line_id,
@@ -402,15 +402,33 @@ def append_parent_cell_line(cell_line_object, parent_cell_line, data_to_add_to_w
     return data_to_add_to_wikidata
 
 
-def append_autologous_cell_line(self, autologous_cell_line, information_to_insert_on_wikidata, reference):
-    if autologous_cell_line in self.wikidata:
-        autologous_cell_line_id = self.wikidata[autologous_cell_line]
-        information_to_insert_on_wikidata.append(make_statement(
+def append_autologous_cell_line(cell_line_object, autologous_cell_line, data_to_add_to_wikidata):
+    cell_lines_in_wikidata = cell_line_object.wikidata_dictionary_with_existing_cell_lines
+    reference = cell_line_object.references_in_wdi_format
+    if autologous_cell_line in cell_lines_in_wikidata:
+        autologous_cell_line_id = cell_lines_in_wikidata[autoSlogous_cell_line]
+        data_to_add_to_wikidata.append(make_statement(
             statement_property="P3578",
             statement_value=autologous_cell_line_id,
             references=reference
         ))
-    return information_to_insert_on_wikidata
+    return data_to_add_to_wikidata
+
+
+def add_info_about_identifiers(cell_line_object, data_to_add_to_wikidata):
+    cell_line_mesh = cell_line_object.cell_line_dump["MeSH"]
+    cellosaurus_cell_line_id = cell_line_object.ce
+    reference = cell_line_object.references_in_wdi_format
+
+    if cell_line_mesh != "NULL":
+        data_to_add_to_wikidata = append_mesh_id(cell_line_object, cellosaurus_cell_line_id,
+                                                 data_to_add_to_wikidata,
+                                                 reference=reference)
+
+    data_to_add_to_wikidata = append_obo_exact_matches(cell_line_object, cellosaurus_cell_line_id,
+                                                       data_to_add_to_wikidata,
+                                                       reference=reference)
+    return data_to_add_to_wikidata
 
 
 def Set(cellosaurus, cellosaurus_cell_line_id):
@@ -737,20 +755,6 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
     return (species_ids, problematic_species_ids)
 
 
-def add_info_about_identifiers(self, cellosaurus_cell_line_id,
-                               information_to_insert_on_wikidata,
-                               wikidata_reference_for_statement):
-    if self.cellosaurus[cellosaurus_cell_line_id]["MeSH"] != "NULL":
-        information_to_insert_on_wikidata = append_mesh_id(self, cellosaurus_cell_line_id,
-                                                           information_to_insert_on_wikidata,
-                                                           reference=wikidata_reference_for_statement)
-
-    information_to_insert_on_wikidata = append_obo_exact_matches(self, cellosaurus_cell_line_id,
-                                                                 information_to_insert_on_wikidata,
-                                                                 reference=wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
-
-
 def add_info_about_references(self, cellosaurus_cell_line_id,
                               information_to_insert_on_wikidata,
                               wikidata_reference_for_statement):
@@ -819,7 +823,6 @@ def append_literature_descriptions(self, cellosaurus_cell_line_id, information_t
                     references=wikidata_reference_for_statement))
 
     return information_to_insert_on_wikidata
-
 
 
 def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
