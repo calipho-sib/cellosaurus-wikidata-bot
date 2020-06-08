@@ -256,7 +256,31 @@ class CellossaurusCellLine():
         data_to_add_to_wikidata.append('a')
         return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
 
-    
+    def update_line_on_wikidata(self, data):
+
+        cellosaurus_cell_line_id = self.cell_line_id
+
+        label = self.cell_line_dump["ID"]
+        if " [" in label:
+            label = label.split("[")[0].strip(" ")
+        descriptions = prepare_item_descriptions(self)
+
+        delete_old_statements(self, cellosaurus_cell_line_id, data)
+
+        item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self,
+                                                                                           cellosaurus_cell_line_id,
+                                                                                           data)
+
+        item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(
+            self,
+            cellosaurus_cell_line_id,
+            item_with_statements_to_update,
+            label,
+            descriptions)
+        item_with_statements_to_update_with_labels.write(self.login,
+                                                         bot_account=True,
+                                                         edit_summary="update item {}".format(
+                                                             self.cellosaurus[cellosaurus_cell_line_id]["ID"]))
 
 
 def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_delete):
@@ -630,13 +654,28 @@ def append_literature_descriptions(cell_line_object, data_to_add_to_wikidata):
 
     return data_to_add_to_wikidata
 
-def Set(cellosaurus, cellosaurus_cell_line_id):
-    return prepare_item_label_and_descriptions(cellosaurus, cellosaurus_cell_line_id)
 
+def prepare_item_descriptions(cell_line_object):
 
-# Auxiliary functions added by lubianat
+    label = cell_line_object.cell_line_dump["ID"]
 
-###### Functions to process pickle files ######
+    descriptions = {
+        "en": "cell line",
+        "fr": "lignée cellulaire",
+        "de": "Zelllinie",
+        "pt": "linhagem celular"
+    }
+
+    if " [" in label:
+        namecompose = label.split("[")
+        descriptions = {
+            "en": "cell line" + " (" + namecompose[1].strip("]") + ")",
+            "fr": "lignée cellulaire" + " (" + namecompose[1].strip("]") + ")",
+            "de": "Zelllinie" + " (" + namecompose[1].strip("]") + ")"
+        }
+
+    return descriptions
+
 
 def load_pickle_file(pickleFileName):
     """
@@ -906,24 +945,7 @@ def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, cellosa
 
 
 # Functions that actually interact with Wikidata API
-def update_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data):
-    label = prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['name']
-    descriptions = prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['descriptions']
 
-    delete_old_statements(self, cellosaurus_cell_line_id, data)
-
-    item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id,
-                                                                                       data)
-
-    item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(self,
-                                                                                                                cellosaurus_cell_line_id,
-                                                                                                                item_with_statements_to_update,
-                                                                                                                label,
-                                                                                                                descriptions)
-    item_with_statements_to_update_with_labels.write(self.login,
-                                                     bot_account=True,
-                                                     edit_summary="update item {}".format(
-                                                         self.cellosaurus[cellosaurus_cell_line_id]["ID"]))
 
 
 def delete_old_statements(self, cellosaurus_cell_line_id, data):
@@ -944,35 +966,6 @@ def delete_old_statements(self, cellosaurus_cell_line_id, data):
         item_name = self.cellosaurus[cellosaurus_cell_line_id]["ID"]
         item_deletion.write(self.login, bot_account=False,
                             edit_summary="delete statements before update the item {}".format(item_name))
-
-
-def prepare_item_label_and_descriptions(cellosaurus, cellosaurus_cell_line_id):
-    """
-    This function is using for give name and description in english, french
-    and deutch.
-    :param cellosaurus_cell_line_id : the Cellosaurus id for a cell line.
-    :return : dictionnaries with the name and the description in english, french and deutch
-    """
-
-    label = cellosaurus[cellosaurus_cell_line_id]["ID"]
-
-    descriptions = {
-        "en": "cell line",
-        "fr": "lignée cellulaire",
-        "de": "Zelllinie",
-        "pt": "linhagem celular"
-    }
-
-    if " [" in label:
-        namecompose = label.split("[")
-        descriptions = {
-            "en": "cell line" + " (" + namecompose[1].strip("]") + ")",
-            "fr": "lignée cellulaire" + " (" + namecompose[1].strip("]") + ")",
-            "de": "Zelllinie" + " (" + namecompose[1].strip("]") + ")"
-        }
-        label = namecompose[0].strip(" ")
-
-    return {'name': label, 'descriptions': descriptions}
 
 
 def create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data):
