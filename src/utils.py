@@ -44,6 +44,133 @@ def correspondance(cellosaurus):
     return (match_cellosaurus_to_wikidata_items(cellosaurus))
 
 
+
+def CellosaurusToDictionary(file):
+    """
+    Format Cellosaurus dump (.txt) in a dictionary with the informations that
+        will integrating in Wikidata.
+    :param file : the cellosaurus dump at .txt format
+    :return :  a dictionary. In key, the Cellosaurus id for the cell line. In
+        value, the informations on the cell line (name, aliases, external ids,
+        species of origin, parent cell line, references, autologous cell line,
+        sex of the species of origin, ctaegory of the cell line, etc...)
+    """
+    dico = {}
+    with open(file) as file:
+        AS = "NULL"
+        SY = []
+        MeSH = "NULL"
+        CLO = []
+        BTO = []
+        EFO = []
+        BCGO = []
+        RX = []
+        WW = []
+        CC = []
+        DI = []
+        di_names = {}
+        OX = []
+        HI = []
+        OI = []
+        SX = []
+        CA = "NULL"
+        for line in file.readlines():
+            if line.startswith("ID"):
+                ID = line.rstrip("\n").split("   ")[1]
+            if line.startswith("AC"):
+                AC = line.rstrip("\n").split("   ")[1]
+            if line.startswith("AS"):
+                AS = line.rstrip("\n").split("   ")[1]
+            if line.startswith("SY"):
+                SY = line.rstrip("\n").split("   ")[1].split(";")
+            if line.startswith("DR"):
+                DR = line.rstrip("\n").split("   ")[1]
+                if DR.startswith("MeSH"):
+                    MeSH = DR.strip("MeSH; ")
+                if DR.startswith("CLO"):
+                    CLO.append(DR.strip("CLO;").strip(" "))
+                if DR.startswith("BTO"):
+                    BTO.append(DR.strip("BTO;").replace(
+                        "BTO:", "BTO_").strip(" "))
+                if DR.startswith("EFO"):
+                    EFO.append(DR.strip("EFO;").strip(" "))
+                if DR.startswith("BCGO"):
+                    BCGO.append(DR.strip("BCGO;").strip(" "))
+            if line.startswith("RX"):
+                reference = line.rstrip("\n").split("   ")[1]
+                if reference.startswith("PubMed") or reference.startswith("DOI"):
+                    RX.append(reference.strip(";"))
+            if line.startswith("WW"):
+                WW.append(line.rstrip("\n").split("   ")[1])
+            if line.startswith("CC"):
+                comment = (line.rstrip("\n").split("   ")[1])
+                if "Problematic cell line:" in comment:
+                    CC.append(comment.strip(
+                        "Problematic cell line: ").split(".")[0])
+            if line.startswith("DI"):
+                disease = line.rstrip("\n").split("   ")[1]
+                DI.append(disease.split(";")[1].strip(" "))
+                di_names[disease.split(";")[1].strip(" ")] = disease.split(";")[
+                    2].strip(" ").strip("\n")
+            if line.startswith("OX"):
+                species = line.rstrip("\n").split("   ")[1]
+                OX.append(species.strip("NCBI_taxid=").split(";")[0])
+            if line.startswith("HI"):
+                hi = line.rstrip("\n").split("   ")[1].split(";")
+                HI.append(hi[0].split(" !")[0])
+            if line.startswith("OI"):
+                oi = line.rstrip("\n").split("   ")[1].split(";")
+                OI.append(oi[0].split(" !")[0])
+            if line.startswith("SX"):
+                SX.append(line.rstrip("\n").split("   ")[1])
+            if line.startswith("CA"):
+                CA = line.strip("\n").split("   ")[1]
+            if line.startswith("//"):
+                dico[AC] = {"ID": ID,
+                            "AS": AS,
+                            "SY": SY,
+                            "MeSH": MeSH,
+                            "CLO": CLO,
+                            "BTO": BTO,
+                            "EFO": EFO,
+                            "BCGO": BCGO,
+                            "RX": RX,
+                            "WW": WW,
+                            "CC": CC,
+                            "DI": DI,
+                            "DI_names": di_names,
+                            "OX": OX,
+                            "HI": HI,
+                            "OI": OI,
+                            "SX": SX,
+                            "CA": CA}
+                AC = "NULL"
+                ID = "NULL"
+                SY = []
+                CLO = []
+                MeSH = "NULL"
+                BTO = []
+                EFO = []
+                BCGO = []
+                AS = "NULL"
+                RX = []
+                WW = []
+                CC = []
+                DI = []
+                di_names = {}
+                OX = []
+                HI = []
+                OI = []
+                SX = []
+                CA = "NULL"
+        return (dico)
+
+
+def QueryingWikidata():
+    return (query_wikidata_for_cell_lines())
+
+
+
 class CellossaurusCellLine():
     """
     :param wdi_login : wdi_login object
@@ -123,16 +250,13 @@ class CellossaurusCellLine():
                                                         data_to_add_to_wikidata,
                                                         reference=self.references_in_wdi_format)
 
-        data_to_add_to_wikidata = add_info_about_identifiers(self,
-                                                             self.cell_line_id,
-                                                             data_to_add_to_wikidata,
-                                                             self.references_in_wdi_format)
+        data_to_add_to_wikidata = add_info_about_identifiers(self, data_to_add_to_wikidata)
 
-        data_to_add_to_wikidata = add_info_about_references(self,
-                                                            self.cell_line_id,
-                                                            data_to_add_to_wikidata,
-                                                            wikidata_reference_for_statement)
+        data_to_add_to_wikidata = add_info_about_references(self, data_to_add_to_wikidata)
+        data_to_add_to_wikidata.append('a')
         return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
+
+    
 
 
 def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_delete):
@@ -416,148 +540,98 @@ def append_autologous_cell_line(cell_line_object, autologous_cell_line, data_to_
 
 
 def add_info_about_identifiers(cell_line_object, data_to_add_to_wikidata):
-    cell_line_mesh = cell_line_object.cell_line_dump["MeSH"]
-    cellosaurus_cell_line_id = cell_line_object.ce
-    reference = cell_line_object.references_in_wdi_format
-
-    if cell_line_mesh != "NULL":
-        data_to_add_to_wikidata = append_mesh_id(cell_line_object, cellosaurus_cell_line_id,
-                                                 data_to_add_to_wikidata,
-                                                 reference=reference)
-
-    data_to_add_to_wikidata = append_obo_exact_matches(cell_line_object, cellosaurus_cell_line_id,
-                                                       data_to_add_to_wikidata,
-                                                       reference=reference)
+    data_to_add_to_wikidata = append_mesh_id(cell_line_object, data_to_add_to_wikidata)
+    data_to_add_to_wikidata = append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata)
     return data_to_add_to_wikidata
 
 
+def append_mesh_id(cell_line_object, data_to_add_to_wikidata):
+
+    # P486 : MeSH ID
+    cell_line_mesh = cell_line_object.cell_line_dump["MeSH"]
+
+    reference = cell_line_object.references_in_wdi_format
+    if cell_line_mesh != "NULL":
+        data_to_add_to_wikidata.append(wdi_core.WDExternalID(
+            value=cell_line_object.cell_line_dump["MeSH"],
+            prop_nr="P486",
+            references=reference))
+    return data_to_add_to_wikidata
+
+
+def append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata):
+    reference = cell_line_object.references_in_wdi_format
+
+    cell_line_dump = cell_line_object.cell_line_dump
+    if cell_line_dump["CLO"]:
+        for CLO in cell_line_dump["CLO"]:
+            # P2888: exact match
+            data_to_add_to_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + CLO,
+                prop_nr="P2888",
+                references=reference))
+
+    if cell_line_dump["BTO"]:
+        for BTO in cell_line_dump["BTO"]:
+            data_to_add_to_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BTO,
+                prop_nr="2888",
+                references=reference))
+
+    if cell_line_dump["EFO"]:
+        for EFO in cell_line_dump["EFO"]:
+            data_to_add_to_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + EFO,
+                prop_nr="2888",
+                references=reference))
+
+    if cell_line_dump["BCGO"]:
+        for BCGO in cell_line_dump["BCGO"]:
+            data_to_add_to_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + BCGO,
+                prop_nr="2888",
+                references=reference))
+    return data_to_add_to_wikidata
+
+
+def add_info_about_references(cell_line_object, data_to_add_to_wikidata):
+    #  RX         References identifiers
+    reference_publication_ids = cell_line_object.cell_line_dump["RX"]
+    if reference_publication_ids:
+        data_to_add_to_wikidata = append_literature_descriptions(cell_line_object, data_to_add_to_wikidata)
+    return data_to_add_to_wikidata
+
+
+# Functions to append Wikidata Integrator statements to the list of statements
+def append_literature_descriptions(cell_line_object, data_to_add_to_wikidata):
+    pubmed_ids_and_DOIs_in_wikidata = cell_line_object.references
+    reference_publication_ids = cell_line_object.cell_line_dump["RX"]
+
+    references_in_wdi_format = cell_line_object.references_in_wdi_format
+    for reference_id in reference_publication_ids:
+        if reference_id.startswith("PubMed"):
+            pubmed = reference_id.strip("PubMed=")
+
+            if pubmed in pubmed_ids_and_DOIs_in_wikidata:
+                # P1343:described by source
+                data_to_add_to_wikidata.append(wdi_core.WDItemID(
+                    value=pubmed_ids_and_DOIs_in_wikidata[pubmed],
+                    prop_nr="P1343",
+                    references=references_in_wdi_format))
+
+        elif reference_id.startswith("DOI"):
+            doi = reference_id.strip("DOI=")
+
+            if doi in pubmed_ids_and_DOIs_in_wikidata:
+                data_to_add_to_wikidata.append(wdi_core.WDItemID(
+                    value=pubmed_ids_and_DOIs_in_wikidata[doi],
+                    prop_nr="P1343",
+                    references=references_in_wdi_format))
+
+    return data_to_add_to_wikidata
+
 def Set(cellosaurus, cellosaurus_cell_line_id):
     return prepare_item_label_and_descriptions(cellosaurus, cellosaurus_cell_line_id)
-
-
-def CellosaurusToDictionary(file):
-    """
-    Format Cellosaurus dump (.txt) in a dictionary with the informations that
-        will integrating in Wikidata. 
-    :param file : the cellosaurus dump at .txt format
-    :return :  a dictionary. In key, the Cellosaurus id for the cell line. In
-        value, the informations on the cell line (name, aliases, external ids,
-        species of origin, parent cell line, references, autologous cell line,
-        sex of the species of origin, ctaegory of the cell line, etc...) 
-    """
-    dico = {}
-    with open(file) as file:
-        AS = "NULL"
-        SY = []
-        MeSH = "NULL"
-        CLO = []
-        BTO = []
-        EFO = []
-        BCGO = []
-        RX = []
-        WW = []
-        CC = []
-        DI = []
-        di_names = {}
-        OX = []
-        HI = []
-        OI = []
-        SX = []
-        CA = "NULL"
-        for line in file.readlines():
-            if line.startswith("ID"):
-                ID = line.rstrip("\n").split("   ")[1]
-            if line.startswith("AC"):
-                AC = line.rstrip("\n").split("   ")[1]
-            if line.startswith("AS"):
-                AS = line.rstrip("\n").split("   ")[1]
-            if line.startswith("SY"):
-                SY = line.rstrip("\n").split("   ")[1].split(";")
-            if line.startswith("DR"):
-                DR = line.rstrip("\n").split("   ")[1]
-                if DR.startswith("MeSH"):
-                    MeSH = DR.strip("MeSH; ")
-                if DR.startswith("CLO"):
-                    CLO.append(DR.strip("CLO;").strip(" "))
-                if DR.startswith("BTO"):
-                    BTO.append(DR.strip("BTO;").replace(
-                        "BTO:", "BTO_").strip(" "))
-                if DR.startswith("EFO"):
-                    EFO.append(DR.strip("EFO;").strip(" "))
-                if DR.startswith("BCGO"):
-                    BCGO.append(DR.strip("BCGO;").strip(" "))
-            if line.startswith("RX"):
-                reference = line.rstrip("\n").split("   ")[1]
-                if reference.startswith("PubMed") or reference.startswith("DOI"):
-                    RX.append(reference.strip(";"))
-            if line.startswith("WW"):
-                WW.append(line.rstrip("\n").split("   ")[1])
-            if line.startswith("CC"):
-                comment = (line.rstrip("\n").split("   ")[1])
-                if "Problematic cell line:" in comment:
-                    CC.append(comment.strip(
-                        "Problematic cell line: ").split(".")[0])
-            if line.startswith("DI"):
-                disease = line.rstrip("\n").split("   ")[1]
-                DI.append(disease.split(";")[1].strip(" "))
-                di_names[disease.split(";")[1].strip(" ")] = disease.split(";")[
-                    2].strip(" ").strip("\n")
-            if line.startswith("OX"):
-                species = line.rstrip("\n").split("   ")[1]
-                OX.append(species.strip("NCBI_taxid=").split(";")[0])
-            if line.startswith("HI"):
-                hi = line.rstrip("\n").split("   ")[1].split(";")
-                HI.append(hi[0].split(" !")[0])
-            if line.startswith("OI"):
-                oi = line.rstrip("\n").split("   ")[1].split(";")
-                OI.append(oi[0].split(" !")[0])
-            if line.startswith("SX"):
-                SX.append(line.rstrip("\n").split("   ")[1])
-            if line.startswith("CA"):
-                CA = line.strip("\n").split("   ")[1]
-            if line.startswith("//"):
-                dico[AC] = {"ID": ID,
-                            "AS": AS,
-                            "SY": SY,
-                            "MeSH": MeSH,
-                            "CLO": CLO,
-                            "BTO": BTO,
-                            "EFO": EFO,
-                            "BCGO": BCGO,
-                            "RX": RX,
-                            "WW": WW,
-                            "CC": CC,
-                            "DI": DI,
-                            "DI_names": di_names,
-                            "OX": OX,
-                            "HI": HI,
-                            "OI": OI,
-                            "SX": SX,
-                            "CA": CA}
-                AC = "NULL"
-                ID = "NULL"
-                SY = []
-                CLO = []
-                MeSH = "NULL"
-                BTO = []
-                EFO = []
-                BCGO = []
-                AS = "NULL"
-                RX = []
-                WW = []
-                CC = []
-                DI = []
-                di_names = {}
-                OX = []
-                HI = []
-                OI = []
-                SX = []
-                CA = "NULL"
-        return (dico)
-
-
-def QueryingWikidata():
-    return (query_wikidata_for_cell_lines())
 
 
 # Auxiliary functions added by lubianat
@@ -755,74 +829,6 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
     return (species_ids, problematic_species_ids)
 
 
-def add_info_about_references(self, cellosaurus_cell_line_id,
-                              information_to_insert_on_wikidata,
-                              wikidata_reference_for_statement):
-    #  RX         References identifiers
-    if self.cellosaurus[cellosaurus_cell_line_id]["RX"]:
-        information_to_insert_on_wikidata = append_literature_descriptions(self, cellosaurus_cell_line_id,
-                                                                           information_to_insert_on_wikidata,
-                                                                           wikidata_reference_for_statement)
-    return information_to_insert_on_wikidata
-
-
-def append_obo_exact_matches(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
-    if self.cellosaurus[cellosaurus_cell_line_id]["CLO"]:
-        for CLO in self.cellosaurus[cellosaurus_cell_line_id]["CLO"]:
-            # P2888: exact match
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + CLO,
-                prop_nr="P2888",
-                references=reference))
-
-    if self.cellosaurus[cellosaurus_cell_line_id]["BTO"]:
-        for BTO in self.cellosaurus[cellosaurus_cell_line_id]["BTO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BTO,
-                prop_nr="2888",
-                references=reference))
-
-    if self.cellosaurus[cellosaurus_cell_line_id]["EFO"]:
-        for EFO in self.cellosaurus[cellosaurus_cell_line_id]["EFO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + EFO,
-                prop_nr="2888",
-                references=reference))
-
-    if self.cellosaurus[cellosaurus_cell_line_id]["BCGO"]:
-        for BCGO in self.cellosaurus[cellosaurus_cell_line_id]["BCGO"]:
-            information_to_insert_on_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + BCGO,
-                prop_nr="2888",
-                references=reference))
-    return information_to_insert_on_wikidata
-
-
-# Functions to append Wikidata Integrator statements to the list of statements
-def append_literature_descriptions(self, cellosaurus_cell_line_id, information_to_insert_on_wikidata,
-                                   wikidata_reference_for_statement):
-    for reference in self.cellosaurus[cellosaurus_cell_line_id]["RX"]:
-
-        if reference.startswith("PubMed"):
-            pubmed = reference.strip("PubMed=")
-
-            if pubmed in self.references:
-                # P1343:described by source
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=self.references[pubmed],
-                    prop_nr="P1343",
-                    references=wikidata_reference_for_statement))
-
-        elif reference.startswith("DOI"):
-            doi = reference.strip("DOI=")
-
-            if doi in self.references:
-                information_to_insert_on_wikidata.append(wdi_core.WDItemID(
-                    value=self.references[doi],
-                    prop_nr="P1343",
-                    references=wikidata_reference_for_statement))
-
-    return information_to_insert_on_wikidata
 
 
 def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
@@ -832,15 +838,6 @@ def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wik
         prop_nr="P3289",
         references=reference))
 
-    return information_to_insert_on_wikidata
-
-
-def append_mesh_id(self, Item, information_to_insert_on_wikidata, reference):
-    # P486 : MeSH ID
-    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
-        value=self.cellosaurus[Item]["MeSH"],
-        prop_nr="P486",
-        references=reference))
     return information_to_insert_on_wikidata
 
 
