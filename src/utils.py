@@ -677,6 +677,32 @@ def prepare_item_descriptions(cell_line_object):
     return descriptions
 
 
+def delete_old_statements(cell_line_object, data):
+    statements_to_delete = []
+
+    cellosaurus_cell_line_id = cell_line_object.cell_line_id
+    wikidata_dictionary_with_existing_cell_lines = cell_line_object.wikidata_dictionary_with_existing_cell_lines
+
+    cell_line_wikidata_id = wikidata_dictionary_with_existing_cell_lines[cellosaurus_cell_line_id]
+    cell_line_dump = cell_line_object.cell_line_dump
+    if data['data_to_delete']:
+        wikidata_item_for_this_cell_line = wdi_core.WDItemEngine(wd_item_id=cell_line_wikidata_id)
+        wikidata_item_for_this_cell_line_json = wikidata_item_for_this_cell_line.get_wd_json_representation()
+
+        for statement in wikidata_item_for_this_cell_line_json['claims']:
+            if statement in data['data_to_delete']:
+                statements_to_delete.append(
+                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
+
+        item_deletion = wdi_core.WDItemEngine(
+            wd_item_id=cell_line_wikidata_id, data=statements_to_delete)
+
+        item_name = cell_line_dump["ID"]
+        item_deletion.write(cell_line_object.login, bot_account=True,
+                            edit_summary="delete statements before update the item {}".format(item_name))
+
+
+
 def load_pickle_file(pickleFileName):
     """
     Loads a serialized pickle file.
@@ -945,27 +971,6 @@ def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, cellosa
 
 
 # Functions that actually interact with Wikidata API
-
-
-
-def delete_old_statements(self, cellosaurus_cell_line_id, data):
-    statements_to_delete = []
-
-    if data['data_to_delete']:
-        wikidata_item_for_this_cell_line = wdi_core.WDItemEngine(wd_item_id=self.wikidata[cellosaurus_cell_line_id])
-        wikidata_item_for_this_cell_line_json = wikidata_item_for_this_cell_line.get_wd_json_representation()
-
-        for statement in wikidata_item_for_this_cell_line_json['claims']:
-            if statement in data['data_to_delete']:
-                statements_to_delete.append(
-                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
-
-        item_deletion = wdi_core.WDItemEngine(
-            wd_item_id=self.wikidata[cellosaurus_cell_line_id], data=statements_to_delete)
-
-        item_name = self.cellosaurus[cellosaurus_cell_line_id]["ID"]
-        item_deletion.write(self.login, bot_account=False,
-                            edit_summary="delete statements before update the item {}".format(item_name))
 
 
 def create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data):
