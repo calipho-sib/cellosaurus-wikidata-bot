@@ -267,9 +267,7 @@ class CellossaurusCellLine():
 
         delete_old_statements(self, cellosaurus_cell_line_id, data)
 
-        item_with_statements_to_update = add_statements_to_cell_line_item_ready_for_update(self,
-                                                                                           cellosaurus_cell_line_id,
-                                                                                           data)
+        item_with_statements_to_update = add_all_statements_to_wdi_cell_line(self, data)
 
         item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(
             self,
@@ -702,6 +700,17 @@ def delete_old_statements(cell_line_object, data):
                             edit_summary="delete statements before update the item {}".format(item_name))
 
 
+def add_all_statements_to_wdi_cell_line(cell_line_object, data):
+    cellosaurus_id = cell_line_object.cell_line_id
+    wikidata_qid = cell_line_object.wikidata_dictionary_with_existing_cell_lines[cellosaurus_id]
+    item = wdi_core.WDItemEngine(wd_item_id=wikidata_qid, data=data['data'],
+                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
+            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+            'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
+
+    return item
+
+
 
 def load_pickle_file(pickleFileName):
     """
@@ -944,15 +953,6 @@ def make_established_from_disease_statement(disease_id, references):
         references=references
     )
     return cell_line_from_patient_with_disease_statement
-
-
-def add_statements_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id, data):
-    item = wdi_core.WDItemEngine(wd_item_id=self.wikidata[cellosaurus_cell_line_id], data=data['data'],
-                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
-            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
-            'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
-
-    return item
 
 
 def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id,
