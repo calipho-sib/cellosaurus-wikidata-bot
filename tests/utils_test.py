@@ -235,10 +235,13 @@ class TestCellossaurusCellLine(unittest.TestCase):
         print(data)
         print(data_to_delete)
 
+        self.assertEqual(1, 1)
+
+
         self.assertEqual(cell_line.cell_line_id, "CVCL_2260")
 
 
-    def test_prepare_for_wikidata_function(self):
+    def test_update_line_on_wikidata_function(self):
         the_so_called_correspondance = utils.load_pickle_file(
             "../tests/cellosaurus_informations_to_wikidata_ids.pickle")
 
@@ -260,7 +263,9 @@ class TestCellossaurusCellLine(unittest.TestCase):
                                       cell_line_categories=categories,
                                       diseases=diseases,
                                       cell_line_id="CVCL_2260")
-        data, data_to_delete = cell_line.prepare_for_wikidata()
+        prepared_data = cell_line.prepare_for_wikidata()
+        print(prepared_data)
+        cell_line.update_line_on_wikidata(data = prepared_data)
 
 
         self.assertEqual(cell_line.cell_line_id, "CVCL_2260")

@@ -44,7 +44,6 @@ def correspondance(cellosaurus):
     return (match_cellosaurus_to_wikidata_items(cellosaurus))
 
 
-
 def CellosaurusToDictionary(file):
     """
     Format Cellosaurus dump (.txt) in a dictionary with the informations that
@@ -170,7 +169,6 @@ def QueryingWikidata():
     return (query_wikidata_for_cell_lines())
 
 
-
 class CellossaurusCellLine():
     """
     :param wdi_login : wdi_login object
@@ -253,32 +251,32 @@ class CellossaurusCellLine():
         data_to_add_to_wikidata = add_info_about_identifiers(self, data_to_add_to_wikidata)
 
         data_to_add_to_wikidata = add_info_about_references(self, data_to_add_to_wikidata)
-        data_to_add_to_wikidata.append('a')
         return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
 
     def update_line_on_wikidata(self, data):
-
         cellosaurus_cell_line_id = self.cell_line_id
-
         label = self.cell_line_dump["ID"]
+
         if " [" in label:
             label = label.split("[")[0].strip(" ")
         descriptions = prepare_item_descriptions(self)
 
-        delete_old_statements(self, cellosaurus_cell_line_id, data)
+        delete_old_statements(self, data)
 
         item_with_statements_to_update = add_all_statements_to_wdi_cell_line(self, data)
 
         item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(
             self,
-            cellosaurus_cell_line_id,
             item_with_statements_to_update,
             label,
             descriptions)
-        item_with_statements_to_update_with_labels.write(self.login,
+
+        cell_line_item = self.cell_line_dump["ID"]
+        item_with_statements_to_update_with_labels.write(self.wdi_login_object,
                                                          bot_account=True,
                                                          edit_summary="update item {}".format(
-                                                             self.cellosaurus[cellosaurus_cell_line_id]["ID"]))
+                                                             cell_line_item
+                                                                                              ))
 
 
 def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_delete):
@@ -568,7 +566,6 @@ def add_info_about_identifiers(cell_line_object, data_to_add_to_wikidata):
 
 
 def append_mesh_id(cell_line_object, data_to_add_to_wikidata):
-
     # P486 : MeSH ID
     cell_line_mesh = cell_line_object.cell_line_dump["MeSH"]
 
@@ -654,7 +651,6 @@ def append_literature_descriptions(cell_line_object, data_to_add_to_wikidata):
 
 
 def prepare_item_descriptions(cell_line_object):
-
     label = cell_line_object.cell_line_dump["ID"]
 
     descriptions = {
@@ -696,7 +692,7 @@ def delete_old_statements(cell_line_object, data):
             wd_item_id=cell_line_wikidata_id, data=statements_to_delete)
 
         item_name = cell_line_dump["ID"]
-        item_deletion.write(cell_line_object.login, bot_account=True,
+        item_deletion.write(cell_line_object.wdi_login_object, bot_account=True,
                             edit_summary="delete statements before update the item {}".format(item_name))
 
 
@@ -710,6 +706,21 @@ def add_all_statements_to_wdi_cell_line(cell_line_object, data):
 
     return item
 
+
+def add_labels_and_descriptions_to_cell_line_item_ready_for_update(cell_line_object,
+                                                                   item_with_statements_to_update,
+                                                                   label,
+                                                                   descriptions):
+    cell_line_dump = cell_line_object.cell_line_dump
+    if cell_line_dump:
+        item_with_statements_to_update.set_aliases(
+            cell_line_dump["SY"], lang='en', append=False)
+
+    for lang, description in descriptions.items():
+        item_with_statements_to_update.set_description(description, lang=lang)
+        item_with_statements_to_update.set_label(label=label, lang=lang)
+
+    return item_with_statements_to_update
 
 
 def load_pickle_file(pickleFileName):
@@ -903,8 +914,6 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
     return (species_ids, problematic_species_ids)
 
 
-
-
 def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
     # P3289 : Cellosaurus ID
     information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
@@ -953,21 +962,6 @@ def make_established_from_disease_statement(disease_id, references):
         references=references
     )
     return cell_line_from_patient_with_disease_statement
-
-
-def add_labels_and_descriptions_to_cell_line_item_ready_for_update(self, cellosaurus_cell_line_id,
-                                                                   item_with_statements_to_update,
-                                                                   label,
-                                                                   descriptions):
-    if self.cellosaurus[cellosaurus_cell_line_id] != "NUL":
-        item_with_statements_to_update.set_aliases(
-            self.cellosaurus[cellosaurus_cell_line_id]["SY"], lang='en', append=False)
-
-    for lang, description in descriptions.items():
-        item_with_statements_to_update.set_description(description, lang=lang)
-        item_with_statements_to_update.set_label(label=label, lang=lang)
-
-    return item_with_statements_to_update
 
 
 # Functions that actually interact with Wikidata API
