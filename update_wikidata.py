@@ -10,19 +10,19 @@ import sys
 import os
 import progressbar
 
-from src.utils import DeserializeData, SerializeData, correspondance, categories, Set, Create_Update, \
-    CellosaurusToDictionary, QueryingWikidata
+from src.utils import DeserializeData, SerializeData, match_cellosaurus_dump_to_wikidata_items, get_cell_line_category_to_wikidata, Set, Create_Update, \
+    format_cellosaurus_dump_as_dictionary, query_wikidata_for_cell_lines
 from src.local import WDUSER, WDPASS
 
-cellosaurus_dump_in_dictionary_format = CellosaurusToDictionary(sys.argv[2])
+cellosaurus_dump_in_dictionary_format = format_cellosaurus_dump_as_dictionary(sys.argv[2])
 cellosaurus_to_wikidata_matches = DeserializeData("correspondance.pickle")
 
 login = wdi_login.WDLogin(WDUSER, WDPASS)
 species = cellosaurus_to_wikidata_matches["species"]
 references = cellosaurus_to_wikidata_matches["references"]
 diseases = cellosaurus_to_wikidata_matches["diseases"]
-categories = categories("project/category.txt")
-wikidata = QueryingWikidata()
+categories = get_cell_line_category_to_wikidata("project/category.txt")
+wikidata = query_wikidata_for_cell_lines()
 release_qid = sys.argv[1]
 
 cellosaurus_release = Create_Update(login=login,
@@ -95,7 +95,7 @@ with open("doc/ERRORS/diseases/more_than_1.txt", "w") as file:
         file.write(
             duplicate + "\t" + str(problematic_disease) + "\n")
 
-wikidata = QueryingWikidata()
+wikidata = query_wikidata_for_cell_lines()
 
 cellosaurus_release.Update_Wikidata(wikidata)
 

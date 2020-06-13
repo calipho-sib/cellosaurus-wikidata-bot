@@ -2,7 +2,7 @@ import unittest
 from wikidataintegrator import wdi_core, wdi_login
 import os
 from src.local import WDUSER, WDPASS
-from utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata, add_reference_to_wikidata
+from utils import DeserializeData, SerializeData , match_cellosaurus_dump_to_wikidata_items, get_cell_line_category_to_wikidata, Set, Create_Update, format_cellosaurus_dump_as_dictionary, query_wikidata_for_cell_lines, add_reference_to_wikidata
 import requests
 import eventlet
 
@@ -22,7 +22,7 @@ class TestRelease(unittest.TestCase):
 
 cellosaurus_informations_to_wikidata_ids = DeserializeData("correspondance.pickle")
 
-cellosaurus_dump_in_dictionary_format = CellosaurusToDictionary("./project/test_cellosaurus.txt")
+cellosaurus_dump_in_dictionary_format = format_cellosaurus_dump_as_dictionary("./project/test_cellosaurus.txt")
 
 class TestRelease2(unittest.TestCase):
 
@@ -31,9 +31,9 @@ class TestRelease2(unittest.TestCase):
     species = cellosaurus_informations_to_wikidata_ids["species"]
     references = cellosaurus_informations_to_wikidata_ids["references"]
     diseases = cellosaurus_informations_to_wikidata_ids["diseases"]
-    categories = categories("project/category.txt")
+    categories = get_cell_line_category_to_wikidata("project/category.txt")
 
-    wikidata=QueryingWikidata()
+    wikidata=query_wikidata_for_cell_lines()
     cellosaurus_release = Create_Update(login=login, releaseID="Q87574023", cellosaurus=cellosaurus_dump_in_dictionary_format, wikidata=wikidata,
                                      references=references, species=species, categories=categories, diseases=diseases)
 

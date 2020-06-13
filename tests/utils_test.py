@@ -9,16 +9,16 @@ from src.local import WDUSER, WDPASS
 class TestStringMethods(unittest.TestCase):
 
     def test_loading_of_cellosaurus(self):
-        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
+        cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary("../project/test_cellosaurus.txt")
         self.assertEqual(cellosaurus_dump_in_dictionary_format["CVCL_E548"]["ID"], '#15310-LN')
 
     def test_loading_of_cell_lines(self):
-        cell_line_to_wikidata_id = utils.QueryingWikidata()
+        cell_line_to_wikidata_id = utils.query_wikidata_for_cell_lines()
         self.assertEqual(cell_line_to_wikidata_id["CVCL_E548"], 'Q54398957')
 
     def test_matching_of_cellosaurus_to_wikidata(self):
-        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
-        cellosaurus_informations_to_wikidata_ids = utils.correspondance(cellosaurus_dump_in_dictionary_format)
+        cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary("../project/test_cellosaurus.txt")
+        cellosaurus_informations_to_wikidata_ids = utils.match_cellosaurus_dump_to_wikidata_items(cellosaurus_dump_in_dictionary_format)
         utils.save_pickle_file(cellosaurus_informations_to_wikidata_ids,
                                "../tests/test_full_cellosaurus_to_wikidata.pickle")
 
@@ -46,10 +46,10 @@ class TestCellossaurusCellLine(unittest.TestCase):
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
-        categories = utils.categories("../project/category.txt")
+        categories = utils.get_cell_line_category_to_wikidata("../project/category.txt")
         diseases = the_so_called_correspondance["diseases"]
-        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
-        wikidata = utils.QueryingWikidata()
+        cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary("../project/test_cellosaurus.txt")
+        wikidata = utils.query_wikidata_for_cell_lines()
         releaseID = "Q87574023"
         login = wdi_login.WDLogin(WDUSER, WDPASS)
 
@@ -73,10 +73,10 @@ class TestCellossaurusCellLine(unittest.TestCase):
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
-        categories = utils.categories("../project/category.txt")
+        categories = utils.get_cell_line_category_to_wikidata("../project/category.txt")
         diseases = the_so_called_correspondance["diseases"]
-        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
-        wikidata = utils.QueryingWikidata()
+        cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary("../project/test_cellosaurus.txt")
+        wikidata = utils.query_wikidata_for_cell_lines()
         releaseID = "Q87574023"
         login = wdi_login.WDLogin(WDUSER, WDPASS)
 
@@ -105,10 +105,10 @@ class TestCellossaurusCellLine(unittest.TestCase):
 
         species = the_so_called_correspondance["species"]
         references = the_so_called_correspondance["references"]
-        categories = utils.categories("../project/category.txt")
+        categories = utils.get_cell_line_category_to_wikidata("../project/category.txt")
         diseases = the_so_called_correspondance["diseases"]
-        cellosaurus_dump_in_dictionary_format = utils.CellosaurusToDictionary("../project/test_cellosaurus.txt")
-        wikidata = utils.QueryingWikidata()
+        cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary("../project/test_cellosaurus.txt")
+        wikidata = utils.query_wikidata_for_cell_lines()
         releaseID = "Q87574023"
         login = wdi_login.WDLogin(WDUSER, WDPASS)
 

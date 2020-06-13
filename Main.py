@@ -8,7 +8,7 @@ import json
 import pickle
 import sys
 import os
-from src.utils import DeserializeData, SerializeData , correspondance, categories, Set, Create_Update, CellosaurusToDictionary, QueryingWikidata
+from src.utils import DeserializeData, SerializeData , match_cellosaurus_dump_to_wikidata_items, get_cell_line_category_to_wikidata, Set, Create_Update, format_cellosaurus_dump_as_dictionary, query_wikidata_for_cell_lines
 
 from src.local import WDUSER, WDPASS
 
@@ -28,7 +28,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
             download= input("------------------- Would you download a Cellosaurus dump?(y/n) -------------------")
             if download == "y":
                 os.system("wget -O ./project/cellosaurus.txt ftp://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt ")
-                cellosaurus=CellosaurusToDictionary("project/cellosaurus.txt")
+                cellosaurus=format_cellosaurus_dump_as_dictionary("project/cellosaurus.txt")
             elif download =='n':
                 print("------------------- Give a Cellosaurus dump in second argument -------------------")
             else:
@@ -37,13 +37,13 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
         #if the cellosaurus dump is done, check if it could be open
         elif len(sys.argv) == 3 :
             try :
-                cellosaurus=CellosaurusToDictionary(sys.argv[2])
+                cellosaurus=format_cellosaurus_dump_as_dictionary(sys.argv[2])
             except FileNotFoundError:
                 print("------------------- Cellosaurus file could not be open -------------------")
         
 
         #contains the cell lines items with a Cellosaurus ID
-        wikidata=QueryingWikidata()
+        wikidata=query_wikidata_for_cell_lines()
 
         #correspondance=correspondance(cellosaurus)
         #SerializeData(correspondance, "correspondance.pickle")
@@ -67,7 +67,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
         #-----------------CATEGORIES-------------------------#
         #contains all the cellosaurus categories and their wikidata item id
             #associated
-        categories=categories("project/category.txt")
+        categories=get_cell_line_category_to_wikidata("project/category.txt")
 
         #-----------------DISEASES-------------------------#
         #contains all wikidata items with NCI thesaurus id
@@ -124,7 +124,7 @@ if len(sys.argv) <=3 and len(sys.argv) > 1 :
         #-----------------ADD_PARENT_&_AUTOLOGOUS_CELL_LINES-------------------------#
         
         #Update the Wikidata informations after integration
-        wikidata=QueryingWikidata()
+        wikidata=query_wikidata_for_cell_lines()
         Release.Update_Wikidata(wikidata)
 
         #Update parent and autologous informations

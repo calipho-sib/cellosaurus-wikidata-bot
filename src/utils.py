@@ -14,37 +14,28 @@ import os
 Contain the main functions for Wikidata Cellosaurus Bot
 """
 
-
-def DeserializeData(pickleFileName):
-    return (load_pickle_file(pickleFileName))
-
-
-def SerializeData(dictionary, pickleFileName):
-    return (save_pickle_file(dictionary, pickleFileName))
-
-
-def categories(file):
+def get_cell_line_category_to_wikidata(file):
     """
-    Get cartegories for cell lines from file.
-    :param file : a file which contains categories for cell lines
+    Get categories for cell lines matched to wikidata items from a tab separeted file.
+    :param file : a file which contains categories for cell lines and their wikidata qids
     :return : a dictionary, in key the category name, in value the wikidata
         item id corresponding
     """
-    categories = {}
+    cell_line_category_to_wikidata = {}
     with open(file) as file:
         for line in file:
             line = line.split(" (")
-            category = line[0]
-            QID = line[1].strip(")\n")
-            categories[category] = QID
-        return categories
+            name_on_cellosaurus = line[0]
+            category_qid = line[1].strip(")\n")
+            cell_line_category_to_wikidata[name_on_cellosaurus] = category_qid
+        return cell_line_category_to_wikidata
 
 
-def correspondance(cellosaurus):
-    return (match_cellosaurus_to_wikidata_items(cellosaurus))
+def match_cellosaurus_dump_to_wikidata_items(cellosaurus):
+    return match_cellosaurus_to_wikidata_items(cellosaurus)
 
 
-def CellosaurusToDictionary(file):
+def format_cellosaurus_dump_as_dictionary(file):
     """
     Format Cellosaurus dump (.txt) in a dictionary with the informations that
         will integrating in Wikidata.
@@ -54,7 +45,7 @@ def CellosaurusToDictionary(file):
         species of origin, parent cell line, references, autologous cell line,
         sex of the species of origin, ctaegory of the cell line, etc...)
     """
-    dico = {}
+    cellosaurus_dump_as_dictionary = {}
     with open(file) as file:
         AS = "NULL"
         SY = []
@@ -125,7 +116,7 @@ def CellosaurusToDictionary(file):
             if line.startswith("CA"):
                 CA = line.strip("\n").split("   ")[1]
             if line.startswith("//"):
-                dico[AC] = {"ID": ID,
+                cellosaurus_dump_as_dictionary[AC] = {"ID": ID,
                             "AS": AS,
                             "SY": SY,
                             "MeSH": MeSH,
@@ -136,13 +127,13 @@ def CellosaurusToDictionary(file):
                             "RX": RX,
                             "WW": WW,
                             "CC": CC,
-                            "DI": DI,
-                            "DI_names": di_names,
-                            "OX": OX,
-                            "HI": HI,
-                            "OI": OI,
-                            "SX": SX,
-                            "CA": CA}
+                                                      "DI": DI,
+                                                      "DI_names": di_names,
+                                                      "OX": OX,
+                                                      "HI": HI,
+                                                      "OI": OI,
+                                                      "SX": SX,
+                                                      "CA": CA}
                 AC = "NULL"
                 ID = "NULL"
                 SY = []
@@ -162,11 +153,7 @@ def CellosaurusToDictionary(file):
                 OI = []
                 SX = []
                 CA = "NULL"
-        return (dico)
-
-
-def QueryingWikidata():
-    return (query_wikidata_for_cell_lines())
+        return cellosaurus_dump_as_dictionary
 
 
 class CellossaurusCellLine():
@@ -722,26 +709,62 @@ def add_labels_and_descriptions_to_cell_line_item_ready_for_update(cell_line_obj
     return item_with_statements_to_update
 
 
-def load_pickle_file(pickleFileName):
-    """
-    Loads a serialized pickle file.
-    :param pickeFileName : YourFile.pickle
-    :return : a dictionary wich contain YourFile.pickle informations
-    """
+def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
+    # P3289 : Cellosaurus ID
+    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
+        value=cellosaurus_cell_line_id,
+        prop_nr="P3289",
+        references=reference))
 
-    with open(pickleFileName, 'rb') as file:
-        dictionary = pickle.load(file)
-    return dictionary
+    return information_to_insert_on_wikidata
 
 
-def save_pickle_file(dictionary, pickleFileName):
-    """
-    Saves a dictionary into a pickle file.
-    :param dictionary : the dictionary that you want to serialize
-    :param pickleFileName : the name of the file
-    """
-    with open(pickleFileName, 'wb') as file:
-        pickle.dump(dictionary, file)
+# Functions to make statements in the Wikidata Integrator format
+
+def make_statement(statement_property, statement_value, references):
+    statement = wdi_core.WDItemID(value=statement_value,
+                                  prop_nr=statement_property,
+                                  references=references)
+    return statement
+
+
+def make_instance_of_cell_line_statement(reference):
+    # Q21014462 -> "cell line" ; P31 -> "instance of"
+    statement = make_statement(statement_property="P31",
+                               statement_value="Q21014462",
+                               references=reference)
+    return statement
+
+
+def make_instance_of_statement(statement_value, reference):
+    statement = make_statement(statement_property="P31",
+                               statement_value=statement_value,
+                               references=reference)
+    return statement
+
+
+def make_instance_of_contaminated_cell_line_statement(reference):
+    statement = make_statement(statement_property="P31",
+                               statement_value="Q27971671",
+                               references=reference)
+    return statement
+
+
+def make_established_from_disease_statement(disease_id, references):
+    cell_line_from_patient_with_disease_statement = make_statement(
+        statement_property="5166",
+        statement_value=disease_id,
+        references=references
+    )
+    return cell_line_from_patient_with_disease_statement
+
+
+# Functions that  interact with Wikidata API
+
+###### THE FUNCTION BELOW IS YET TO BE IMPLEMENTED  ######
+def add_reference_to_wikidata(pubmed_id):
+    pass
+###### THE FUNCTION ABOVE IS YET TO BE IMPLEMENTED  ######
 
 
 # Functions to query and match to Wikidata
@@ -885,12 +908,6 @@ def query_wikidata_by_pubmed_id(pubmed):
     return query_result
 
 
-###### Functions to add things to wikidata ######
-def add_reference_to_wikidata(pubmed_id):
-    pass
-
-
-###### Other equally important functions ######
 def add_ids_to_species_id_holders(taxid_to_wikidata):
     species_ids = {}
     problematic_species_ids = {}
@@ -913,85 +930,25 @@ def add_ids_to_species_id_holders(taxid_to_wikidata):
     return (species_ids, problematic_species_ids)
 
 
-def append_cellosaurus_id(cellosaurus_cell_line_id, information_to_insert_on_wikidata, reference):
-    # P3289 : Cellosaurus ID
-    information_to_insert_on_wikidata.append(wdi_core.WDExternalID(
-        value=cellosaurus_cell_line_id,
-        prop_nr="P3289",
-        references=reference))
+# Wrapper functions for pickle
 
-    return information_to_insert_on_wikidata
-
-
-# Functions to make statements in the Wikidata Integrator format
-
-def make_statement(statement_property, statement_value, references):
-    statement = wdi_core.WDItemID(value=statement_value,
-                                  prop_nr=statement_property,
-                                  references=references)
-    return statement
-
-
-# Q21014462 -> "cell line" ; P31 -> "instance of"
-def make_instance_of_cell_line_statement(reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value="Q21014462",
-                               references=reference)
-    return statement
-
-
-def make_instance_of_statement(statement_value, reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value=statement_value,
-                               references=reference)
-    return statement
-
-
-def make_instance_of_contaminated_cell_line_statement(reference):
-    statement = make_statement(statement_property="P31",
-                               statement_value="Q27971671",
-                               references=reference)
-    return statement
-
-
-def make_established_from_disease_statement(disease_id, references):
-    cell_line_from_patient_with_disease_statement = make_statement(
-        statement_property="5166",
-        statement_value=disease_id,
-        references=references
-    )
-    return cell_line_from_patient_with_disease_statement
-
-
-# Functions that actually interact with Wikidata API
-
-
-def create_wikidata_entry_for_this_cell_line(self, cellosaurus_cell_line_id, data):
+def load_pickle_file(pickleFileName):
     """
-    This function create a Wikidata item for the cell line with
-        cellosaurus informations.
-    :param cellosaurus_cell_line_id : the Cellosaurus id for a cell line.
-    :param data : the dictionary from InitialisationData function.
-    :return : WikidataID.txt, a file which contains the Wikidata cell
-        lines items created.
+    Loads a serialized pickle file.
+    :param pickeFileName : YourFile.pickle
+    :return : a dictionary wich contain YourFile.pickle informations
     """
-    item = wdi_core.WDItemEngine(data=data['data'], global_ref_mode='STRICT_OVERWRITE', fast_run=True,
-                                 fast_run_base_filter={
-                                     'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '',
-                                     'P248': '', 'P3289': '', 'P486': '', 'P2888': '', 'P1343': '', 'P5166': '',
-                                     'P813': ''}, fast_run_use_refs=True)
-    #  SY         Synonyms
-    if self.cellosaurus[cellosaurus_cell_line_id]["SY"]:
-        item.set_aliases(
-            self.cellosaurus[cellosaurus_cell_line_id]["SY"], lang='en', append=False)
 
-    for lang, description in prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)[
-        'descriptions'].items():
-        item.set_description(description, lang=lang)
-        item.set_label(label=prepare_item_label_and_descriptions(self.cellosaurus, cellosaurus_cell_line_id)['name'],
-                       lang=lang)
+    with open(pickleFileName, 'rb') as file:
+        dictionary = pickle.load(file)
+    return dictionary
 
-    with open("./results/WikidataID.txt", "a") as file:
-        newly_created_item_qid = item.write(self.login, bot_account=True, edit_summary="create item {}".format(
-            self.cellosaurus[cellosaurus_cell_line_id]["ID"]))
-        file.write(newly_created_item_qid + "\t" + cellosaurus_cell_line_id + "\n")
+
+def save_pickle_file(dictionary, pickleFileName):
+    """
+    Saves a dictionary into a pickle file.
+    :param dictionary : the dictionary that you want to serialize
+    :param pickleFileName : the name of the file
+    """
+    with open(pickleFileName, 'wb') as file:
+        pickle.dump(dictionary, file)
