@@ -254,7 +254,6 @@ class CellossaurusCellLine():
         return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
 
     def update_line_on_wikidata(self, data):
-        cellosaurus_cell_line_id = self.cell_line_id
         label = self.cell_line_dump["ID"]
 
         if " [" in label:
