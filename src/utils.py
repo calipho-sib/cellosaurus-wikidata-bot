@@ -536,7 +536,7 @@ def append_autologous_cell_line(cell_line_object, autologous_cell_line, data_to_
     cell_lines_in_wikidata = cell_line_object.wikidata_dictionary_with_existing_cell_lines
     reference = cell_line_object.references_in_wdi_format
     if autologous_cell_line in cell_lines_in_wikidata:
-        autologous_cell_line_id = cell_lines_in_wikidata[autoSlogous_cell_line]
+        autologous_cell_line_id = cell_lines_in_wikidata[autologous_cell_line]
         data_to_add_to_wikidata.append(make_statement(
             statement_property="P3578",
             statement_value=autologous_cell_line_id,
