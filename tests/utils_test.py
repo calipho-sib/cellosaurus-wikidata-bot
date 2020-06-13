@@ -30,8 +30,8 @@ class TestPickleFunctions(unittest.TestCase):
     def test_save__load_pickle(self):
         test_dictionary = {"a": 1, "b": 2}
 
-        utils.SerializeData(test_dictionary, "/tmp/test.pickle")
-        test_dictionary_after_processing = utils.DeserializeData("/tmp/test.pickle")
+        utils.save_pickle_file(test_dictionary, "/tmp/test.pickle")
+        test_dictionary_after_processing = utils.load_pickle_file("/tmp/test.pickle")
 
         os.remove("/tmp/test.pickle")
 
