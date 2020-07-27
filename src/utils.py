@@ -644,7 +644,9 @@ def prepare_item_descriptions(cell_line_object):
         "en": "cell line",
         "fr": "lignée cellulaire",
         "de": "Zelllinie",
-        "pt": "linhagem celular"
+        "pt": "linhagem celular",
+        "pt-br": "linhagem celular",
+        "es": "línea celular"
     }
 
     if " [" in label:
