@@ -10,12 +10,11 @@ import sys
 import os
 import progressbar
 
-from src.utils import DeserializeData, SerializeData, match_cellosaurus_dump_to_wikidata_items, get_cell_line_category_to_wikidata, Set, Create_Update, \
-    format_cellosaurus_dump_as_dictionary, query_wikidata_for_cell_lines
+import src.utils as utils
 from src.local import WDUSER, WDPASS
 
-cellosaurus_dump_in_dictionary_format = format_cellosaurus_dump_as_dictionary(sys.argv[2])
-cellosaurus_to_wikidata_matches = DeserializeData("correspondance.pickle")
+cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary(sys.argv[2])
+cellosaurus_to_wikidata_matches = utils.load_pickle_file("correspondance.pickle")
 
 login = wdi_login.WDLogin(WDUSER, WDPASS)
 species = cellosaurus_to_wikidata_matches["species"]
@@ -52,6 +51,7 @@ with open("results/cell_line_duplicate.txt", "w") as file_for_duplicated_lines:
         bar.update(counter)
         counter += 1
         print(str(counter) + "out of" + str(dict_size))
+        
         if cell_line in cellosaurus_release.wikidata and cell_line not in updated_items:
             print("update")
 
