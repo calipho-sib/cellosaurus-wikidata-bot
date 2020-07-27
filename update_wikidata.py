@@ -39,13 +39,12 @@ def main():
     folder_for_errors = sys.argv[3]
     release_qid = sys.argv[4]
     reconciled_dump_path = pickle_path + "cellosaurus_wikidata_items.pickle"
-    wikidata_cell_lines = pickle_path + "cell_lines_on_wikidata.pickle"
+    wikidata_cell_lines_path = pickle_path + "cell_lines_on_wikidata.pickle"
 
 
     cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary(cellosaurus_dump_path)
-    cellosaurus_to_wikidata_matches = utils.load_pickle_file("correspondance.pickle")
-
-    
+    cellosaurus_to_wikidata_matches = utils.load_pickle_file(reconciled_dump_path)
+    wikidata_cell_lines = utils.load_pickle_file(wikidata_cell_lines_path)
     login = wdi_login.WDLogin(WDUSER, WDPASS)
     ncbi_id_to_qid_species = cellosaurus_to_wikidata_matches["species"]
     references = cellosaurus_to_wikidata_matches["references"]
@@ -55,6 +54,7 @@ def main():
     for cellosaurus_id in cellosaurus_dump_in_dictionary_format:
 
         print(cellosaurus_id)
+        print(wikidata_cell_lines[cellosaurus_id])
         cell_line = utils.CellosaurusCellLine(wdi_login_object=login,
                                     release_qid=release_qid,
                                     cellosaurus_dump=cellosaurus_dump_in_dictionary_format,
@@ -64,6 +64,10 @@ def main():
                                     cell_line_categories=categories,
                                     diseases=diseases,
                                     cell_line_id=cellosaurus_id)
+
+        prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors="doc/ERRORS/") 
+
+        cell_line.update_line_on_wikidata(prepared_data)
 
 '''
 
