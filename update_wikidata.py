@@ -1,5 +1,21 @@
 #!/usr/bin/python3
 
+
+
+'''
+Updates the Wikidata items relative to the cells in the Cellosaurus dump of interest. 
+
+It takes 3 arguments: 
+- 1st: The path to the .txt of the Cellosaurus dump
+- 2nd: The path to the folder where the pickle file and cell lines on wikidata 
+were saved after running "prepare_files.py"
+- 3rd: The path to the folder for errors.
+- 4th: The QID for the Cellosaurus release on Wikidata   
+
+ Example:
+ $ python3 update_wikidata.py project/test_cellosaurus.txt pickle_files errors  Q87574023
+'''
+
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
@@ -13,25 +29,46 @@ import progressbar
 import src.utils as utils
 from src.local import WDUSER, WDPASS
 
-cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary(sys.argv[2])
-cellosaurus_to_wikidata_matches = utils.load_pickle_file("correspondance.pickle")
+def main():
 
-login = wdi_login.WDLogin(WDUSER, WDPASS)
-species = cellosaurus_to_wikidata_matches["species"]
-references = cellosaurus_to_wikidata_matches["references"]
-diseases = cellosaurus_to_wikidata_matches["diseases"]
-categories = get_cell_line_category_to_wikidata("project/category.txt")
-wikidata = query_wikidata_for_cell_lines()
-release_qid = sys.argv[1]
+    #-----------------INPUT-------------------------#
 
-cellosaurus_release = Create_Update(login=login,
-                                    releaseID=release_qid,
-                                    cellosaurus=cellosaurus_dump_in_dictionary_format,
-                                    wikidata=wikidata,
+
+    cellosaurus_dump_path = sys.argv[1]
+    pickle_path = sys.argv[2]
+    folder_for_errors = sys.argv[3]
+    release_qid = sys.argv[4]
+    reconciled_dump_path = pickle_path + "cellosaurus_wikidata_items.pickle"
+    wikidata_cell_lines = pickle_path + "cell_lines_on_wikidata.pickle"
+
+
+    cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary(cellosaurus_dump_path)
+    cellosaurus_to_wikidata_matches = utils.load_pickle_file("correspondance.pickle")
+
+    
+    login = wdi_login.WDLogin(WDUSER, WDPASS)
+    ncbi_id_to_qid_species = cellosaurus_to_wikidata_matches["species"]
+    references = cellosaurus_to_wikidata_matches["references"]
+    diseases = cellosaurus_to_wikidata_matches["diseases"]
+    categories = utils.get_cell_line_category_to_wikidata("project/category.txt")
+    
+    for cellosaurus_id in cellosaurus_dump_in_dictionary_format:
+
+        print(cellosaurus_id)
+        cell_line = utils.CellosaurusCellLine(wdi_login_object=login,
+                                    release_qid=release_qid,
+                                    cellosaurus_dump=cellosaurus_dump_in_dictionary_format,
+                                    wikidata_dictionary_with_existing_cell_lines=wikidata_cell_lines,
                                     references=references,
-                                    species=species,
-                                    categories=categories,
-                                    diseases=diseases)
+                                    species=ncbi_id_to_qid_species,
+                                    cell_line_categories=categories,
+                                    diseases=diseases,
+                                    cell_line_id=cellosaurus_id)
+
+'''
+
+
+
 
 updated_items = {}
 created_items = ["Cell Lines created", "Release ID:", release_qid]
@@ -103,3 +140,7 @@ for cell_line in cellosaurus_release.AddParentCellline:
     if cell_line in cellosaurus_release.wikidata:
         cellosaurus_release.UpdateWikidata(
             cell_line, cellosaurus_release.InitialisationData(cell_line))
+'''
+
+if __name__=="__main__": 
+    main() 

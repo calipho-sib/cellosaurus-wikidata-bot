@@ -156,7 +156,7 @@ def format_cellosaurus_dump_as_dictionary(file):
         return cellosaurus_dump_as_dictionary
 
 
-class CellossaurusCellLine():
+class CellosaurusCellLine():
     """
     :param wdi_login : wdi_login object
     :param release_qid: the wikidata qid for the Cellosaurus release of interest.
@@ -169,6 +169,7 @@ class CellossaurusCellLine():
     :param wdi_cell_line_to_add : the cell line information to add in Wikidata Integrator format
     :param wdi_cell_line_to_delete : the cell line information to delete in Wikidata Integrator format
     :param cell_line_dump : the cellosaurus dump specific for this cell line
+    :param cell_line_id : the cellosaurus_id for this cell line
 
     """
 
@@ -180,18 +181,18 @@ class CellossaurusCellLine():
             login in Main.py).
         :param releaseID : the wikidata item id which corresponding to the
             Cellosaurus release.
-        :param cellosaurus : the cellosaurus dictionary which contains
+        :param cellosaurus_dump : the cellosaurus dictionary which contains
             cellosaurus dump information.
         :param wikidata : the wikidata dictionary which contains wikidata
             cell lines items that already exit.
-        :param references : the references dictionary creating with
-            correspondance function.
+        :param references : the references dictionary created with
+            "match_cellosaurus_to_wikidata_items" function.
         :param species : the species dictionary creating with correspondance
             function.
         :param cell_line_categories : the categories dictionary creating with
-            categories function.
-        :param diseases : the diseases dictionary creating with
-            correspondance function.
+            "get_cell_line_category_to_wikidata" function.
+        :param diseases : the diseases dictionary created with
+            "match_cellosaurus_to_wikidata_items" function.
 
         """
 
