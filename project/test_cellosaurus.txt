@@ -1,0 +1,258 @@
+ID   ZR-75-27
+AC   CVCL_5612
+DR   Wikidata; Q54996118
+RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
+RX   PubMed=688225;
+CC   Doubling time: 144 hours, at 14th passage (PubMed=688225).
+CC   Derived from metastatic site: Pleural effusion.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+OI   CVCL_1661 ! ZR-75-30
+SX   Female
+AG   47Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 05-07-19; Version: 12
+//
+ID   ZR-75-30
+AC   CVCL_1661
+SY   ZR75-30; ZR7530
+DR   BTO; BTO:0004915
+DR   CLO; CLO_0009728
+DR   EFO; EFO_0001263
+DR   CLDB; cl4822
+DR   CLDB; cl4823
+DR   CLDB; cl4824
+DR   ArrayExpress; E-MTAB-783
+DR   ArrayExpress; E-MTAB-2706
+DR   ArrayExpress; E-MTAB-2770
+DR   ArrayExpress; E-MTAB-3610
+DR   ArrayExpress; E-TABM-157
+DR   ATCC; CRL-1504
+DR   BCRC; 60056
+DR   BioSample; SAMN03471856
+DR   BioSample; SAMN10988534
+DR   CCLE; ZR7530_BREAST
+DR   CCRID; 3111C0001CCC000240
+DR   CCRID; 3131C0001000700060
+DR   CCRID; 3131C0001000700203
+DR   CCRID; 3131C0001001200003
+DR   CCRID; 3142C0001000000053
+DR   CCTCC; GDC0054
+DR   Cell_Model_Passport; SIDM00971
+DR   ChEMBL-Cells; CHEMBL3308094
+DR   ChEMBL-Targets; CHEMBL1075613
+DR   Cosmic; 687504
+DR   Cosmic; 871160
+DR   Cosmic; 877444
+DR   Cosmic; 894095
+DR   Cosmic; 904399
+DR   Cosmic; 909907
+DR   Cosmic; 921977
+DR   Cosmic; 949194
+DR   Cosmic; 979716
+DR   Cosmic; 1046953
+DR   Cosmic; 1047719
+DR   Cosmic; 1136346
+DR   Cosmic; 1152523
+DR   Cosmic; 1287913
+DR   Cosmic; 1289422
+DR   Cosmic; 1571790
+DR   Cosmic; 1603230
+DR   Cosmic; 2165016
+DR   Cosmic-CLP; 909907
+DR   DepMap; ACH-000828
+DR   ECACC; 88113004
+DR   GDSC; 909907
+DR   GEO; GSM69200
+DR   GEO; GSM73747
+DR   GEO; GSM115121
+DR   GEO; GSM217611
+DR   GEO; GSM219946
+DR   GEO; GSM274678
+DR   GEO; GSM344379
+DR   GEO; GSM344429
+DR   GEO; GSM350533
+DR   GEO; GSM421898
+DR   GEO; GSM783957
+DR   GEO; GSM847450
+DR   GEO; GSM847510
+DR   GEO; GSM844727
+DR   GEO; GSM844726
+DR   GEO; GSM887751
+DR   GEO; GSM888846
+DR   GEO; GSM984235
+DR   GEO; GSM1053719
+DR   GEO; GSM1172909
+DR   GEO; GSM1173005
+DR   GEO; GSM1238138
+DR   GEO; GSM1401666
+DR   GEO; GSM1661991
+DR   GEO; GSM1670589
+DR   IARC_TP53; 21112
+DR   LiGeA; CCLE_237
+DR   LINCS_HMS; 50575
+DR   LINCS_LDP; LCL-1322
+DR   PharmacoDB; ZR7530_1690_2019
+DR   Wikidata; Q54996119
+RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
+RX   PubMed=688225;
+RX   PubMed=3335022;
+RX   PubMed=11044355;
+RX   PubMed=11414198;
+RX   PubMed=16397213;
+RX   PubMed=16541312;
+RX   PubMed=17157791;
+RX   PubMed=19582160;
+RX   PubMed=19593635;
+RX   PubMed=20070913;
+RX   PubMed=20164919;
+RX   PubMed=22460905;
+RX   PubMed=23151021;
+RX   PubMed=23260012;
+RX   PubMed=23601657;
+RX   PubMed=24009699;
+RX   PubMed=24094812;
+RX   PubMed=24176112;
+RX   PubMed=25485619;
+RX   PubMed=25960936;
+RX   PubMed=25984343;
+RX   PubMed=27397505;
+RX   PubMed=28196595;
+RX   PubMed=23260012;
+RX   PubMed=30894373;
+RX   PubMed=31068700;
+RX   PubMed=31395879;
+WW   http://www.pawefish.path.cam.ac.uk/BreastCellLineDescriptions/ZR-75-30.html
+WW   http://lincs.hms.harvard.edu/resources/reagents/icbp43/
+WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
+WW   http://tcpaportal.org/mclp/
+WW   http://www.cellresource.cn/fdetail.aspx?id=240
+WW   http://www.cellresource.cn/fdetail.aspx?id=628
+WW   http://www.cellresource.cn/fdetail.aspx?id=821
+WW   http://www.cellresource.cn/fdetail.aspx?id=1584
+WW   http://www.cellresource.cn/fdetail.aspx?id=2096
+CC   Part of: Cancer Cell Line Encyclopedia (CCLE) project.
+CC   Part of: COSMIC cell lines project.
+CC   Part of: GrayJW Breast Cancer Cell Line Panel.
+CC   Part of: ICBP43 breast cancer cell line panel.
+CC   Part of: MD Anderson Cell Lines Project.
+CC   Part of: TCGA-110-CL cell line panel.
+CC   Doubling time: 110 hours, at 17th passage (PubMed=688225); 60 hours (PubMed=25984343); 324.46 hours (https://www.synapse.org/#!Synapse:syn2347014).
+CC   HLA typing: A*23:01,03:01; B*07:02,35:08; C*04:01,07:02; DQB1*06:04,06:04 (PubMed=25960936).
+CC   Microsatellite instability: Instable (MSI-low) (Sanger).
+CC   Sequence variation: APPBP2-PHF20L1 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: BCAS3-HOXB9 gene fusion (PubMed=23260012).
+CC   Sequence variation: COL14A1-SKAP1 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: DDX5-DEPTOR in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: ERBB2-BCAS3 out of frame gene fusion (PubMed=23260012).
+CC   Sequence variation: PLEC1-ENPP2 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: TAOK1-PCGF2 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: TIAM1-NRIP1 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: TIMM23-ARHGAP32 out of frame gene fusion (PubMed=23260012).
+CC   Sequence variation: TRPS1-LASP1 in-frame gene fusion (PubMed=23260012).
+CC   Sequence variation: USP32-CCDC49 out of frame gene fusion (PubMed=23260012).
+CC   Sequence variation: ZMYM4-OPRD1 out of frame gene fusion (PubMed=23260012).
+CC   Sequence variation: Heterozygous for BRAF p.Ile326Thr (c.977T>C) (PubMed=19593635).
+CC   Sequence variation: Homozygous for CDH1 p.Glu243Ter (c.727G>T) (PubMed=19593635).
+CC   Omics: Array-based CGH.
+CC   Omics: CNV analysis.
+CC   Omics: Deep exome analysis.
+CC   Omics: Deep RNAseq analysis.
+CC   Omics: DNA methylation analysis.
+CC   Omics: miRNA expression profiling.
+CC   Omics: N-glycan profiling.
+CC   Omics: Protein expression by reverse-phase protein arrays.
+CC   Omics: shRNA library screening.
+CC   Omics: SNP array analysis.
+CC   Omics: Transcriptome analysis.
+CC   Genome ancestry: African=71.64%; Native American=0.74%; East Asian, North=3.41%; East Asian, South=0%; South Asian=0%; European, North=9.83%; European, South=14.38% (PubMed=30894373).
+CC   Derived from metastatic site: Ascites.
+ST   Source(s): ATCC; CCRID; Cosmic-CLP; ECACC; PubMed=25877200
+ST   Amelogenin: X
+ST   CSF1PO: 10,11
+ST   D13S317: 10,11
+ST   D16S539: 9
+ST   D18S51: 17
+ST   D19S433: 13.2,14.2
+ST   D21S11: 31
+ST   D2S1338: 17,22
+ST   D3S1358: 15,18
+ST   D5S818: 12,13
+ST   D7S820: 11,12
+ST   D8S1179: 13,14
+ST   FGA: 22
+ST   Penta D: 2.2,10
+ST   Penta E: 5,7
+ST   TH01: 8,9
+ST   TPOX: 10,11
+ST   vWA: 18,19
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+OI   CVCL_5612 ! ZR-75-27
+SX   Female
+AG   47Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 19-12-19; Version: 31
+//
+ID   ZR-75-9a1
+AC   CVCL_5613
+DR   Wikidata; Q54996121
+RX   PubMed=2713239;
+CC   Selected for resistance to: ChEBI; CHEBI:41774; Tamoxifen.
+CC   Sequence variation: Homozygous for HRAS p.Glu162Lys (c.484G>A) (from parent cell line).
+CC   Sequence variation: Homozygous for PTEN p.Leu108Arg (c.323T>G) (from parent cell line).
+CC   Derived from metastatic site: Ascites.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+HI   CVCL_0588 ! ZR-75-1
+SX   Female
+AG   63Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 06-09-19; Version: 13
+//
+ID   ZR-75-B
+AC   CVCL_5614
+SY   ZR75-B; ZR-75B; ZR-75b; ZR75B
+DR   EFO; EFO_0001264
+DR   ArrayExpress; E-TABM-157
+DR   ArrayExpress; E-TABM-244
+DR   Cosmic; 1136345
+DR   Cosmic; 1176641
+DR   DepMap; ACH-002331
+DR   GEO; GSM1053730
+DR   GEO; GSM1172910
+DR   GEO; GSM1173006
+DR   GEO; GSM1215271
+DR   LINCS_HMS; 51096
+DR   LINCS_LDP; LCL-2077
+DR   PharmacoDB; ZR75B_1691_2019
+DR   Wikidata; Q54996122
+RX   PubMed=6178756;
+RX   PubMed=17157791;
+RX   PubMed=18516279;
+RX   PubMed=24094812;
+RX   PubMed=24162158;
+RX   PubMed=24176112;
+RX   PubMed=25960936;
+WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
+CC   Part of: GrayJW Breast Cancer Cell Line Panel.
+CC   Doubling time: 44.80 hours (https://www.synapse.org/#!Synapse:syn2347014).
+CC   HLA typing: B*35:01,35:01; C*04:01,04:01; DQB1*05:01,05:01 (PubMed=25960936).
+CC   Sequence variation: Homozygous for HRAS p.Glu162Lys (c.484G>A) (from parent cell line).
+CC   Sequence variation: Homozygous for PTEN p.Leu108Arg (c.323T>G) (from parent cell line).
+CC   Omics: Deep exome analysis.
+CC   Omics: Deep RNAseq analysis.
+CC   Omics: DNA methylation analysis.
+CC   Omics: Protein expression by reverse-phase protein arrays.
+CC   Omics: SNP array analysis.
+CC   Omics: Transcriptome analysis.
+CC   Misspelling: ZRB75; Occasionally.
+CC   Derived from metastatic site: Ascites.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+HI   CVCL_0588 ! ZR-75-1
+SX   Female
+AG   63Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 06-09-19; Version: 19
+//

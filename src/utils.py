@@ -511,8 +511,7 @@ def add_info_about_related_cell_lines(cell_line_object, data_to_add_to_wikidata)
     if cell_lines_from_same_individual:
         for autologous_cell_line in cell_lines_from_same_individual:
             data_to_add_to_wikidata = append_autologous_cell_line(cell_line_object, autologous_cell_line,
-                                                                  data_to_add_to_wikidata,
-                                                                  reference=wikidata_reference_for_statement)
+                                                                  data_to_add_to_wikidata)
             if cellosaurus_cell_line_id not in cell_line_object.related_cell_line_to_add:
                 cell_line_object.related_cell_line_to_add.append(cellosaurus_cell_line_id)
 
