@@ -31,8 +31,8 @@ def get_cell_line_category_to_wikidata(file):
         return cell_line_category_to_wikidata
 
 
-def match_cellosaurus_dump_to_wikidata_items(cellosaurus):
-    return match_cellosaurus_to_wikidata_items(cellosaurus)
+def match_cellosaurus_dump_to_wikidata_items(cellosaurus,folder_for_errors):
+    return match_cellosaurus_to_wikidata_items(cellosaurus, folder_for_errors)
 
 
 def format_cellosaurus_dump_as_dictionary(file):
@@ -768,12 +768,13 @@ def add_reference_to_wikidata(pubmed_id):
 
 
 # Functions to query and match to Wikidata
-def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
+def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_for_errors):
     """
     This function create dictionnaries of list of pre-requisite wikidata
         informations.
     :param cellosaurus_in_dicionary_format : the cellosaurus dictionary from .txt file create
         with CellosaurusToDictionary function
+    :param folder_for_errors : The folders where the errors will be saved. 
     :return : a dictionary with contain dictionnaries or list.
         - references dictionary : in key, the PubMed or DOI id for an article
               in wikidata and in value, the wikidata item id which correspond to
@@ -808,17 +809,17 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
 
     species, problematic_species = add_ids_to_species_id_holders(
         taxids_on_wikidata)
+    fatameh_error_path = folder_for_errors + "/Fatameh_errors.txt"
 
-    with open("../doc/ERRORS/Fatameh_errors.txt", "w") as references_errors:
+    with open(fatameh_error_path, "w") as references_errors:
 
         for celline in cellosaurus_in_dicionary_format:
 
             cell_line_references = cellosaurus_in_dicionary_format[celline]["RX"]
 
             if cell_line_references != []:
-
                 for reference in cell_line_references:
-
+                    
                     if reference.startswith("PubMed"):
                         pubmed_id = reference.strip("PubMed=")
 
