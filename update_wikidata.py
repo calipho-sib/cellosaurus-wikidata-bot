@@ -47,7 +47,8 @@ def main():
     wikidata_cell_lines = utils.load_pickle_file(wikidata_cell_lines_path)
     login = wdi_login.WDLogin(WDUSER, WDPASS)
     ncbi_id_to_qid_species = cellosaurus_to_wikidata_matches["species"]
-    references = cellosaurus_to_wikidata_matches["references"]
+    references = cellosaurus_to_wikidata_matches["references_dictionary"]
+    print(references)
     diseases = cellosaurus_to_wikidata_matches["diseases"]
     categories = utils.get_cell_line_category_to_wikidata("project/category.txt")
     

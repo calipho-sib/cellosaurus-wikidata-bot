@@ -390,7 +390,7 @@ def append_diseases(cell_line_object, data_to_add_to_wikidata, folder_for_errors
 
 def append_taxon_and_gender(cell_line_object, data_to_add_to_wikidata,
                             list_of_taxons_of_origin, list_of_biological_sexes_of_source):
-    cell_line_references = cell_line_object.references_in_wdi_format
+    references_for_this_cell_line = cell_line_object.references_in_wdi_format
 
     if list_of_taxons_of_origin:
         for taxon_of_origin in list_of_taxons_of_origin:
@@ -398,12 +398,12 @@ def append_taxon_and_gender(cell_line_object, data_to_add_to_wikidata,
             if taxon_of_origin == "Unknow value":
                 data_to_add_to_wikidata.append(wdi_core.WDString(
                     value="Unknow value", prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
-                    references=cell_line_references,
+                    references=references_for_this_cell_line,
                     snak_type='somevalue'))
             else:
                 data_to_add_to_wikidata.append(wdi_core.WDItemID(
                     value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
-                    references=cell_line_references))
+                    references=references_for_this_cell_line))
 
     return data_to_add_to_wikidata
 
@@ -778,7 +778,7 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_
         with CellosaurusToDictionary function
     :param folder_for_errors : The folders where the errors will be saved. 
     :return : a dictionary with contain dictionnaries or list.
-        - references dictionary : in key, the PubMed or DOI id for an article
+        - references_dictionary : in key, the PubMed or DOI id for an article
               in wikidata and in value, the wikidata item id which correspond to
               this article.
         - DOI_not_in_wikidata : a list of DOI references that are not in
@@ -798,10 +798,8 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_
 
 
     """
-    references = {}
-    references_that_were_not_on_wikidata = []
-    DOI_not_in_wikidata = []
-    error_references = {}
+    references_dictionary = {}
+    references_absent_in_wikidata = []
     species = {}
     problematic_species = {}
     diseases = {}
@@ -817,24 +815,24 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_
 
         for celline in cellosaurus_in_dicionary_format:
 
-            cell_line_references = cellosaurus_in_dicionary_format[celline]["RX"]
+            references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
 
-            if cell_line_references != []:
-                for reference in cell_line_references:
+            if references_for_this_cell_line != []:
+                for reference_id in references_for_this_cell_line:
                     
-                    if reference.startswith("PubMed"):
-                        pubmed_id = reference.strip("PubMed=")
+                    if reference_id.startswith("PubMed"):
+                        pubmed_id = reference_id.strip("PubMed=")
+                        print(pubmed_id)
 
-                        if pubmed_id not in references:
+                        if pubmed_id not in references_dictionary:
                             query = query_wikidata_by_pubmed_id(pubmed_id)
 
                             if query == []:
-                                if reference not in references_that_were_not_on_wikidata:
+                                if reference_id not in references_absent_in_wikidata:
                                     print(
-                                        "This reference is not on Wikidata yet: " + reference)
-                                    add_reference_to_wikidata(pubmed_id)
-                                    references_that_were_not_on_wikidata.append(
-                                        reference)
+                                        "This reference_id is not on Wikidata yet: " + reference_id)
+                                    references_absent_in_wikidata.append(
+                                        reference_id)
                                     references_errors.write(
                                         "Reference for article with PMID " + pubmed_id + " could not be added to Wikidata")
 
@@ -842,22 +840,23 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_
                                 query = query[0]['item']['value']
                                 QIDreferences = query.strip(
                                     "http://www.wikidata.org/entity/")
-                                references[pubmed_id] = QIDreferences
+                                references_dictionary[pubmed_id] = QIDreferences
 
-                    if reference.startswith("DOI"):
-                        DOI = reference.strip("DOI=")
-                        if DOI not in references and DOI not in DOI_not_in_wikidata:
+                    if reference_id.startswith("DOI"):
+                        DOI = reference_id.strip("DOI=")
+                        if DOI not in references_dictionary and DOI not in references_absent_in_wikidata:
                             query = wdi_core.WDItemEngine.execute_sparql_query(
                                 """SELECT ?item WHERE{?item wdt:P356 '""" + DOI + """'.}""")
                             query = query['results']
                             query = query['bindings']
+                            
                             if not query:
-                                DOI_not_in_wikidata.append(DOI)
+                                references_absent_in_wikidata.append(DOI)
                             else:
                                 query = query[0]['item']['value']
                                 QIDreferences = query.strip(
                                     "http://www.wikidata.org/entity/")
-                                references[DOI] = QIDreferences
+                                references_dictionary[DOI] = QIDreferences
 
     query3 = wdi_core.WDItemEngine.execute_sparql_query(
         """SELECT ?item ?NCIt WHERE { ?item wdt:P1748 ?NCIt.}""")
@@ -872,7 +871,7 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_
         elif NCIt not in diseases:
             diseases[NCIt] = wikidata_id
 
-    return {"references": references, "referencesniw": DOI_not_in_wikidata, "errorreferences": error_references,
+    return {"references_dictionary": references_dictionary, "references_absent_in_wikidata":references_absent_in_wikidata,
             "species": species, "problematicspecies": problematic_species, "diseases": diseases,
             "problematicdiseases": problematic_diseases}
 
