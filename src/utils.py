@@ -789,23 +789,35 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     references_dictionary = {}
     references_absent_in_wikidata = []
     species_dictionary = {}
-    species_absent_in_wikidata = {}
+    species_absent_in_wikidata = []
     diseases_dictionary = {}
     diseases_absent_in_wikidata = []
     diseases_with_multiple_matches_in_wikidata = []
 
     print("------------ Checking Taxon IDs on Wikidata-----------")
 
-    taxids_on_wikidata = query_wikidata_for_taxids()
+    list_of_taxons = []
 
-    species_dictionary, species_absent_in_wikidata = add_ids_to_species_id_holders(
-        taxids_on_wikidata)
+    for celline in cellosaurus_in_dicionary_format:
+        taxon = cellosaurus_in_dicionary_format[celline]["OX"]
+        list_of_taxons.extend(taxon)
 
+    list_of_unique_taxons = list(set(list_of_taxons))
 
+    print("Total taxons: " + str(len(list_of_taxons)))
+    print("Unique taxons: " + str(len(list_of_unique_taxons)))
+
+    for individual_taxon in list_of_unique_taxons:
+        try:
+            qid_for_taxon = query_wikidata_by_taxid(individual_taxon)
+            species_dictionary[individual_taxon] = qid_for_taxon
+        except:
+            species_absent_in_wikidata.append(individual_taxon)
 
     print("------------ Checking References on Wikidata-----------")
 
     list_of_references = []
+
     for celline in cellosaurus_in_dicionary_format:
         references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
         list_of_references.extend(references_for_this_cell_line)
@@ -846,15 +858,18 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
                         print("Not on Wikidata yet: " + individual_reference)
                         references_absent_in_wikidata.append( individual_reference)
 
+
+
+    print("------------ Checking NCI Thesaurus on Wikidata-----------")
+
     list_of_ncits = []
+
     for celline in cellosaurus_in_dicionary_format:
         ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
         list_of_ncits.append(ncit)
 
     list_of_unique_ncits = list(set(list_of_ncits))
 
-
-    print("------------ Checking NCI Thesaurus on Wikidata-----------")
     print("Total ids: " + str(len(list_of_ncits)))
     print("Unique ids: " + str(len(list_of_unique_ncits)))
 
@@ -883,10 +898,11 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
             "diseases_with_multiple_matches_in_wikidata": diseases_with_multiple_matches_in_wikidata}
 
 
-def query_wikidata_for_taxids():
+def query_wikidata_by_taxid(taxid):
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
-        """SELECT distinct ?item ?taxid WHERE { ?item p:P685 ?node. ?node ps:P685 ?taxid.}""")
-    return (query_result['results']['bindings'])
+        """SELECT distinct ?item ?taxid WHERE { ?item wdt:P685 '""" + taxid + """'}""")
+    qid_for_taxid = strip_qid_from_query_result(query_result)
+    return (qid_for_taxid)
 
 
 def query_wikidata_for_cell_lines():
@@ -954,30 +970,6 @@ def strip_qid_from_query_result(query_result):
     qid = query_result.strip("http://www.wikidata.org/entity/")
     
     return qid
-
-
-
-
-def add_ids_to_species_id_holders(taxid_to_wikidata):
-    species_ids = {}
-    problematic_species_ids = {}
-    for taxid_snak in taxid_to_wikidata:
-
-        wikidata_id = taxid_snak['item']['value'].strip(
-            "http://www.wikidata.org/entity/")
-        taxid = taxid_snak['taxid']['value']
-
-        if taxid not in species_ids:
-            species_ids[taxid] = wikidata_id
-
-        elif taxid in species_ids and taxid not in problematic_species_ids:
-
-            problematic_species_ids[taxid] = [wikidata_id]
-
-        elif taxid in species_ids and taxid in problematic_species_ids:
-            problematic_species_ids[taxid].append(wikidata_id)
-
-    return (species_ids, problematic_species_ids)
 
 
 # Wrapper functions for pickle
