@@ -4,8 +4,6 @@
 Readme/log for tracer bullet development of the bot to reconcile the
 Cellosaurus database to Wikidata
 
-
-
 Function to update wikidata cell lines is partially working. 
 
 
@@ -13,12 +11,14 @@ Function to update wikidata cell lines is partially working.
 
 The references were not added to Wikidata
 
-The NCI thesaurus term is saved as missing on wikidata, but it is there. 
+The query for taxon ids is not scaling well for large cellosaurus dumps.
 
 #### Progress
 
 - Refactored function that matches RX to Wikidata items.
 - Pubmed and DOIs are now matched to Wikidata normally
+- Issues in matching references and diseases are saved in an error folder
+- Refactored taxon id query functions
 
 
 ### What is working: 
