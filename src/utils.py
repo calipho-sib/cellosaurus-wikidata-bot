@@ -794,6 +794,8 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     diseases_absent_in_wikidata = []
     diseases_with_multiple_matches_in_wikidata = []
 
+    print("------------ Checking Taxon IDs on Wikidata-----------")
+
     taxids_on_wikidata = query_wikidata_for_taxids()
 
     species_dictionary, species_absent_in_wikidata = add_ids_to_species_id_holders(
@@ -801,10 +803,11 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
 
 
 
+    print("------------ Checking References on Wikidata-----------")
 
     for celline in cellosaurus_in_dicionary_format:
         references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
-
+        print(references_for_this_cell_line)
         if references_for_this_cell_line != []:
             for individual_reference in references_for_this_cell_line:
                 
@@ -836,15 +839,23 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
                                 print("Not on Wikidata yet: " + individual_reference)
                                 references_absent_in_wikidata.append( individual_reference)
 
-
+    list_of_ncits = []
     for celline in cellosaurus_in_dicionary_format:
         ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
+        list_of_ncits.append(ncit)
 
+    list_of_unique_ncits = list(set(list_of_ncits))
+
+
+    print("------------ Checking NCI Thesaurus on Wikidata-----------")
+    print("Total ids: " + str(len(list_of_ncits)))
+    print("Unique ids: " + str(len(list_of_unique_ncits)))
+
+    for ncit in list_of_unique_ncits:
         try:
             nci_thesaurus_qids = query_wikidata_by_ncit(ncit)
-            print(len(nci_thesaurus_qids))
             if len(nci_thesaurus_qids) == 1:
-                diseases_dictionary[ncit] == nci_thesaurus_qids[0]
+                diseases_dictionary[ncit] = nci_thesaurus_qids[0]
 
             if len(nci_thesaurus_qids) > 1:
                 diseases_with_multiple_matches_in_wikidata.append(ncit)

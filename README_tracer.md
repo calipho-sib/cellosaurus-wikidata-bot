@@ -5,7 +5,6 @@ Readme/log for tracer bullet development of the bot to reconcile the
 Cellosaurus database to Wikidata
 
 
-## Current status:
 
 Function to update wikidata cell lines is partially working. 
 
