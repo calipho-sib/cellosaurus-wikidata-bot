@@ -3,6 +3,7 @@
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
+from tqdm import tqdm
 import time
 import calendar
 from datetime import datetime, date
@@ -828,7 +829,7 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     print("Unique references: " + str(len(list_of_unique_references)))
 
 
-    for individual_reference in list_of_unique_references:
+    for individual_reference in tqdm(list_of_unique_references):
         
         # check if the reference has been already processed
         # and if not, proceed
@@ -836,15 +837,13 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
         if individual_reference not in references_dictionary:
             if individual_reference not in references_absent_in_wikidata:
             
-                print("Checking " + individual_reference)
                 if individual_reference.startswith("PubMed"):
                     pubmed_id = individual_reference.strip("PubMed=")
                     try:
                         reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
                         references_dictionary[individual_reference] = reference_qid
                     except Exception as e:
-                        print(e)
-                        print("Not on Wikidata yet: " + individual_reference)
+                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
                         references_absent_in_wikidata.append(individual_reference)
 
 
@@ -854,8 +853,7 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
                         reference_qid = query_wikidata_by_doi(doi)
                         references_dictionary[individual_reference] = reference_qid
                     except Exception as e:
-                        print(e)
-                        print("Not on Wikidata yet: " + individual_reference)
+                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
                         references_absent_in_wikidata.append( individual_reference)
 
 

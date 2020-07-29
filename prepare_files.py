@@ -49,6 +49,7 @@ def main():
 
     wikidata_cell_lines = utils.query_wikidata_for_cell_lines()
 
+    
     print("------------------- Processing Cellosaurus dump -------------------")
     cellosaurus_dump_to_wikidata_items = utils.match_cellosaurus_dump_to_wikidata_items(cellosaurus_dump_as_dictionary)
 
