@@ -1,0 +1,17 @@
+ID   ZR-75-27
+AC   CVCL_5612
+DR   Wikidata; Q54996118
+RX   PubMed=obviouslyfakeid;
+RX   DOI=obviouslyfakedoi;
+RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
+RX   PubMed=688225;
+CC   Doubling time: 144 hours, at 14th passage (PubMed=688225).
+CC   Derived from metastatic site: Pleural effusion.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+OI   CVCL_1661 ! ZR-75-30
+SX   Female
+AG   47Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 05-07-19; Version: 12
+//
