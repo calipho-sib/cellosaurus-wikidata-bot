@@ -805,39 +805,46 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
 
     print("------------ Checking References on Wikidata-----------")
 
+    list_of_references = []
     for celline in cellosaurus_in_dicionary_format:
         references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
-        print(references_for_this_cell_line)
-        if references_for_this_cell_line != []:
-            for individual_reference in references_for_this_cell_line:
-                
-                # check if the reference has been already processed
-                # and if not, proceed
+        list_of_references.extend(references_for_this_cell_line)
 
-                if individual_reference not in references_dictionary:
-                    if individual_reference not in references_absent_in_wikidata:
-                    
-                        print("Checking " + individual_reference)
-                        if individual_reference.startswith("PubMed"):
-                            pubmed_id = individual_reference.strip("PubMed=")
-                            try:
-                                reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
-                                references_dictionary[individual_reference] = reference_qid
-                            except Exception as e:
-                                print(e)
-                                print("Not on Wikidata yet: " + individual_reference)
-                                references_absent_in_wikidata.append(individual_reference)
+    list_of_unique_references = list(set(list_of_references))
+
+    print("Total references: " + str(len(list_of_references)))
+    print("Unique references: " + str(len(list_of_unique_references)))
 
 
-                        if individual_reference.startswith("DOI"):
-                            doi = individual_reference.strip("DOI=")
-                            try:
-                                reference_qid = query_wikidata_by_doi(doi)
-                                references_dictionary[individual_reference] = reference_qid
-                            except Exception as e:
-                                print(e)
-                                print("Not on Wikidata yet: " + individual_reference)
-                                references_absent_in_wikidata.append( individual_reference)
+    for individual_reference in list_of_unique_references:
+        
+        # check if the reference has been already processed
+        # and if not, proceed
+
+        if individual_reference not in references_dictionary:
+            if individual_reference not in references_absent_in_wikidata:
+            
+                print("Checking " + individual_reference)
+                if individual_reference.startswith("PubMed"):
+                    pubmed_id = individual_reference.strip("PubMed=")
+                    try:
+                        reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
+                        references_dictionary[individual_reference] = reference_qid
+                    except Exception as e:
+                        print(e)
+                        print("Not on Wikidata yet: " + individual_reference)
+                        references_absent_in_wikidata.append(individual_reference)
+
+
+                if individual_reference.startswith("DOI"):
+                    doi = individual_reference.strip("DOI=")
+                    try:
+                        reference_qid = query_wikidata_by_doi(doi)
+                        references_dictionary[individual_reference] = reference_qid
+                    except Exception as e:
+                        print(e)
+                        print("Not on Wikidata yet: " + individual_reference)
+                        references_absent_in_wikidata.append( individual_reference)
 
     list_of_ncits = []
     for celline in cellosaurus_in_dicionary_format:
@@ -863,6 +870,9 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
         except Exception as e:
             print(e)
             diseases_absent_in_wikidata.append(ncit)
+
+
+    print("------------ Completed matching Cellosaurus on Wikidata-----------")
 
     return {"references_dictionary": references_dictionary,
             "references_absent_in_wikidata":references_absent_in_wikidata,
