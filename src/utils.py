@@ -31,8 +31,8 @@ def get_cell_line_category_to_wikidata(file):
         return cell_line_category_to_wikidata
 
 
-def match_cellosaurus_dump_to_wikidata_items(cellosaurus,folder_for_errors):
-    return match_cellosaurus_to_wikidata_items(cellosaurus, folder_for_errors)
+def match_cellosaurus_dump_to_wikidata_items(cellosaurus):
+    return match_cellosaurus_to_wikidata_items(cellosaurus)
 
 
 def format_cellosaurus_dump_as_dictionary(file):
@@ -763,117 +763,103 @@ def make_established_from_disease_statement(disease_id, references):
 
 # Functions that  interact with Wikidata API
 
-###### THE FUNCTION BELOW IS YET TO BE IMPLEMENTED  ######
-def add_reference_to_wikidata(pubmed_id):
-    pass
-###### THE FUNCTION ABOVE IS YET TO BE IMPLEMENTED  ######
-
-
 # Functions to query and match to Wikidata
-def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format, folder_for_errors):
+def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
     This function create dictionnaries of list of pre-requisite wikidata
         informations.
     :param cellosaurus_in_dicionary_format : the cellosaurus dictionary from .txt file create
-        with CellosaurusToDictionary function
-    :param folder_for_errors : The folders where the errors will be saved. 
+        with format_cellosaurus_dump_as_dictionary function
     :return : a dictionary with contain dictionnaries or list.
         - references_dictionary : in key, the PubMed or DOI id for an article
               in wikidata and in value, the wikidata item id which correspond to
               this article.
-        - DOI_not_in_wikidata : a list of DOI references that are not in
+        - references_absent_in_wikidata : a list of  references that are not in
               wikidata.
-        - error_references : all the errors that occurs during the item
-          creation for the article by Fatameh.
-        - species dictionary : in key, a NCBI taxonomy id in cellosaurus
-              and in value, the wikidata item id which correspond to this species
-        - problematic_species: a list of NCBI taxonomy id that are not in
-              wikidata.
-        - diseases dictionary : in key, a NCI thesaurus if in cellosaurus and
-              in value, the wikidata item id which correspond to this disease.
-        - problematic_diseases : in key notin, if the disease is not in
-              wikidata; in key morethan, if the NCI thesaurus id correspond to
-              more than 1 disease in Wikidata. In value, the thesaurus id with
-              these problems.
-
-
+        - species_dictionary : NCBI taxonomy ids matched to the Wikidata id 
+        - species_absent_in_wikidata: a list of NCBI taxonomy id that are not in
+             Wikidata.
+        - diseases_dictionary : NCI thesaurus and matched to Wikidata item 
+         for this disease.
+        - diseases_absent_in_wikidata :a list of NCI thesaurus ids that are not in
+             Wikidata.
+        - diseases_with_multiple_matches_in_wikidata : a list of NCI thesaurus ids with multiple
+        Wikidata matches
     """
     references_dictionary = {}
     references_absent_in_wikidata = []
-    species = {}
-    problematic_species = {}
-    diseases = {}
-    problematic_diseases = {}
+    species_dictionary = {}
+    species_absent_in_wikidata = {}
+    diseases_dictionary = {}
+    diseases_absent_in_wikidata = []
+    diseases_with_multiple_matches_in_wikidata = []
 
     taxids_on_wikidata = query_wikidata_for_taxids()
 
-    species, problematic_species = add_ids_to_species_id_holders(
+    species_dictionary, species_absent_in_wikidata = add_ids_to_species_id_holders(
         taxids_on_wikidata)
-    fatameh_error_path = folder_for_errors + "/Fatameh_errors.txt"
 
-    with open(fatameh_error_path, "w") as references_errors:
 
-        for celline in cellosaurus_in_dicionary_format:
 
-            references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
 
-            if references_for_this_cell_line != []:
-                for reference_id in references_for_this_cell_line:
+    for celline in cellosaurus_in_dicionary_format:
+        references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
+
+        if references_for_this_cell_line != []:
+            for individual_reference in references_for_this_cell_line:
+                
+                # check if the reference has been already processed
+                # and if not, proceed
+
+                if individual_reference not in references_dictionary:
+                    if individual_reference not in references_absent_in_wikidata:
                     
-                    if reference_id.startswith("PubMed"):
-                        pubmed_id = reference_id.strip("PubMed=")
-                        print(pubmed_id)
+                        print("Checking " + individual_reference)
+                        if individual_reference.startswith("PubMed"):
+                            pubmed_id = individual_reference.strip("PubMed=")
+                            try:
+                                reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
+                                references_dictionary[individual_reference] = reference_qid
+                            except Exception as e:
+                                print(e)
+                                print("Not on Wikidata yet: " + individual_reference)
+                                references_absent_in_wikidata.append(individual_reference)
 
-                        if pubmed_id not in references_dictionary:
-                            query = query_wikidata_by_pubmed_id(pubmed_id)
 
-                            if query == []:
-                                if reference_id not in references_absent_in_wikidata:
-                                    print(
-                                        "This reference_id is not on Wikidata yet: " + reference_id)
-                                    references_absent_in_wikidata.append(
-                                        reference_id)
-                                    references_errors.write(
-                                        "Reference for article with PMID " + pubmed_id + " could not be added to Wikidata")
+                        if individual_reference.startswith("DOI"):
+                            doi = individual_reference.strip("DOI=")
+                            try:
+                                reference_qid = query_wikidata_by_doi(doi)
+                                references_dictionary[individual_reference] = reference_qid
+                            except Exception as e:
+                                print(e)
+                                print("Not on Wikidata yet: " + individual_reference)
+                                references_absent_in_wikidata.append( individual_reference)
 
-                            else:
-                                query = query[0]['item']['value']
-                                QIDreferences = query.strip(
-                                    "http://www.wikidata.org/entity/")
-                                references_dictionary[pubmed_id] = QIDreferences
 
-                    if reference_id.startswith("DOI"):
-                        DOI = reference_id.strip("DOI=")
-                        if DOI not in references_dictionary and DOI not in references_absent_in_wikidata:
-                            query = wdi_core.WDItemEngine.execute_sparql_query(
-                                """SELECT ?item WHERE{?item wdt:P356 '""" + DOI + """'.}""")
-                            query = query['results']
-                            query = query['bindings']
-                            
-                            if not query:
-                                references_absent_in_wikidata.append(DOI)
-                            else:
-                                query = query[0]['item']['value']
-                                QIDreferences = query.strip(
-                                    "http://www.wikidata.org/entity/")
-                                references_dictionary[DOI] = QIDreferences
+    for celline in cellosaurus_in_dicionary_format:
+        ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
 
-    query3 = wdi_core.WDItemEngine.execute_sparql_query(
-        """SELECT ?item ?NCIt WHERE { ?item wdt:P1748 ?NCIt.}""")
-    for disease in query3['results']['bindings']:
-        wikidata_id = disease['item']['value'].strip(
-            "http://www.wikidata.org/entity/")
-        NCIt = disease['NCIt']['value']
-        if NCIt in diseases and NCIt not in problematic_diseases:
-            problematic_diseases[NCIt] = [wikidata_id]
-        elif NCIt in diseases and NCIt in problematic_diseases:
-            problematic_diseases[NCIt].append(wikidata_id)
-        elif NCIt not in diseases:
-            diseases[NCIt] = wikidata_id
+        try:
+            nci_thesaurus_qids = query_wikidata_by_ncit(ncit)
+            print(len(nci_thesaurus_qids))
+            if len(nci_thesaurus_qids) == 1:
+                diseases_dictionary[ncit] == nci_thesaurus_qids[0]
 
-    return {"references_dictionary": references_dictionary, "references_absent_in_wikidata":references_absent_in_wikidata,
-            "species": species, "problematicspecies": problematic_species, "diseases": diseases,
-            "problematicdiseases": problematic_diseases}
+            if len(nci_thesaurus_qids) > 1:
+                diseases_with_multiple_matches_in_wikidata.append(ncit)
+
+        except Exception as e:
+            print(e)
+            diseases_absent_in_wikidata.append(ncit)
+
+    return {"references_dictionary": references_dictionary,
+            "references_absent_in_wikidata":references_absent_in_wikidata,
+            "species_dictionary": species_dictionary,
+            "species_absent_in_wikidata": species_absent_in_wikidata,
+            "diseases_dictionary": diseases_dictionary,
+            "diseases_absent_in_wikidata": diseases_absent_in_wikidata,
+            "diseases_with_multiple_matches_in_wikidata": diseases_with_multiple_matches_in_wikidata}
 
 
 def query_wikidata_for_taxids():
@@ -906,8 +892,49 @@ def query_wikidata_for_cell_lines():
 def query_wikidata_by_pubmed_id(pubmed):
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
         """SELECT ?item WHERE{?item wdt:P698 '""" + pubmed + """'.}""")
+    qid_for_pubmed_id = strip_qid_from_query_result(query_result)
+    return qid_for_pubmed_id
+
+
+def query_wikidata_by_doi(doi):
+    query_result = wdi_core.WDItemEngine.execute_sparql_query(
+            """SELECT ?item WHERE{?item wdt:P356 '""" + doi + """'.}""")
+    qid_for_doi = strip_qid_from_query_result(query_result)
+    return qid_for_doi
+
+def query_wikidata_by_ncit(ncit):
+    """
+    : param ncit : a NCI thesaurus term for a disease
+    : return : a list of qids that match this term
+    """    
+
+    query_result = wdi_core.WDItemEngine.execute_sparql_query(
+        """SELECT ?item ?NCIt WHERE { ?item wdt:P1748 '"""+ ncit +"""'.}""")
+    
+    qids_for_ncit = []
+    for disease in query_result['results']['bindings']:
+        qid_for_ncit = disease['item']['value'].strip("http://www.wikidata.org/entity/")
+        qids_for_ncit.append(qid_for_ncit)
+    
+    return qids_for_ncit
+
+def strip_qid_from_query_result(query_result):
+    '''
+    Strips the qid out of a Wikidata query that
+    returns a single result 
+
+    : param query_result : The result of a query to the
+    Wikidata SPARQL service using WikidataIntegrator
+
+    :return: the first qid listed in query results
+    '''
     query_result = query_result['results']['bindings']
-    return query_result
+    query_result = query_result[0]['item']['value']
+    qid = query_result.strip("http://www.wikidata.org/entity/")
+    
+    return qid
+
+
 
 
 def add_ids_to_species_id_holders(taxid_to_wikidata):

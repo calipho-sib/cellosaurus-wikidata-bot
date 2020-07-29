@@ -9,11 +9,10 @@ It takes 3 arguments:
 - 1st: The path to the .txt of the Cellosaurus dump
 - 2nd: The path to the folder where the pickle file and cell lines on wikidata 
 were saved after running "prepare_files.py"
-- 3rd: The path to the folder for errors.
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
  Example:
- $ python3 update_wikidata.py project/test_cellosaurus.txt pickle_files errors  Q87574023
+ $ python3 update_wikidata.py project/test_cellosaurus.txt pickle_files  Q87574023
 '''
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
@@ -36,8 +35,8 @@ def main():
 
     cellosaurus_dump_path = sys.argv[1]
     pickle_path = sys.argv[2]
-    folder_for_errors = sys.argv[3]
-    release_qid = sys.argv[4]
+    release_qid = sys.argv[3]
+    
     reconciled_dump_path = pickle_path + "cellosaurus_wikidata_items.pickle"
     wikidata_cell_lines_path = pickle_path + "cell_lines_on_wikidata.pickle"
 
