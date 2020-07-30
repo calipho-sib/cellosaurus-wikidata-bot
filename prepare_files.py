@@ -39,7 +39,7 @@ def main():
 
     filename_reconciled_dump = pickle_path + "/cellosaurus_wikidata_items.pickle"
     filename_cell_lines = pickle_path + "/cell_lines_on_wikidata.pickle"
-
+    filename_taxons = pickle_path + "/taxons_on_wikidata.pickle"
     try:
         cellosaurus_dump_as_dictionary = utils.format_cellosaurus_dump_as_dictionary(cellosaurus_dump_path)
     except FileNotFoundError:
@@ -49,10 +49,14 @@ def main():
 
     wikidata_cell_lines = utils.query_wikidata_for_cell_lines()
 
+    print("------------------- Querying Wikidata for taxon ids -------------------")
+
+    wikidata_taxons = utils.query_wikidata_for_taxons()
     
     print("------------------- Processing Cellosaurus dump -------------------")
     cellosaurus_dump_to_wikidata_items = utils.match_cellosaurus_dump_to_wikidata_items(cellosaurus_dump_as_dictionary)
 
+    utils.save_pickle_file(wikidata_taxons, filename_taxons)
     utils.save_pickle_file(wikidata_cell_lines, filename_cell_lines)
     utils.save_pickle_file(cellosaurus_dump_to_wikidata_items, filename_reconciled_dump)
 

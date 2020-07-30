@@ -916,13 +916,33 @@ def query_wikidata_for_cell_lines():
 
     cellosaurus_to_wikidata_cell_lines = {}
     for cell_line_entry in query_result:
-        QID_url = str(cell_line_entry['QID']['value'])
-        QID = QID_url.strip("http://www.wikidata.org/entity/").strip("\n")
+        qid_url = str(cell_line_entry['QID']['value'])
+        qid = qid_url.strip("http://www.wikidata.org/entity/").strip("\n")
         CVCL = cell_line_entry['CVCL']['value']
-        cellosaurus_to_wikidata_cell_lines[CVCL] = QID
+        cellosaurus_to_wikidata_cell_lines[CVCL] = qid
 
     return (cellosaurus_to_wikidata_cell_lines)
 
+def query_wikidata_for_taxons():
+    """
+    Recover all the taxons that exist in Wikidata (with an NCBI taxid).
+    :return : a dictionary matching NCBI taxid to  Wikidata item id.
+    """
+
+    query_result = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?TAXID WHERE{ 
+    ?QID wdt:P685 ?TAXID.
+    }""")
+    
+    query_result = query_result['results']['bindings']
+
+    taxid_to_wikidata = {}
+    for taxid_entry in query_result:
+        qid_url = str(taxid_entry['QID']['value'])
+        qid = qid_url.strip("http://www.wikidata.org/entity/").strip("\n")
+        taxid = taxid_entry['TAXID']['value']
+        taxid_to_wikidata[taxid] = qid
+
+    return (taxid_to_wikidata)
 
 def query_wikidata_by_pubmed_id(pubmed):
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
