@@ -45,7 +45,7 @@ def main():
     cellosaurus_to_wikidata_matches = utils.load_pickle_file(reconciled_dump_path)
     wikidata_cell_lines = utils.load_pickle_file(wikidata_cell_lines_path)
     login = wdi_login.WDLogin(WDUSER, WDPASS)
-    ncbi_id_to_qid_species = utils.load_pickle_file(wikidata_cell_lines_path)
+    ncbi_id_to_qid_species = utils.load_pickle_file(filename_taxons)
     references = cellosaurus_to_wikidata_matches["references_dictionary"]
     print(references)
     diseases = cellosaurus_to_wikidata_matches["diseases_dictionary"]
