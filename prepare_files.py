@@ -52,12 +52,10 @@ def main():
     print("------------------- Querying Wikidata for taxon ids -------------------")
 
     wikidata_taxons = utils.query_wikidata_for_taxons()
-    
+    utils.save_pickle_file(wikidata_taxons, filename_taxons)
+
     print("------------------- Processing Cellosaurus dump -------------------")
     cellosaurus_dump_to_wikidata_items = utils.match_cellosaurus_dump_to_wikidata_items(cellosaurus_dump_as_dictionary)
-
-    utils.save_pickle_file(wikidata_taxons, filename_taxons)
-    utils.save_pickle_file(wikidata_cell_lines, filename_cell_lines)
     utils.save_pickle_file(cellosaurus_dump_to_wikidata_items, filename_reconciled_dump)
 
 

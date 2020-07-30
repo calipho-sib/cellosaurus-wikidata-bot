@@ -9,7 +9,10 @@ Function to update wikidata cell lines is partially working.
 
 ### Last known issues:
 
-The references were not added to Wikidata
+The references are still not being added to Wikidata.
+Need to code auxiliary functions. 
+
+The new way of querying taxons has led to a bug. Taxon ids are not being updated.
 
 The query for taxon ids is not scaling well for large cellosaurus dumps.
 
@@ -18,29 +21,9 @@ The query for taxon ids is not scaling well for large cellosaurus dumps.
 - Refactored function that matches RX to Wikidata items.
 - Pubmed and DOIs are now matched to Wikidata normally
 - Issues in matching references and diseases are saved in an error folder
-- Refactored taxon id query functions
+- Refactored taxon id query functions to query individually
+- Refactored taxon id query functions to query once for all (improve performance)
 
-
-### What is working: 
-
-* [ZR-75-27](https://www.wikidata.org/wiki/Q54996118)
-ID, AC, SY, DI, OX, SX and CA were properly added:
-
-* [ZR-75-30](https://www.wikidata.org/wiki/Q54996119)
-ID, AC, SY, DI, OX, SX and CA were properly added:
-
-The references to OBO ontologies were properly added.
-DR   BTO; BTO:0004915
-DR   CLO; CLO_0009728
-DR   EFO; EFO_0001263
-
-* [ZR-75-9a1](https://www.wikidata.org/wiki/Q54996121)
-ID, AC, SY, DI, OX, SX and CA were properly added:
-HI (parent cell line) was properly added. 
-
-* [ZR-75-B](https://www.wikidata.org/wiki/Q54996122)
-ID, AC, SY, DI, OX, SX and CA were properly added:
-HI (parent cell line) was properly added. 
 
 ### Notes:
 

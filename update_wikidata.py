@@ -37,18 +37,18 @@ def main():
     pickle_path = sys.argv[2]
     release_qid = sys.argv[3]
     
-    reconciled_dump_path = pickle_path + "cellosaurus_wikidata_items.pickle"
-    wikidata_cell_lines_path = pickle_path + "cell_lines_on_wikidata.pickle"
-
+    reconciled_dump_path = pickle_path + "/cellosaurus_wikidata_items.pickle"
+    wikidata_cell_lines_path = pickle_path + "/cell_lines_on_wikidata.pickle"
+    filename_taxons = pickle_path + "/taxons_on_wikidata.pickle"
 
     cellosaurus_dump_in_dictionary_format = utils.format_cellosaurus_dump_as_dictionary(cellosaurus_dump_path)
     cellosaurus_to_wikidata_matches = utils.load_pickle_file(reconciled_dump_path)
     wikidata_cell_lines = utils.load_pickle_file(wikidata_cell_lines_path)
     login = wdi_login.WDLogin(WDUSER, WDPASS)
-    ncbi_id_to_qid_species = cellosaurus_to_wikidata_matches["species"]
+    ncbi_id_to_qid_species = utils.load_pickle_file(wikidata_cell_lines_path)
     references = cellosaurus_to_wikidata_matches["references_dictionary"]
     print(references)
-    diseases = cellosaurus_to_wikidata_matches["diseases"]
+    diseases = cellosaurus_to_wikidata_matches["diseases_dictionary"]
     categories = utils.get_cell_line_category_to_wikidata("project/category.txt")
     
     for cellosaurus_id in cellosaurus_dump_in_dictionary_format:

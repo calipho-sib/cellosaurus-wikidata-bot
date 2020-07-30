@@ -789,31 +789,9 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
     """
     references_dictionary = {}
     references_absent_in_wikidata = []
-    species_dictionary = {}
-    species_absent_in_wikidata = []
     diseases_dictionary = {}
     diseases_absent_in_wikidata = []
     diseases_with_multiple_matches_in_wikidata = []
-
-    print("------------ Checking Taxon IDs on Wikidata-----------")
-
-    list_of_taxons = []
-
-    for celline in cellosaurus_in_dicionary_format:
-        taxon = cellosaurus_in_dicionary_format[celline]["OX"]
-        list_of_taxons.extend(taxon)
-
-    list_of_unique_taxons = list(set(list_of_taxons))
-
-    print("Total taxons: " + str(len(list_of_taxons)))
-    print("Unique taxons: " + str(len(list_of_unique_taxons)))
-
-    for individual_taxon in list_of_unique_taxons:
-        try:
-            qid_for_taxon = query_wikidata_by_taxid(individual_taxon)
-            species_dictionary[individual_taxon] = qid_for_taxon
-        except:
-            species_absent_in_wikidata.append(individual_taxon)
 
     print("------------ Checking References on Wikidata-----------")
 
@@ -889,18 +867,9 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
 
     return {"references_dictionary": references_dictionary,
             "references_absent_in_wikidata":references_absent_in_wikidata,
-            "species_dictionary": species_dictionary,
-            "species_absent_in_wikidata": species_absent_in_wikidata,
             "diseases_dictionary": diseases_dictionary,
             "diseases_absent_in_wikidata": diseases_absent_in_wikidata,
             "diseases_with_multiple_matches_in_wikidata": diseases_with_multiple_matches_in_wikidata}
-
-
-def query_wikidata_by_taxid(taxid):
-    query_result = wdi_core.WDItemEngine.execute_sparql_query(
-        """SELECT distinct ?item ?taxid WHERE { ?item wdt:P685 '""" + taxid + """'}""")
-    qid_for_taxid = strip_qid_from_query_result(query_result)
-    return (qid_for_taxid)
 
 
 def query_wikidata_for_cell_lines():
@@ -949,7 +918,6 @@ def query_wikidata_by_pubmed_id(pubmed):
         """SELECT ?item WHERE{?item wdt:P698 '""" + pubmed + """'.}""")
     qid_for_pubmed_id = strip_qid_from_query_result(query_result)
     return qid_for_pubmed_id
-
 
 def query_wikidata_by_doi(doi):
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
