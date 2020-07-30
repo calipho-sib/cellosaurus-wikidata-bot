@@ -610,29 +610,21 @@ def add_info_about_references(cell_line_object, data_to_add_to_wikidata):
 
 # Functions to append Wikidata Integrator statements to the list of statements
 def append_literature_descriptions(cell_line_object, data_to_add_to_wikidata):
-    pubmed_ids_and_DOIs_in_wikidata = cell_line_object.references
-    reference_publication_ids = cell_line_object.cell_line_dump["RX"]
+    sourceref_to_wikidata = cell_line_object.references
+    sourceref_ids = cell_line_object.cell_line_dump["RX"]
 
     references_in_wdi_format = cell_line_object.references_in_wdi_format
-    for reference_id in reference_publication_ids:
-        if reference_id.startswith("PubMed"):
-            pubmed = reference_id.strip("PubMed=")
-
-            if pubmed in pubmed_ids_and_DOIs_in_wikidata:
-                # P1343:described by source
-                data_to_add_to_wikidata.append(wdi_core.WDItemID(
-                    value=pubmed_ids_and_DOIs_in_wikidata[pubmed],
+    
+    for sourceref in sourceref_ids:
+        
+        if sourceref in sourceref_to_wikidata:
+            sourceref_qid = sourceref_to_wikidata[sourceref]
+            data_to_add_to_wikidata.append(wdi_core.WDItemID(
+                    value=sourceref_qid,
                     prop_nr="P1343",
                     references=references_in_wdi_format))
-
-        elif reference_id.startswith("DOI"):
-            doi = reference_id.strip("DOI=")
-
-            if doi in pubmed_ids_and_DOIs_in_wikidata:
-                data_to_add_to_wikidata.append(wdi_core.WDItemID(
-                    value=pubmed_ids_and_DOIs_in_wikidata[doi],
-                    prop_nr="P1343",
-                    references=references_in_wdi_format))
+        else:
+            print("Reference " + sourceref + " could not be added")
 
     return data_to_add_to_wikidata
 

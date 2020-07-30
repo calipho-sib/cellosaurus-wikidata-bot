@@ -9,12 +9,13 @@ Function to update wikidata cell lines is partially working.
 
 ### Last known issues:
 
-The references are still not being added to Wikidata.
-Need to code auxiliary functions. 
+- Some publications are not on Wikidata yet 
+(Need to code functions to add them to Wikidata)
+- The Fatameh tool, which was previously used to add publications to Wikidata,
+ is not mantained anymore.
+- Likely the best option would be to clone the Fatameh repository and try and
+rebuild it as a python module (https://phabricator.wikimedia.org/source/tool-fatameh/browse/master/)
 
-The new way of querying taxons has led to a bug. Taxon ids are not being updated.
-
-The query for taxon ids is not scaling well for large cellosaurus dumps.
 
 #### Progress
 
@@ -23,6 +24,7 @@ The query for taxon ids is not scaling well for large cellosaurus dumps.
 - Issues in matching references and diseases are saved in an error folder
 - Refactored taxon id query functions to query individually
 - Refactored taxon id query functions to query once for all (improve performance)
+- Publications that are on Wikidata now are normally added. 
 
 
 ### Notes:
