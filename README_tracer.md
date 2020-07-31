@@ -1,4 +1,4 @@
-# README for tracer bullet
+# README
 
 
 Readme/log for tracer bullet development of the bot to reconcile the
