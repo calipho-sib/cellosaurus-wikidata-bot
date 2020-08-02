@@ -11,10 +11,7 @@ Function to update wikidata cell lines is partially working.
 
 - Some publications are not on Wikidata yet 
 (Need to code functions to add them to Wikidata)
-- The Fatameh tool, which was previously used to add publications to Wikidata,
- is not mantained anymore.
-- Likely the best option would be to clone the Fatameh repository and try and
-rebuild it as a python module (https://phabricator.wikimedia.org/source/tool-fatameh/browse/master/)
+- Need to integrate wdi_core.wdi_helpers.PubmedItem to code. 
 
 
 #### Progress
@@ -25,6 +22,9 @@ rebuild it as a python module (https://phabricator.wikimedia.org/source/tool-fat
 - Refactored taxon id query functions to query individually
 - Refactored taxon id query functions to query once for all (improve performance)
 - Publications that are on Wikidata now are normally added. 
+- Found that Fatameh(https://phabricator.wikimedia.org/source/tool-fatameh/browse/master/) 
+uses Wikidata Integrator (WDI) in the backend to add articles to Wikidata. 
+- Found that WDI has a function called "wdi_core.wdi_helpers.PubmedItem" to add articles to Wikidata. 
 
 
 ### Notes:
