@@ -1,77 +1,38 @@
-# <center>Cellosaurus Wikidata Bot</center>
-
-***************************
-<p align="center">
-  <img src="img/WikiCello.png" width="300"/>
-</p>
-***************************
-
-**<center>Cellosaurus Bot allows to integrate cell lines from [Cellosaurus](https://web.expasy.org/cellosaurus/) to [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page).**
-
-**It was developed from the the [WikidataIntegrator](https://github.com/SuLab/WikidataIntegrator) library.</center>**
-## Installation
-
-First, you have to clone the bot from Git Hub and install the submodule WikidataIntegrator:
-
-		git clone https://github.com/calipho-sib/cellosaurus-wikidata-bot.git
-		cd cellosaurus-wikidata-bot
-		git submodule init
-		git submodule update
-		cd WikidataIntegrator
-		python setup.py install 
-		
-For test the correct installation, start a python console and execute the following:
-
-	>>>from wikidataintegrator import wdi_core
-	>>>my_first_wikidata_item = wdi_core.WDItemEngine(wd_item_id='Q5')
-And print the json representation of the item:
-	
-	>>>my_first_wikidata_item.get_wd_json_representation()
-## Requirements
+# README for tracer bullet
 
 
-### Cellosaurus release:
+Readme/log for tracer bullet development of the bot to reconcile the
+Cellosaurus database to Wikidata
+
+Function to update wikidata cell lines is partially working. 
 
 
-+ The wikidata item of the Cellosaurus release Item. ( example: [*Q27971192*](https://www.wikidata.org/wiki/Q27971192) ). If the item does not exist, [create it](https://www.wikidata.org/wiki/Special:NewItem).
+### Last known issues:
 
-## Run the bot
-
-### Cellosaurus dump:
-
-If you have already a dump of the Cellosaurus database in .txt format, you can use it. Move the file in **project/**.
-If not, the bot will automatically upload it for you. 
+- Some publications are not on Wikidata yet 
+(Need to code functions to add them to Wikidata)
+- Need to integrate wdi_core.wdi_helpers.PubmedItem to code. 
 
 
-To run the bot with the Wikidata relase id (#releaseid) and optionnaly the cellosaurus dump in .txt format (#cellosaurus.txt) :
+#### Progress
 
-	./Main.py #releaseid #cellosaurus.txt
+- Refactored function that matches RX to Wikidata items.
+- Pubmed and DOIs are now matched to Wikidata normally
+- Issues in matching references and diseases are saved in an error folder
+- Refactored taxon id query functions to query individually
+- Refactored taxon id query functions to query once for all (improve performance)
+- Publications that are on Wikidata now are normally added. 
+- Found that Fatameh(https://phabricator.wikimedia.org/source/tool-fatameh/browse/master/) 
+uses Wikidata Integrator (WDI) in the backend to add articles to Wikidata. 
+- Found that WDI has a function called "wdi_core.wdi_helpers.PubmedItem" to add articles to Wikidata. 
+- Found out that that function is deprecated. Currently this is covered by another set of 
+functions that are described [here](https://github.com/SuLab/WikidataIntegrator/blob/adb4ab7f23b3a080dcf2f038191dd3d23c511418/wikidataintegrator/wdi_helpers/publication.py)
 
-## Structure
 
-| | |
-|:--:|:--|
-| <img src="img/Bot_structure.png" style="width: 400px;"/>|  **conf/WikidataIntegrator** : the WikidataIntegrator library </br> **doc/ERRORS/species.txt** : species that are not in Wikidata </br> **doc/Fatameh_errors.txt** : errors that occur during references item creation with Fatameh </br>  **doc/ERRORS/diseases/more\_than_1.txt** : diseases (NCIt) that correspond to more than 1 item in Wikidata </br> **doc/ERRORS/diseases/not_in.txt** : diseases that are not in Wikidata </br> **project/cellosaurus.txt** : the provided or uploaded dump of Cellosaurus </br> **project/category.txt** : the cell lines categories in Cellosaurus with their correspondance to Wikidata items </br> **results/new_Qids.txt** : the new cell lines items in Wikidata that were created </br> **results/Qids\_2_delete.txt** : the Wikidata items that have to be deleted </br> **results/cell\_line_duplicate.txt** : cell lines that are in duplicate in Wikidata </br> **src/utils.py** : a python librairy used in **Main.py** </br> **Main.py** : the bot code </br> **ShEX_model/Wikidata\_Cellosaurus\_celllines.shex** : a shex model that define contrains on a cell line item |
+### Notes:
 
-## Main functions 
+CC, AG, ST are currently ignored
 
-The Cellosaurus bot will:
+DR that is not from OBO is currently ignored
 
-+ Create Wikidata items for new cell lines in Cellosaurus release.
-+ Update Wikidata items for changes in cell lines informations in Cellosaurus release.
-+ Inform you for Wikidata cell lines items to delete (in **results/Qids_2_delete.txt**).
-+ Inform you for Wikidata cell lines items that are in duplicate in Wikidata (in **results/cell_line_duplicate.txt**).
-
-## Example
-
-For Cellosaurus release 26: 
-
-	./Main.py Q53439980
-	>>------------------- Would you download a Cellosaurus dump?(y/n) -------------------
-	y #if you do not have a cellosaurus dump
-
-In this case, the bot will check the item id for the release, upload the last Cellosaurus release dump and start the integration of Cellosaurus data. 
-
-	./Main.py Q53439980 /project/cellosaurus.txt 
-
-In this case, the dump is provided, the bot will check the item id for the release, check the Cellosaurus dump and start the integration of Cellosaurus data.
+- 
