@@ -30,80 +30,18 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
         - diseases_with_multiple_matches_in_wikidata : a list of NCI thesaurus ids with multiple
         Wikidata matches
     """
-    references_dictionary = {}
-    references_absent_in_wikidata = []
-    diseases_dictionary = {}
-    diseases_absent_in_wikidata = []
-    diseases_with_multiple_matches_in_wikidata = []
+
+
 
     print("------------ Checking References on Wikidata-----------")
-
-    list_of_references = []
-
-    for celline in cellosaurus_in_dicionary_format:
-        references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
-        list_of_references.extend(references_for_this_cell_line)
-
-    list_of_unique_references = list(set(list_of_references))
-
-    print("Total references: " + str(len(list_of_references)))
-    print("Unique references: " + str(len(list_of_unique_references)))
-
-
-    for individual_reference in tqdm(list_of_unique_references):
-        
-        # check if the reference has been already processed
-        # and if not, proceed
-
-        if individual_reference not in references_dictionary:
-            if individual_reference not in references_absent_in_wikidata:
-            
-                if individual_reference.startswith("PubMed"):
-                    pubmed_id = individual_reference.strip("PubMed=")
-                    try:
-                        reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
-                        references_dictionary[individual_reference] = reference_qid
-                    except Exception as e:
-                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
-                        references_absent_in_wikidata.append(individual_reference)
-
-
-                if individual_reference.startswith("DOI"):
-                    doi = individual_reference.strip("DOI=")
-                    try:
-                        reference_qid = query_wikidata_by_doi(doi)
-                        references_dictionary[individual_reference] = reference_qid
-                    except Exception as e:
-                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
-                        references_absent_in_wikidata.append( individual_reference)
+    
+    references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles(cellosaurus_in_dicionary_format)
 
 
 
     print("------------ Checking NCI Thesaurus on Wikidata-----------")
-
-    list_of_ncits = []
-
-    for celline in cellosaurus_in_dicionary_format:
-        ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
-        list_of_ncits.append(ncit)
-
-    list_of_unique_ncits = list(set(list_of_ncits))
-
-    print("Total ids: " + str(len(list_of_ncits)))
-    print("Unique ids: " + str(len(list_of_unique_ncits)))
-
-    for ncit in list_of_unique_ncits:
-        try:
-            nci_thesaurus_qids = query_wikidata_by_ncit(ncit)
-            if len(nci_thesaurus_qids) == 1:
-                diseases_dictionary[ncit] = nci_thesaurus_qids[0]
-
-            if len(nci_thesaurus_qids) > 1:
-                diseases_with_multiple_matches_in_wikidata.append(ncit)
-
-        except Exception as e:
-            print(e)
-            diseases_absent_in_wikidata.append(ncit)
+   
+    diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata = query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format)
 
 
     print("------------ Completed matching Cellosaurus on Wikidata-----------")
@@ -134,6 +72,78 @@ def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
         taxid_to_wikidata[taxid] = qid
 
     return (taxid_to_wikidata)
+
+def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
+    diseases_dictionary = {}
+    diseases_absent_in_wikidata = []
+    diseases_with_multiple_matches_in_wikidata = []
+
+    list_of_ncits = []
+
+    for celline in cellosaurus_in_dicionary_format:
+        ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
+        list_of_ncits.append(ncit)
+
+    list_of_unique_ncits = list(set(list_of_ncits))
+
+    print("Total ids: " + str(len(list_of_ncits)))
+    print("Unique ids: " + str(len(list_of_unique_ncits)))
+
+    for ncit in list_of_unique_ncits:
+        try:
+            nci_thesaurus_qids = query_wikidata_by_ncit(ncit)
+            if len(nci_thesaurus_qids) == 1:
+                diseases_dictionary[ncit] = nci_thesaurus_qids[0]
+
+            if len(nci_thesaurus_qids) > 1:
+                diseases_with_multiple_matches_in_wikidata.append(ncit)
+
+        except Exception as e:
+            print(e)
+            diseases_absent_in_wikidata.append(ncit)
+    return diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata
+
+def query_wikidata_for_articles(cellosaurus_in_dicionary_format):
+    references_dictionary = {}
+    references_absent_in_wikidata = []
+    list_of_references = []
+    for celline in cellosaurus_in_dicionary_format:
+        references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
+        list_of_references.extend(references_for_this_cell_line)
+
+    list_of_unique_references = list(set(list_of_references))
+
+    print("Total references: " + str(len(list_of_references)))
+    print("Unique references: " + str(len(list_of_unique_references)))
+
+
+    for individual_reference in tqdm(list_of_unique_references):
+
+        # check if the reference has been already processed
+        # and if not, proceed
+
+        if individual_reference not in references_dictionary:
+            if individual_reference not in references_absent_in_wikidata:
+
+                if individual_reference.startswith("PubMed"):
+                    pubmed_id = individual_reference.strip("PubMed=")
+                    try:
+                        reference_qid = query_wikidata_by_pubmed_id(pubmed_id)
+                        references_dictionary[individual_reference] = reference_qid
+                    except Exception as e:
+                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
+                        references_absent_in_wikidata.append(individual_reference)
+
+
+                if individual_reference.startswith("DOI"):
+                    doi = individual_reference.strip("DOI=")
+                    try:
+                        reference_qid = query_wikidata_by_doi(doi)
+                        references_dictionary[individual_reference] = reference_qid
+                    except Exception as e:
+                        tqdm.write("Exception: " + str(e) + "(" + individual_reference + ")")
+                        references_absent_in_wikidata.append(individual_reference)
+    return references_dictionary, references_absent_in_wikidata
 
 
 def query_wikidata_by_pubmed_id(pubmed):
