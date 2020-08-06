@@ -498,11 +498,18 @@ def prepare_item_descriptions(cell_line_object):
 
 def add_all_statements_to_wdi_cell_line(cell_line_object, data):
     cellosaurus_id = cell_line_object.cell_line_id
-    wikidata_qid = cell_line_object.wikidata_dictionary_with_existing_cell_lines[cellosaurus_id]
-    item = wdi_core.WDItemEngine(wd_item_id=wikidata_qid, data=data['data'],
+
+    if cellosaurus_id in cell_line_object.wikidata_dictionary_with_existing_cell_lines:
+        wikidata_qid = cell_line_object.wikidata_dictionary_with_existing_cell_lines[cellosaurus_id]
+        item = wdi_core.WDItemEngine(wd_item_id=wikidata_qid, data=data['data'],
                                  global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
             'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
             'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
+    else:
+        item = wdi_core.WDItemEngine(wd_item_id='', new_item=True, data=data['data'],
+                                global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
+        'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+        'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
 
     return item
 
