@@ -42,8 +42,8 @@ def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
             diseases_absent_in_wikidata.append(ncit)
     return diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata
 
-def query_wikidata_for_articles(cellosaurus_in_dicionary_format):
-    references_dictionary = {}
+def query_wikidata_for_articles(cellosaurus_in_dicionary_format, references_dictionary):
+    
     references_absent_in_wikidata = []
     list_of_references = []
     for celline in cellosaurus_in_dicionary_format:

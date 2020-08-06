@@ -17,7 +17,7 @@ import time
 import json
 import pickle
 import sys
-import os
+import os.path
 from src.format import format_cellosaurus_dump_as_dictionary
 from src.utils import *
 from src.query import *
@@ -44,20 +44,43 @@ def main():
     
     print("------------------- Querying Wikidata for cell lines -------------------")
 
-    wikidata_cell_lines = query_wikidata_for_cell_lines()
-    save_pickle_file(wikidata_cell_lines, filename_cell_lines)
+
+    if os.path.isfile(filename_cell_lines):
+        print("Skipping. Previously cached cell lines are present.")
+    else:
+        wikidata_cell_lines = query_wikidata_for_cell_lines()
+        save_pickle_file(wikidata_cell_lines, filename_cell_lines)
 
     print("------------------- Querying Wikidata for taxon ids -------------------")
 
-    wikidata_taxons = query_wikidata_for_taxons()
-    save_pickle_file(wikidata_taxons, filename_taxons)
+    if os.path.isfile(filename_taxons):
+        print("Skipping. Previously cached taxons are present.")
+    else:
+        wikidata_taxons = query_wikidata_for_taxons()
+        save_pickle_file(wikidata_taxons, filename_taxons)
 
     print("------------------- Processing Cellosaurus dump -------------------")
 
     print("------------ Checking References on Wikidata-----------")
     
-    references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles(cellosaurus_dump_as_dictionary)
+    references_path = pickle_path + "/references_in_wikidata.json"
     
+    try:
+        references_dictionary = json.load(open(references_path))
+        print("Previous article dictionary found. Incrementing if needed.") 
+    except Exception as e:
+        print(e)
+        print("No previous article dictionary found. Building new one.")
+        references_dictionary = {}
+    
+    references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles( \
+            cellosaurus_dump_as_dictionary, \
+            references_dictionary)
+
+    with open(references_path, 'w+') as file:
+
+        file.write(json.dumps(references_dictionary)) # use `json.loads` to do the revers
+
     absent_references_filepath = folder_for_errors + "/references_absent_in_wikidata.txt"
     with open(absent_references_filepath, "w") as f: 
         for item in references_absent_in_wikidata:
@@ -68,7 +91,6 @@ def main():
     diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata = query_wikidata_for_ncit_diseases(cellosaurus_dump_as_dictionary)
 
     absent_diseases_filepath = folder_for_errors + "/diseases_absent_in_wikidata.txt"
-    
     with open(absent_diseases_filepath, "w") as f: 
         for item in diseases_absent_in_wikidata:
             f.write("%s\n" % item)
