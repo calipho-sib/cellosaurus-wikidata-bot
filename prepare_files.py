@@ -73,15 +73,26 @@ def main():
         print("No previous article dictionary found. Building new one.")
         references_dictionary = {}
     
+    
+    absent_references_filepath = folder_for_errors + "/references_absent_in_wikidata.txt"
+
+    try:
+        references_absent_in_wikidata_file = open(absent_references_filepath, "r")
+        references_absent_in_wikidata = list(references_absent_in_wikidata_file.read().split("\n"))
+        print(references_absent_in_wikidata)
+    except Exception as e:
+        print(e)
+        references_absent_in_wikidata = []
+
     references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles( \
             cellosaurus_dump_as_dictionary, \
-            references_dictionary)
+            references_dictionary, \
+            references_absent_in_wikidata  )
 
     with open(references_path, 'w+') as file:
         file.write(json.dumps(references_dictionary)) # use `json.loads` to do the revers
 
-    absent_references_filepath = folder_for_errors + "/references_absent_in_wikidata.txt"
-    write_list(absent_references_filepath, absent_references_filepath)
+    write_list(absent_references_filepath, references_absent_in_wikidata)
 
     print("------------ Checking NCI Thesaurus on Wikidata-----------")
    

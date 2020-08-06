@@ -12,6 +12,9 @@ Function to update wikidata cell lines is partially working.
 - Some publications are not on Wikidata yet 
 (Need to code functions to add them to Wikidata)
 - Need to integrate wdi_core.wdi_helpers.PubmedItem to code. 
+- Need to plan 2-step process (add to Wikidata, and then update all lines)
+- Fix errors with NCIT when preparing files
+- Fix code to not re-run queries to wikidata. 
 
 
 #### Progress
@@ -28,6 +31,7 @@ uses Wikidata Integrator (WDI) in the backend to add articles to Wikidata.
 - Found out that that function is deprecated. Currently this is covered by another set of 
 functions that are described [here](https://github.com/SuLab/WikidataIntegrator/blob/adb4ab7f23b3a080dcf2f038191dd3d23c511418/wikidataintegrator/wdi_helpers/publication.py)
 - Reorganized code in utils.py in different source files, which are slightly easier to navigate now. 
+- Prepared code to add new lines when they are missing.
 
 ### Runs for release 35 ###
 

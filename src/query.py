@@ -17,18 +17,19 @@ def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
 
         try:
             ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
+            list_of_ncits.append(ncit)
         except Exception as e:
             print(e)
             print(cellosaurus_in_dicionary_format[celline]["DI"])
 
-        list_of_ncits.append(ncit)
+
 
     list_of_unique_ncits = list(set(list_of_ncits))
 
     print("Total ids: " + str(len(list_of_ncits)))
     print("Unique ids: " + str(len(list_of_unique_ncits)))
 
-    for ncit in list_of_unique_ncits:
+    for ncit in tqdm(list_of_unique_ncits):
         try:
             nci_thesaurus_qids = query_wikidata_by_ncit(ncit)
             if len(nci_thesaurus_qids) == 1:
@@ -38,13 +39,12 @@ def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
                 diseases_with_multiple_matches_in_wikidata.append(ncit)
 
         except Exception as e:
-            print(e)
+            tqdm.write(e)
             diseases_absent_in_wikidata.append(ncit)
     return diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata
 
-def query_wikidata_for_articles(cellosaurus_in_dicionary_format, references_dictionary):
-    
-    references_absent_in_wikidata = []
+def query_wikidata_for_articles(cellosaurus_in_dicionary_format, references_dictionary, references_absent_in_wikidata):
+
     list_of_references = []
     for celline in cellosaurus_in_dicionary_format:
         references_for_this_cell_line = cellosaurus_in_dicionary_format[celline]["RX"]
