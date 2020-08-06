@@ -62,6 +62,8 @@ def main():
   
     categories = load_cell_line_category_to_wikidata("project/category.txt")
     
+
+    flag_for_new_lines = False
     for cellosaurus_id in cellosaurus_dump_in_dictionary_format:
         if cellosaurus_id not in wikidata_cell_lines:
             print(cellosaurus_id)
@@ -74,10 +76,21 @@ def main():
                                         cell_line_categories=categories,
                                         diseases=diseases,
                                         cell_line_id=cellosaurus_id)
-
+            
             prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors="doc/ERRORS/") 
 
-            cell_line.update_line_on_wikidata(prepared_data)
+            try:
+                cell_line.update_line_on_wikidata(prepared_data)
+            except Exception as e:
+                print(e)
+            flag_for_new_lines = True
+
+
+
+    if flag_for_new_lines:
+        filename_cell_lines = pickle_path + "/cell_lines_on_wikidata.pickle"
+        wikidata_cell_lines = query_wikidata_for_cell_lines()
+        save_pickle_file(wikidata_cell_lines, filename_cell_lines)
 
 
 if __name__=="__main__": 
