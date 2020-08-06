@@ -25,6 +25,13 @@ def load_cell_line_category_to_wikidata(file):
         return cell_line_category_to_wikidata
 
 
+def write_list(filepath, list):
+    with open(filepath, "w") as f: 
+        for item in list:
+            f.write("%s\n" % item)
+
+
+
 # Wrapper functions for pickle
 
 def load_pickle_file(pickleFileName):

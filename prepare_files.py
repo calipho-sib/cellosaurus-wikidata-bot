@@ -8,7 +8,7 @@
 # 3rd: The path to the folder where the errors in match to wikidata will be saved.   
 #
 # Example: 
-# python3 prepare_files.py project/test_cellosaurus.txt pickle_files errors
+# python3 prepare_files.py project/test_cellosaurus.txt dev/pickle_files dev/errors
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -67,7 +67,7 @@ def main():
     
     try:
         references_dictionary = json.load(open(references_path))
-        print("Previous article dictionary found. Incrementing if needed.") 
+        print("Previous article dictionary found. Incrementing (if possible).") 
     except Exception as e:
         print(e)
         print("No previous article dictionary found. Building new one.")
@@ -78,29 +78,20 @@ def main():
             references_dictionary)
 
     with open(references_path, 'w+') as file:
-
         file.write(json.dumps(references_dictionary)) # use `json.loads` to do the revers
 
     absent_references_filepath = folder_for_errors + "/references_absent_in_wikidata.txt"
-    with open(absent_references_filepath, "w") as f: 
-        for item in references_absent_in_wikidata:
-            f.write("%s\n" % item)
+    write_list(absent_references_filepath, absent_references_filepath)
 
     print("------------ Checking NCI Thesaurus on Wikidata-----------")
    
     diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata = query_wikidata_for_ncit_diseases(cellosaurus_dump_as_dictionary)
 
     absent_diseases_filepath = folder_for_errors + "/diseases_absent_in_wikidata.txt"
-    with open(absent_diseases_filepath, "w") as f: 
-        for item in diseases_absent_in_wikidata:
-            f.write("%s\n" % item)
+    write_list(absent_diseases_filepath, diseases_absent_in_wikidata)
 
-    
     multiple_diseases_filepath = folder_for_errors + "/diseases_with_multiple_matches_in_wikidata.txt"
-  
-    with open(multiple_diseases_filepath, "w") as f: 
-        for item in diseases_with_multiple_matches_in_wikidata:
-            f.write("%s\n" % item)
+    write_list(multiple_diseases_filepath, diseases_with_multiple_matches_in_wikidata)
 
 
     cellosaurus_dump_as_dictionary = {"references_dictionary": references_dictionary,

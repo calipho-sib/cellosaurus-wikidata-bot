@@ -12,8 +12,8 @@ were saved after running "prepare_files.py"
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
  Example:
- $ python3 update_wikidata.py project/test_cellosaurus.txt pickle_files  Q87574023
-'''
+ $python3 update_wikidata.py project/test_cellosaurus.txt dev/pickle_files dev/errors Q87574023 
+ '''
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
