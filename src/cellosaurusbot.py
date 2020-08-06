@@ -95,8 +95,6 @@ class CellosaurusCellLine():
             label = label.split("[")[0].strip(" ")
         descriptions = prepare_item_descriptions(self)
 
-        delete_old_statements(self, data)
-
         item_with_statements_to_update = add_all_statements_to_wdi_cell_line(self, data)
 
         item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(
@@ -496,30 +494,6 @@ def prepare_item_descriptions(cell_line_object):
 
     return descriptions
 
-
-def delete_old_statements(cell_line_object, data):
-    statements_to_delete = []
-
-    cellosaurus_cell_line_id = cell_line_object.cell_line_id
-    wikidata_dictionary_with_existing_cell_lines = cell_line_object.wikidata_dictionary_with_existing_cell_lines
-
-    cell_line_wikidata_id = wikidata_dictionary_with_existing_cell_lines[cellosaurus_cell_line_id]
-    cell_line_dump = cell_line_object.cell_line_dump
-    if data['data_to_delete']:
-        wikidata_item_for_this_cell_line = wdi_core.WDItemEngine(wd_item_id=cell_line_wikidata_id)
-        wikidata_item_for_this_cell_line_json = wikidata_item_for_this_cell_line.get_wd_json_representation()
-
-        for statement in wikidata_item_for_this_cell_line_json['claims']:
-            if statement in data['data_to_delete']:
-                statements_to_delete.append(
-                    wdi_core.WDBaseDataType.delete_statement(prop_nr=statement))
-
-        item_deletion = wdi_core.WDItemEngine(
-            wd_item_id=cell_line_wikidata_id, data=statements_to_delete)
-
-        item_name = cell_line_dump["ID"]
-        item_deletion.write(cell_line_object.wdi_login_object, bot_account=True,
-                            edit_summary="delete statements before update the item {}".format(item_name))
 
 
 def add_all_statements_to_wdi_cell_line(cell_line_object, data):
