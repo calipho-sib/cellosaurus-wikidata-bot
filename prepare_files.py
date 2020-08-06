@@ -45,6 +45,7 @@ def main():
     print("------------------- Querying Wikidata for cell lines -------------------")
 
     wikidata_cell_lines = query_wikidata_for_cell_lines()
+    save_pickle_file(wikidata_cell_lines, filename_cell_lines)
 
     print("------------------- Querying Wikidata for taxon ids -------------------")
 
@@ -52,28 +53,42 @@ def main():
     save_pickle_file(wikidata_taxons, filename_taxons)
 
     print("------------------- Processing Cellosaurus dump -------------------")
-    cellosaurus_dump_to_wikidata_items = match_cellosaurus_dump_to_wikidata_items(cellosaurus_dump_as_dictionary)
-    save_pickle_file(cellosaurus_dump_to_wikidata_items, filename_reconciled_dump)
 
-
-    print("------------------- Writing failed matches to folder -------------------")
-
+    print("------------ Checking References on Wikidata-----------")
+    
+    references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles(cellosaurus_dump_as_dictionary)
+    
     absent_references_filepath = folder_for_errors + "/references_absent_in_wikidata.txt"
     with open(absent_references_filepath, "w") as f: 
-        for item in cellosaurus_dump_to_wikidata_items["references_absent_in_wikidata"]:
+        for item in references_absent_in_wikidata:
             f.write("%s\n" % item)
 
+    print("------------ Checking NCI Thesaurus on Wikidata-----------")
+   
+    diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata = query_wikidata_for_ncit_diseases(cellosaurus_dump_as_dictionary)
 
     absent_diseases_filepath = folder_for_errors + "/diseases_absent_in_wikidata.txt"
+    
     with open(absent_diseases_filepath, "w") as f: 
-        for item in cellosaurus_dump_to_wikidata_items["diseases_absent_in_wikidata"]:
+        for item in diseases_absent_in_wikidata:
             f.write("%s\n" % item)
 
     
     multiple_diseases_filepath = folder_for_errors + "/diseases_with_multiple_matches_in_wikidata.txt"
+  
     with open(multiple_diseases_filepath, "w") as f: 
-        for item in cellosaurus_dump_to_wikidata_items["diseases_with_multiple_matches_in_wikidata"]:
+        for item in diseases_with_multiple_matches_in_wikidata:
             f.write("%s\n" % item)
+
+
+    cellosaurus_dump_as_dictionary = {"references_dictionary": references_dictionary,
+            "references_absent_in_wikidata":references_absent_in_wikidata,
+            "diseases_dictionary": diseases_dictionary,
+            "diseases_absent_in_wikidata": diseases_absent_in_wikidata,
+            "diseases_with_multiple_matches_in_wikidata": diseases_with_multiple_matches_in_wikidata}
+
+    save_pickle_file(cellosaurus_dump_as_dictionary, filename_reconciled_dump)
+
 
 
 if __name__=="__main__": 

@@ -3,75 +3,8 @@
 from wikidataintegrator import wdi_core
 from tqdm import tqdm
 
-
-def match_cellosaurus_dump_to_wikidata_items(cellosaurus):
-    return match_cellosaurus_to_wikidata_items(cellosaurus)
-
-
-def match_cellosaurus_to_wikidata_items(cellosaurus_in_dicionary_format):
-    """
-    This function create dictionnaries of list of pre-requisite wikidata
-        informations.
-    :param cellosaurus_in_dicionary_format : the cellosaurus dictionary from .txt file create
-        with format_cellosaurus_dump_as_dictionary function
-    :return : a dictionary with contain dictionnaries or list.
-        - references_dictionary : in key, the PubMed or DOI id for an article
-              in wikidata and in value, the wikidata item id which correspond to
-              this article.
-        - references_absent_in_wikidata : a list of  references that are not in
-              wikidata.
-        - species_dictionary : NCBI taxonomy ids matched to the Wikidata id 
-        - species_absent_in_wikidata: a list of NCBI taxonomy id that are not in
-             Wikidata.
-        - diseases_dictionary : NCI thesaurus and matched to Wikidata item 
-         for this disease.
-        - diseases_absent_in_wikidata :a list of NCI thesaurus ids that are not in
-             Wikidata.
-        - diseases_with_multiple_matches_in_wikidata : a list of NCI thesaurus ids with multiple
-        Wikidata matches
-    """
-
-
-
-    print("------------ Checking References on Wikidata-----------")
-    
-    references_dictionary, references_absent_in_wikidata = query_wikidata_for_articles(cellosaurus_in_dicionary_format)
-
-
-
-    print("------------ Checking NCI Thesaurus on Wikidata-----------")
-   
-    diseases_dictionary, diseases_absent_in_wikidata, diseases_with_multiple_matches_in_wikidata = query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format)
-
-
-    print("------------ Completed matching Cellosaurus on Wikidata-----------")
-
-    return {"references_dictionary": references_dictionary,
-            "references_absent_in_wikidata":references_absent_in_wikidata,
-            "diseases_dictionary": diseases_dictionary,
-            "diseases_absent_in_wikidata": diseases_absent_in_wikidata,
-            "diseases_with_multiple_matches_in_wikidata": diseases_with_multiple_matches_in_wikidata}
-
-
-    """
-    Recover all the taxons that exist in Wikidata (with an NCBI taxid).
-    :return : a dictionary matching NCBI taxid to  Wikidata item id.
-    """
-
-    query_result = wdi_core.WDItemEngine.execute_sparql_query(query="""SELECT ?QID ?TAXID WHERE{ 
-    ?QID wdt:P685 ?TAXID.
-    }""")
-    
-    query_result = query_result['results']['bindings']
-
-    taxid_to_wikidata = {}
-    for taxid_entry in query_result:
-        qid_url = str(taxid_entry['QID']['value'])
-        qid = qid_url.strip("http://www.wikidata.org/entity/").strip("\n")
-        taxid = taxid_entry['TAXID']['value']
-        taxid_to_wikidata[taxid] = qid
-
-    return (taxid_to_wikidata)
+# cellosaurus_in_dicionary_format is currently provided by the
+# format_cellosaurus_dump_as_dictionary function in the format.py file
 
 def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
     diseases_dictionary = {}
@@ -81,7 +14,13 @@ def query_wikidata_for_ncit_diseases(cellosaurus_in_dicionary_format):
     list_of_ncits = []
 
     for celline in cellosaurus_in_dicionary_format:
-        ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
+
+        try:
+            ncit = cellosaurus_in_dicionary_format[celline]["DI"][0]
+        except Exception as e:
+            print(e)
+            print(cellosaurus_in_dicionary_format[celline]["DI"])
+
         list_of_ncits.append(ncit)
 
     list_of_unique_ncits = list(set(list_of_ncits))
