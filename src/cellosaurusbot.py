@@ -64,7 +64,8 @@ class CellosaurusCellLine():
         self.PublicationNotReferencing = []
         self.WIDs = []
 
-    def prepare_for_wikidata(self, folder_for_errors="doc/ERRORS/"):
+    def prepare_for_wikidata(self, folder_for_errors):
+
         data_to_add_to_wikidata = []
         data_to_delete = []
         data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, data_to_delete)
@@ -227,7 +228,7 @@ def append_diseases(cell_line_object, data_to_add_to_wikidata, folder_for_errors
                 ))
 
             else:
-                with open(folder_for_errors + "diseases/diseases_not_in_wikidata.txt", "a") as file:
+                with open(folder_for_errors + "diseases_not_in_wikidata.txt", "a") as file:
                     file.write(disease + "\n")
     return data_to_add_to_wikidata
 

@@ -9,10 +9,11 @@ It takes 3 arguments:
 - 1st: The path to the .txt of the Cellosaurus dump
 - 2nd: The path to the folder where the pickle file and cell lines on wikidata 
 were saved after running "prepare_files.py"
+- 3rd: The folder for errors.
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
  Example:
- $python3 update_wikidata.py project/test_cellosaurus.txt dev/pickle_files dev/errors Q87574023 
+ $ python3 check_lines_on_wikidata.py project/cellosaurus.txt pickle_files errors Q96794096
  '''
 
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
@@ -43,8 +44,13 @@ def main():
     pickle_path = sys.argv[2]
     assert pickle_path, "You need to add a path to the folder with the pickle files"
 
-    release_qid = sys.argv[3]
+    folder_for_errors = sys.argv[3]
+    assert folder_for_errors, "You need to add a folder for errors"
+
+    release_qid = sys.argv[4]
     assert release_qid, "You need to add a release QID Dump"
+    
+
 
     reconciled_dump_path = pickle_path + "/cellosaurus_wikidata_items.pickle"
     wikidata_cell_lines_path = pickle_path + "/cell_lines_on_wikidata.pickle"
@@ -77,7 +83,7 @@ def main():
                                         diseases=diseases,
                                         cell_line_id=cellosaurus_id)
             
-            prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors="doc/ERRORS/") 
+            prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors) 
 
             try:
                 cell_line.update_line_on_wikidata(prepared_data)
