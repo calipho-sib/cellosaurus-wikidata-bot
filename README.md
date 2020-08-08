@@ -32,6 +32,7 @@ uses Wikidata Integrator (WDI) in the backend to add articles to Wikidata.
 functions that are described [here](https://github.com/SuLab/WikidataIntegrator/blob/adb4ab7f23b3a080dcf2f038191dd3d23c511418/wikidataintegrator/wdi_helpers/publication.py)
 - Reorganized code in utils.py in different source files, which are slightly easier to navigate now. 
 - Prepared code to add new lines when they are missing.
+- Added 7000 lines from Cellosaurus release 35 to Wikidata.
 
 ### Runs for release 35 ###
 
