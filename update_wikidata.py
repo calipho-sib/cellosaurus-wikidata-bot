@@ -9,6 +9,7 @@ It takes 3 arguments:
 - 1st: The path to the .txt of the Cellosaurus dump
 - 2nd: The path to the folder where the pickle file and cell lines on wikidata 
 were saved after running "prepare_files.py"
+- 3rd: The folder for errors.
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
  Example:
@@ -18,6 +19,7 @@ were saved after running "prepare_files.py"
 from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pprint import pprint
+from tqdm import tqdm
 import time
 import json
 import pickle
@@ -43,7 +45,10 @@ def main():
     pickle_path = sys.argv[2]
     assert pickle_path, "You need to add a path to the folder with the pickle files"
 
-    release_qid = sys.argv[3]
+    folder_for_errors = sys.argv[3]
+    assert folder_for_errors, "You need to add a folder for errors"
+
+    release_qid = sys.argv[4]
     assert release_qid, "You need to add a release QID Dump"
 
     reconciled_dump_path = pickle_path + "/cellosaurus_wikidata_items.pickle"
@@ -62,23 +67,26 @@ def main():
   
     categories = load_cell_line_category_to_wikidata("project/category.txt")
     
-    for cellosaurus_id in cellosaurus_dump_in_dictionary_format:
+    for cellosaurus_id in tqdm(cellosaurus_dump_in_dictionary_format):
 
-        print(cellosaurus_id)
-        print(wikidata_cell_lines[cellosaurus_id])
-        cell_line = CellosaurusCellLine(wdi_login_object=login,
-                                    release_qid=release_qid,
-                                    cellosaurus_dump=cellosaurus_dump_in_dictionary_format,
-                                    wikidata_dictionary_with_existing_cell_lines=wikidata_cell_lines,
-                                    references=references,
-                                    species=ncbi_id_to_qid_species,
-                                    cell_line_categories=categories,
-                                    diseases=diseases,
-                                    cell_line_id=cellosaurus_id)
+        tqdm.write(cellosaurus_id)
+        try:
+            tqdm.write(wikidata_cell_lines[cellosaurus_id])
+            cell_line = CellosaurusCellLine(wdi_login_object=login,
+                                        release_qid=release_qid,
+                                        cellosaurus_dump=cellosaurus_dump_in_dictionary_format,
+                                        wikidata_dictionary_with_existing_cell_lines=wikidata_cell_lines,
+                                        references=references,
+                                        species=ncbi_id_to_qid_species,
+                                        cell_line_categories=categories,
+                                        diseases=diseases,
+                                        cell_line_id=cellosaurus_id)
 
-        prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors="doc/ERRORS/") 
+            prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors) 
 
-        cell_line.update_line_on_wikidata(prepared_data)
+            cell_line.update_line_on_wikidata(prepared_data)
+        except Exception as e:
+            tqdm.write(e)
 
 if __name__=="__main__": 
     main() 
