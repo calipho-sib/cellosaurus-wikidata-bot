@@ -228,7 +228,7 @@ def append_diseases(cell_line_object, data_to_add_to_wikidata, folder_for_errors
                 ))
 
             else:
-                with open(folder_for_errors + "diseases_not_in_wikidata.txt", "a") as file:
+                with open(folder_for_errors + "/diseases_not_in_wikidata.txt", "a") as file:
                     file.write(disease + "\n")
     return data_to_add_to_wikidata
 
