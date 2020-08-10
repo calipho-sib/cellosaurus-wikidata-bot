@@ -86,7 +86,7 @@ def main():
 
             cell_line.update_line_on_wikidata(prepared_data)
         except Exception as e:
-            tqdm.write(e)
+            print(e)
 
 if __name__=="__main__": 
     main() 
