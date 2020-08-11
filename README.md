@@ -10,5 +10,9 @@ Its core engines are based on the [WikidataIntegrator](https://github.com/SuLab/
 
 # Running the bot 
 
-TBD
+There are 3 main scripts for running the bot: 
+* prepare_files.py
+* check_lines_on_wikidata.py
+* update_wikidata.py
+
 
