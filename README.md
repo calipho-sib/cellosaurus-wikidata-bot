@@ -7,40 +7,57 @@ The Cellosaurus Bot allows to integrate cell lines from [Cellosaurus](https://we
 
 Its core engines are based on the [WikidataIntegrator](https://github.com/SuLab/WikidataIntegrator) library.
 
-
 # Running the bot 
 
-There are 3 main scripts for running the bot: 
-* prepare_files.py
-* check_lines_on_wikidata.py
-* update_wikidata.py
+The bot is based on the dumps of the Cellosaurus database. The first step for making the integration is to download the dump of the current release from the Cellosaurus website. The FTP link is:
 
-
-First, you have to download the current release from the Cellosaurus website. The FTP link is:
 ftp://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt
 
+You can create a folder for the release and add it there. Here is an example for release 36:
 
-This is the cellosaurus dump. The sequence of commands to add the info there to Wikidata is: 
+`mkdir release_36
+echo release_36 >> .gitignore
+cd release_36
+wget ftp://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt
+`
 
-The first script takes 3 arguments: 
+Now that you have the file, it is worth taking a look at it on your text editor. 
+
+There are 3 main scripts that process the release and integrate to Wikidata: 
+* __prepare_files.py__
+* __check_lines_on_wikidata.py__
+* __update_wikidata.py__
+
+The goal of __prepare_files.py__ is to parse the dump and save a Python object that contains the cell line information in a Wikidata-compatible format. 
+
+It takes 3 arguments: 
 - 1st: The path to the .txt of the Cellosaurus dump
 - 2nd: The path to the folder where the pickle file and cell lines on wikidata 
 were saved after running "prepare_files.py"
 - 3rd: The folder for errors.
 
-`python3 prepare_files.py project/cellosaurus.txt pickle_files errors `
+For example:
+`python3 prepare_files.py release_36/cellosaurus.txt pickle_files errors `
 
-This first script will match the IDs on the Cellosaurus dump to the current state of Wikidata (and a couple other things).
 
-The second one takes 4, the original 3 + a fourth: 
+The goal of * __check_lines_on_wikidata.py__ is to check if each cell line in the current release is present on Wikidata. Then, it adds to Wikidata the information about any cell lines that are missing.
+
+The second one takes 4 arguments:  
+- 1st: The path to the .txt of the Cellosaurus dump
+- 2nd: The path to the folder where the pickle file and cell lines on Wikidata were saved after running __prepare_files.py__
+- 3rd: The folder for errors.
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
-`python3 check_lines_on_wikidata.py project/cellosaurus.txt pickle_files errors Q96794096`
-
-It checks if any cell line in the current realease is absent on Wikidata. It then adds all the missing cell lines to Wikidata. 
+You will have to check Wikidata manually for the ID of the release. For release 36, the ID is [Q100993240](https://www.wikidata.org/wiki/Q100993240).
 
 
+Notice that you will need the Wikidata user and password of the CellosaurusBot for that operation. The script looks for it in `src/local.py`.  Notice that the credentials should not be commited to GitHub.
 
-The third updates the info for all cell lines on Wikidata, including the new ones: 
-`python3 check_lines_on_wikidata.py project/cellosaurus.txt pickle_files errors Q96794096`
+For example:
+`python3 check_lines_on_wikidata.py release_36/cellosaurus.txt pickle_files errors Q100993240`
+
+
+Now that all the cell lines are represented on Wikidata, we can update the information for all of them (including inter-cell line links):
+
+`python3 check_lines_on_wikidata.py release_36/cellosaurus.txt pickle_files errors Q100993240`
 
