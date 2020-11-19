@@ -415,14 +415,15 @@ def append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata):
     cell_line_dump = cell_line_object.cell_line_dump
     if cell_line_dump["CLO"]:
         for CLO in cell_line_dump["CLO"]:
-            # P2888: exact match
-            data_to_add_to_wikidata.append(wdi_core.WDUrl(
-                value="http://purl.obolibrary.org/obo/" + CLO,
-                prop_nr="P2888",
+            # P2158: Cell Line Ontology ID 
+            data_to_add_to_wikidata.append(wdi_core.WDString(
+                value= CLO,
+                prop_nr="P2158",
                 references=reference))
 
     if cell_line_dump["BTO"]:
         for BTO in cell_line_dump["BTO"]:
+            # P2888: exact match
             data_to_add_to_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + BTO,
                 prop_nr="2888",
@@ -430,6 +431,7 @@ def append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata):
 
     if cell_line_dump["EFO"]:
         for EFO in cell_line_dump["EFO"]:
+            # P2888: exact match
             data_to_add_to_wikidata.append(wdi_core.WDUrl(
                 value="http://purl.obolibrary.org/obo/" + EFO,
                 prop_nr="2888",
