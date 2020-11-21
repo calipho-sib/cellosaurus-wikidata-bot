@@ -59,5 +59,5 @@ For example:
 
 Now that all the cell lines are represented on Wikidata, we can update the information for all of them (including inter-cell line links):
 
-`python3 check_lines_on_wikidata.py release_36/cellosaurus.txt pickle_files errors Q100993240`
+`python3 update_wikidata.py release_36/cellosaurus.txt pickle_files errors Q100993240`
 
