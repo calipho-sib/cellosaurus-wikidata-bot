@@ -9,3 +9,6 @@
 * The updates stopped running, last cell line was CVCL_LG07 (Q54872068). I will create a new dump from this cell to the end called `int_cellosaurus.txt`. If that happens again, I'll update the same file.
 * I restarted the updates with the new file. It is running normally.
 
+
+## 24/11/2020
+* Finished running the Cellosaurus bot for the release 36.
