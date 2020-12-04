@@ -420,6 +420,12 @@ def append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata):
                 value= CLO,
                 prop_nr="P2158",
                 references=reference))
+            # P2888: exact match
+            data_to_add_to_wikidata.append(wdi_core.WDUrl(
+                value="http://purl.obolibrary.org/obo/" + CLO,
+                prop_nr="2888",
+                references=reference))
+
 
     if cell_line_dump["BTO"]:
         for BTO in cell_line_dump["BTO"]:
