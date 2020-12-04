@@ -12,3 +12,8 @@
 
 ## 24/11/2020
 * Finished running the Cellosaurus bot for the release 36.
+
+
+## 05/12/2020
+* Run check_lines_on_wikidata again to account for minor changes (namely to create (CVCL_A9Z3 and CVCL_A9ZA).
+* Add exact match statements for those cells that have only CLO ID
