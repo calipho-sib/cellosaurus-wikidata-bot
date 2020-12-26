@@ -1,12 +1,21 @@
-# CellosaurusBot 2.0
+# <center>Cellosaurus Wikidata Bot</center>
 
+***************************
+<p align="center">
+  <img src="img/WikiCello.png" width="300"/>
+</p>
+***************************
 
-The CellosaurusBot 2.0 is a 2020 remake of the CellosaurusBot developed in 2018. 
+**<center>Cellosaurus Bot allows to integrate cell lines from [Cellosaurus](https://web.expasy.org/cellosaurus/) to [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page).**
 
-The Cellosaurus Bot allows to integrate cell lines from [Cellosaurus](https://web.expasy.org/cellosaurus/) to [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page).
+**It was developed based on the [WikidataIntegrator](https://github.com/SuLab/WikidataIntegrator) library.</center>**
 
-Its core engines are based on the [WikidataIntegrator](https://github.com/SuLab/WikidataIntegrator) library.
+## Main functions 
 
+The Cellosaurus bot will:
+
++ Create Wikidata items for new cell lines in Cellosaurus release.
++ Update Wikidata items for changes in cell lines informations in Cellosaurus release.
 # Running the bot 
 
 The bot is based on the dumps of the Cellosaurus database. The first step for making the integration is to download the dump of the current release from the Cellosaurus website. The FTP link is:
@@ -61,3 +70,12 @@ Now that all the cell lines are represented on Wikidata, we can update the infor
 
 `python3 update_wikidata.py release_36/cellosaurus.txt pickle_files errors Q100993240`
 
+# Acknowledgments
+
+The CellosaurusBot now is a 2020 remake of the CellosaurusBot developed in 2018. 
+The following people contributed directly to this project:
+
+* Amos Bairoch
+* Lelia Debornes
+* Tiago Lubiana
+* Andra Waagmeester
