@@ -1,0 +1,109 @@
+ID   ZR-75-27
+AC   CVCL_5612
+DR   Wikidata; Q54996118
+RX   PubMed=obviouslyfakeid;
+RX   DOI=obviouslyfakedoi;
+RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
+RX   PubMed=688225;
+CC   Doubling time: 144 hours, at 14th passage (PubMed=688225).
+CC   Derived from metastatic site: Pleural effusion.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+OI   CVCL_1661 ! ZR-75-30
+SX   Female
+AG   47Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 05-07-19; Version: 12
+//
+ID   ZR-75-30
+AC   CVCL_1661
+SY   ZR75-30; ZR7530
+DR   BTO; BTO:0004915
+DR   CLO; CLO_0009728
+DR   EFO; EFO_0001263
+DR   CLDB; cl4822
+DR   Cosmic; 904399
+DR   Wikidata; Q54996119
+RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
+RX   PubMed=688225;
+RX   PubMed=3335022;
+RX   PubMed=11044355;
+RX   PubMed=11414198;
+RX   PubMed=16397213;
+RX   PubMed=16541312;
+RX   PubMed=17157791;
+RX   PubMed=19582160;
+RX   PubMed=19593635;
+RX   PubMed=20070913;
+RX   PubMed=20164919;
+RX   PubMed=22460905;
+RX   PubMed=23151021;
+RX   PubMed=23260012;
+RX   PubMed=23601657;
+RX   PubMed=24009699;
+RX   PubMed=24094812;
+RX   PubMed=24176112;
+RX   PubMed=25485619;
+RX   PubMed=25960936;
+RX   PubMed=25984343;
+RX   PubMed=27397505;
+RX   PubMed=28196595;
+RX   PubMed=23260012;
+RX   PubMed=30894373;
+RX   PubMed=31068700;
+RX   PubMed=31395879;
+WW   http://www.pawefish.path.cam.ac.uk/BreastCellLineDescriptions/ZR-75-30.html
+WW   http://lincs.hms.harvard.edu/resources/reagents/icbp43/
+WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
+WW   http://tcpaportal.org/mclp/
+WW   http://www.cellresource.cn/fdetail.aspx?id=240
+WW   http://www.cellresource.cn/fdetail.aspx?id=628
+WW   http://www.cellresource.cn/fdetail.aspx?id=821
+WW   http://www.cellresource.cn/fdetail.aspx?id=1584
+WW   http://www.cellresource.cn/fdetail.aspx?id=2096
+CC   Part of: Cancer Cell Line Encyclopedia (CCLE) project.
+ST   Source(s): ATCC; CCRID; Cosmic-CLP; ECACC; PubMed=25877200
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+OI   CVCL_5612 ! ZR-75-27
+SX   Female
+AG   47Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 19-12-19; Version: 31
+//
+ID   ZR-75-9a1
+AC   CVCL_5613
+DR   Wikidata; Q54996121
+RX   PubMed=2713239;
+CC   Selected for resistance to: ChEBI; CHEBI:41774; Tamoxifen.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+HI   CVCL_0588 ! ZR-75-1
+SX   Female
+AG   63Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 06-09-19; Version: 13
+//
+ID   ZR-75-B
+AC   CVCL_5614
+SY   ZR75-B; ZR-75B; ZR-75b; ZR75B
+DR   EFO; EFO_0001264
+DR   ArrayExpress; E-TABM-157
+DR   Wikidata; Q54996122
+RX   PubMed=6178756;
+RX   PubMed=17157791;
+RX   PubMed=18516279;
+RX   PubMed=24094812;
+RX   PubMed=24162158;
+RX   PubMed=24176112;
+RX   PubMed=25960936;
+WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
+CC   Part of: GrayJW Breast Cancer Cell Line Panel.
+DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+OX   NCBI_TaxID=9606; ! Homo sapiens
+HI   CVCL_0588 ! ZR-75-1
+SX   Female
+AG   63Y
+CA   Cancer cell line
+DT   Created: 04-04-12; Last updated: 06-09-19; Version: 19
+//

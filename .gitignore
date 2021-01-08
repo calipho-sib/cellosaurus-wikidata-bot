@@ -1,0 +1,7 @@
+.src/local.py
+project
+doc
+ShEX_model
+*.pickle
+release_36
+src/local.py
