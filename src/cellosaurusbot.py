@@ -67,8 +67,6 @@ class CellosaurusCellLine():
     def prepare_for_wikidata(self, folder_for_errors):
 
         data_to_add_to_wikidata = []
-        data_to_delete = []
-        data_to_delete = verify_empty_fields_and_add_as_data_to_delete(self, data_to_delete)
 
         data_to_add_to_wikidata = add_info_about_the_cell_line_identity(self, data_to_add_to_wikidata)
 
@@ -87,7 +85,7 @@ class CellosaurusCellLine():
         data_to_add_to_wikidata = add_info_about_identifiers(self, data_to_add_to_wikidata)
 
         data_to_add_to_wikidata = add_info_about_references(self, data_to_add_to_wikidata)
-        return {'data': data_to_add_to_wikidata, 'data_to_delete': data_to_delete}
+        return {'data': data_to_add_to_wikidata}
 
     def update_line_on_wikidata(self, data):
         label = self.cell_line_dump["ID"]
@@ -111,48 +109,6 @@ class CellosaurusCellLine():
                                                              cell_line_item
                                                                                               ))
 
-
-def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_delete):
-    cell_line_dump = cell_line_object.cell_line_dump
-
-    cell_line_comments = cell_line_dump["CC"]
-    cell_line_category = cell_line_dump["CA"]
-
-    if cell_line_category == "NULL" or cell_line_comments == []:
-        data_to_delete.append("P31")
-
-    cell_line_taxon_of_origin = cell_line_dump["OX"]
-    if cell_line_taxon_of_origin:
-        data_to_delete.append("P703")
-
-    parent_cell_line = cell_line_dump["HI"]
-    if not parent_cell_line:
-        data_to_delete.append("P3432")
-
-    cell_line_diseases_of_source = cell_line_dump["DI"]
-    if not cell_line_diseases_of_source:
-        data_to_delete.append("P5166")
-
-    cell_line_sex_of_source = cell_line_dump["SX"]
-    if not cell_line_sex_of_source:
-        data_to_delete.append("P21")
-
-    autologous_cell_line = cell_line_dump["OI"]
-    if not autologous_cell_line:
-        data_to_delete.append("P3578")
-
-    for ontology_name in ["CLO", "BTO", "EFO", "BCGO"]:
-        if not cell_line_dump[ontology_name]:
-            data_to_delete.append("P2888")
-
-    if cell_line_dump["MeSH"] == "NULL":
-        data_to_delete.append("P486")
-
-    cell_line_describing_source_references = cell_line_dump["RX"]
-    if cell_line_describing_source_references:
-        data_to_delete.append("P1343")
-
-    return data_to_delete
 
 def add_info_about_the_cell_line_identity(cell_line_object,
                                           data_to_add_to_wikidata):
