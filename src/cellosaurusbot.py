@@ -242,12 +242,12 @@ def append_taxon_and_gender(cell_line_object, data_to_add_to_wikidata,
 
             if taxon_of_origin == "Unknow value":
                 data_to_add_to_wikidata.append(wdi_core.WDString(
-                    value="Unknow value", prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    value="Unknow value", prop_nr="P9072", qualifiers=list_of_biological_sexes_of_source,
                     references=references_for_this_cell_line,
                     snak_type='somevalue'))
             else:
                 data_to_add_to_wikidata.append(wdi_core.WDItemID(
-                    value=taxon_of_origin, prop_nr="P703", qualifiers=list_of_biological_sexes_of_source,
+                    value=taxon_of_origin, prop_nr="P9072", qualifiers=list_of_biological_sexes_of_source,
                     references=references_for_this_cell_line))
 
     return data_to_add_to_wikidata
@@ -295,7 +295,7 @@ def get_list_of_biological_sexes(cell_line_object, list_of_taxons_of_origin):
 
 def get_list_of_taxons(cell_line_object, folder_for_errors):
     # OX : Taxon od origin
-    # P703 : Found in taxon
+    # P9072 : derived from organism type
     list_of_taxons_of_origin = []
     cell_line_taxons = cell_line_object.cell_line_dump["OX"]
 
@@ -512,12 +512,12 @@ def add_all_statements_to_wdi_cell_line(cell_line_object, data):
         wikidata_qid = cell_line_object.wikidata_dictionary_with_existing_cell_lines[cellosaurus_id]
         item = wdi_core.WDItemEngine(wd_item_id=wikidata_qid, data=data['data'],
                                  global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
-            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+            'P31': 'Q21014462', 'P31': '', 'P21': '', 'P9072': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
             'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
     else:
         item = wdi_core.WDItemEngine(wd_item_id='', new_item=True, data=data['data'],
                                 global_ref_mode='STRICT_OVERWRITE', fast_run=True, fast_run_base_filter={
-        'P31': 'Q21014462', 'P31': '', 'P21': '', 'P703': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
+        'P31': 'Q21014462', 'P31': '', 'P21': '', 'P9072': '', 'P3432': '', 'P3578': '', 'P248': '', 'P3289': '',
         'P486': '', 'P2888': '', 'P1343': '', 'P5166': '', 'P813': ''}, fast_run_use_refs=True)
 
     return item
