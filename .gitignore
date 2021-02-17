@@ -5,3 +5,4 @@ ShEX_model
 *.pickle
 release_36
 src/local.py
+release_37
