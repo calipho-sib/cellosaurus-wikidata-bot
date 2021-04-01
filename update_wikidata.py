@@ -83,7 +83,6 @@ def main():
                                         cell_line_id=cellosaurus_id)
 
             prepared_data =  cell_line.prepare_for_wikidata(folder_for_errors) 
-
             cell_line.update_line_on_wikidata(prepared_data)
         except Exception as e:
             print(e)

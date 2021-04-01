@@ -85,6 +85,8 @@ class CellosaurusCellLine():
         data_to_add_to_wikidata = add_info_about_identifiers(self, data_to_add_to_wikidata)
 
         data_to_add_to_wikidata = add_info_about_references(self, data_to_add_to_wikidata)
+        
+        data_to_add_to_wikidata.append(wdi_core.WDBaseDataType.delete_statement('P703'))
         return {'data': data_to_add_to_wikidata}
 
     def update_line_on_wikidata(self, data):
