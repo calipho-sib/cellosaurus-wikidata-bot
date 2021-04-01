@@ -24,3 +24,6 @@
 
 ## 17/02/2021
 * Stopped run for release 37 at CVCL_P465 (I am going to be without good connection in the next few days, and I haven't set a server to run it)
+
+## 22/02/2021
+* Started running the CellosaurusBot once more.
