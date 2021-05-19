@@ -148,6 +148,9 @@ def verify_empty_fields_and_add_as_data_to_delete(cell_line_object, data_to_dele
     if cell_line_dump["MeSH"] == "NULL":
         data_to_delete.append("P486")
 
+    if cell_line_dump["hPSCreg"] == "NULL":
+        data_to_delete.append("P9554")
+
     cell_line_describing_source_references = cell_line_dump["RX"]
     if cell_line_describing_source_references:
         data_to_delete.append("P1343")
@@ -392,6 +395,7 @@ def append_autologous_cell_line(cell_line_object, autologous_cell_line, data_to_
 
 def add_info_about_identifiers(cell_line_object, data_to_add_to_wikidata):
     data_to_add_to_wikidata = append_mesh_id(cell_line_object, data_to_add_to_wikidata)
+    data_to_add_to_wikidata = append_hpscreg_id(cell_line_object, data_to_add_to_wikidata)
     data_to_add_to_wikidata = append_obo_exact_matches(cell_line_object, data_to_add_to_wikidata)
     return data_to_add_to_wikidata
 
@@ -405,6 +409,19 @@ def append_mesh_id(cell_line_object, data_to_add_to_wikidata):
         data_to_add_to_wikidata.append(wdi_core.WDExternalID(
             value=cell_line_object.cell_line_dump["MeSH"],
             prop_nr="P486",
+            references=reference))
+    return data_to_add_to_wikidata
+
+
+def append_hpscreg_id(cell_line_object, data_to_add_to_wikidata):
+    # P9554 : hPSCreg cell line ID
+    cell_line_hpscreg = cell_line_object.cell_line_dump["hPSCreg"]
+
+    reference = cell_line_object.references_in_wdi_format
+    if cell_line_hpscreg != "NULL":
+        data_to_add_to_wikidata.append(wdi_core.WDExternalID(
+            value=cell_line_object.cell_line_dump["hPSCreg"],
+            prop_nr="P9554",
             references=reference))
     return data_to_add_to_wikidata
 
