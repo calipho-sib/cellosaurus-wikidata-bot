@@ -70,9 +70,13 @@ class CellosaurusCellLine:
             reference=self.references_in_wdi_format,
         )
 
-        data_to_add_to_wikidata = add_info_about_identifiers(
-            self, data_to_add_to_wikidata
-        )
+        # Excluding updates for manually maintained MeSH Ids:
+        # https://www.wikidata.org/wiki/User_talk:CellosaurusBot#MeSH_descriptor_ID_%28P486%29_edits
+        if self.cell_line_id not in ["CVCL_0223", "CVCL_0224"]:
+            print("Here")
+            data_to_add_to_wikidata = add_info_about_identifiers(
+                self, data_to_add_to_wikidata
+            )
 
         data_to_add_to_wikidata = add_info_about_references(
             self, data_to_add_to_wikidata
