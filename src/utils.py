@@ -10,6 +10,7 @@ import json
 import pickle
 import os
 
+
 def load_cell_line_category_to_wikidata(file):
     """
     Load manually prepared dictionary of 
@@ -26,13 +27,13 @@ def load_cell_line_category_to_wikidata(file):
 
 
 def write_list(filepath, list):
-    with open(filepath, "w") as f: 
+    with open(filepath, "w") as f:
         for item in list:
             f.write("%s\n" % item)
 
 
-
 # Wrapper functions for pickle
+
 
 def load_pickle_file(pickleFileName):
     """
@@ -41,7 +42,7 @@ def load_pickle_file(pickleFileName):
     :return : a dictionary wich contain YourFile.pickle informations
     """
 
-    with open(pickleFileName, 'rb') as file:
+    with open(pickleFileName, "rb") as file:
         dictionary = pickle.load(file)
     return dictionary
 
@@ -52,5 +53,5 @@ def save_pickle_file(dictionary, pickleFileName):
     :param dictionary : the dictionary that you want to serialize
     :param pickleFileName : the name of the file
     """
-    with open(pickleFileName, 'wb') as file:
+    with open(pickleFileName, "wb") as file:
         pickle.dump(dictionary, file)

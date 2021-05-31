@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 def format_cellosaurus_dump_as_dictionary(file):
     """
     Format Cellosaurus dump (.txt) in a dictionary with the informations that
@@ -45,8 +46,7 @@ def format_cellosaurus_dump_as_dictionary(file):
                 if DR.startswith("CLO"):
                     CLO.append(DR.strip("CLO;").strip(" "))
                 if DR.startswith("BTO"):
-                    BTO.append(DR.strip("BTO;").replace(
-                        "BTO:", "BTO_").strip(" "))
+                    BTO.append(DR.strip("BTO;").replace("BTO:", "BTO_").strip(" "))
                 if DR.startswith("EFO"):
                     EFO.append(DR.strip("EFO;").strip(" "))
                 if DR.startswith("BCGO"):
@@ -58,15 +58,15 @@ def format_cellosaurus_dump_as_dictionary(file):
             if line.startswith("WW"):
                 WW.append(line.rstrip("\n").split("   ")[1])
             if line.startswith("CC"):
-                comment = (line.rstrip("\n").split("   ")[1])
+                comment = line.rstrip("\n").split("   ")[1]
                 if "Problematic cell line:" in comment:
-                    CC.append(comment.strip(
-                        "Problematic cell line: ").split(".")[0])
+                    CC.append(comment.strip("Problematic cell line: ").split(".")[0])
             if line.startswith("DI"):
                 disease = line.rstrip("\n").split("   ")[1]
                 DI.append(disease.split(";")[1].strip(" "))
-                di_names[disease.split(";")[1].strip(" ")] = disease.split(";")[
-                    2].strip(" ").strip("\n")
+                di_names[disease.split(";")[1].strip(" ")] = (
+                    disease.split(";")[2].strip(" ").strip("\n")
+                )
             if line.startswith("OX"):
                 species = line.rstrip("\n").split("   ")[1]
                 OX.append(species.strip("NCBI_taxid=").split(";")[0])
@@ -81,24 +81,26 @@ def format_cellosaurus_dump_as_dictionary(file):
             if line.startswith("CA"):
                 CA = line.strip("\n").split("   ")[1]
             if line.startswith("//"):
-                cellosaurus_dump_as_dictionary[AC] = {"ID": ID,
-                            "AS": AS,
-                            "SY": SY,
-                            "MeSH": MeSH,
-                            "CLO": CLO,
-                            "BTO": BTO,
-                            "EFO": EFO,
-                            "BCGO": BCGO,
-                            "RX": RX,
-                            "WW": WW,
-                            "CC": CC,
-                                                      "DI": DI,
-                                                      "DI_names": di_names,
-                                                      "OX": OX,
-                                                      "HI": HI,
-                                                      "OI": OI,
-                                                      "SX": SX,
-                                                      "CA": CA}
+                cellosaurus_dump_as_dictionary[AC] = {
+                    "ID": ID,
+                    "AS": AS,
+                    "SY": SY,
+                    "MeSH": MeSH,
+                    "CLO": CLO,
+                    "BTO": BTO,
+                    "EFO": EFO,
+                    "BCGO": BCGO,
+                    "RX": RX,
+                    "WW": WW,
+                    "CC": CC,
+                    "DI": DI,
+                    "DI_names": di_names,
+                    "OX": OX,
+                    "HI": HI,
+                    "OI": OI,
+                    "SX": SX,
+                    "CA": CA,
+                }
                 AC = "NULL"
                 ID = "NULL"
                 SY = []
