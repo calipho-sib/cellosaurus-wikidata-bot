@@ -48,6 +48,12 @@ were saved after running "prepare_files.py"
 For example:
 `python3 prepare_files.py release_36/cellosaurus.txt pickle_files errors `
 
+Some articles might not be on Wikidata at the time of the release. These will be logged under the folder for errors.
+
+For adding articles to Wikidata, run:
+`python3 add_articles.py errors `
+
+After that, re-run prepare_files to effectively used the newly added articles in the Cellosaurus integration.
 
 The goal of * __check_lines_on_wikidata.py__ is to check if each cell line in the current release is present on Wikidata. Then, it adds to Wikidata the information about any cell lines that are missing.
 
