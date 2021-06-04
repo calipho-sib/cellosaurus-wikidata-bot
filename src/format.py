@@ -19,7 +19,7 @@ def format_cellosaurus_dump_as_dictionary(file):
         CLO = []
         BTO = []
         EFO = []
-        hPSCreg = []
+        hPSCreg = "NULL"
         BCGO = []
         RX = []
         WW = []
@@ -51,7 +51,7 @@ def format_cellosaurus_dump_as_dictionary(file):
                 if DR.startswith("EFO"):
                     EFO.append(DR.strip("EFO;").strip(" "))
                 if DR.startswith("hPSCreg"):
-                    hPSCreg.append(DR.strip("hPSCreg;").strip(" "))
+                    hPSCreg = DR.strip("hPSCreg;").strip(" ")
                 if DR.startswith("BCGO"):
                     BCGO.append(DR.strip("BCGO;").strip(" "))
             if line.startswith("RX"):

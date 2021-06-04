@@ -437,6 +437,7 @@ def append_mesh_id(cell_line_object, data_to_add_to_wikidata):
     return data_to_add_to_wikidata
 
 
+# As per https://github.com/calipho-sib/cellosaurus-wikidata-bot/pull/6
 def append_hpscreg_id(cell_line_object, data_to_add_to_wikidata):
     # P9554 : hPSCreg cell line ID
     cell_line_hpscreg = cell_line_object.cell_line_dump["hPSCreg"]

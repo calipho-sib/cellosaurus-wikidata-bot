@@ -46,7 +46,7 @@ were saved after running "prepare_files.py"
 - 3rd: The folder for errors.
 
 For example:
-`python3 prepare_files.py release_36/cellosaurus.txt pickle_files errors `
+`python3 prepare_files.py release_38/cellosaurus.txt pickle_files errors `
 
 Some articles might not be on Wikidata at the time of the release. These will be logged under the folder for errors.
 
@@ -64,7 +64,7 @@ The second one takes 4 arguments:
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
 You will have to check Wikidata manually for the ID of the release. For release 36, the ID is [Q100993240](https://www.wikidata.org/wiki/Q100993240).
-
+For release 36, it is [Q106915727](https://www.wikidata.org/wiki/Q106915727).
 
 Notice that you will need the Wikidata user and password of the CellosaurusBot for that operation. The script looks for it in `src/local.py`.  Notice that the credentials should not be commited to GitHub.
 
