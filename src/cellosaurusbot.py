@@ -412,6 +412,9 @@ def append_autologous_cell_line(
 
 def add_info_about_identifiers(cell_line_object, data_to_add_to_wikidata):
     data_to_add_to_wikidata = append_mesh_id(cell_line_object, data_to_add_to_wikidata)
+    data_to_add_to_wikidata = append_hpscreg_id(
+        cell_line_object, data_to_add_to_wikidata
+    )
     data_to_add_to_wikidata = append_obo_exact_matches(
         cell_line_object, data_to_add_to_wikidata
     )
@@ -428,6 +431,22 @@ def append_mesh_id(cell_line_object, data_to_add_to_wikidata):
             wdi_core.WDExternalID(
                 value=cell_line_object.cell_line_dump["MeSH"],
                 prop_nr="P486",
+                references=reference,
+            )
+        )
+    return data_to_add_to_wikidata
+
+
+def append_hpscreg_id(cell_line_object, data_to_add_to_wikidata):
+    # P9554 : hPSCreg cell line ID
+    cell_line_hpscreg = cell_line_object.cell_line_dump["hPSCreg"]
+
+    reference = cell_line_object.references_in_wdi_format
+    if cell_line_hpscreg != "NULL":
+        data_to_add_to_wikidata.append(
+            wdi_core.WDExternalID(
+                value=cell_line_object.cell_line_dump["hPSCreg"],
+                prop_nr="P9554",
                 references=reference,
             )
         )
