@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from wikidataintegrator import wdi_core
 from datetime import datetime
-from .wdi_wrapper import *
+import wdi_wrapper
 from attr import attrs, attrib
 
 
@@ -43,7 +43,7 @@ class CellosaurusCellLine:
 
     def prepare_for_wikidata(self, folder_for_errors):
         self.cell_line_dump = self.cellosaurus_dump[self.cell_line_id]
-        self.references_in_wdi_format = get_WQ_reference(
+        self.references_in_wdi_format = get_wq_reference(
             self.cell_line_id, cellosaurus_release_qid=self.release_qid
         )
 
@@ -73,7 +73,6 @@ class CellosaurusCellLine:
         # Excluding updates for manually maintained MeSH Ids:
         # https://www.wikidata.org/wiki/User_talk:CellosaurusBot#MeSH_descriptor_ID_%28P486%29_edits
         if self.cell_line_id not in ["CVCL_0223", "CVCL_0224"]:
-            print("Here")
             data_to_add_to_wikidata = add_info_about_identifiers(
                 self, data_to_add_to_wikidata
             )
@@ -323,7 +322,7 @@ def get_list_of_taxons(cell_line_object, folder_for_errors):
     return list_of_taxons_of_origin
 
 
-def get_WQ_reference(cellosaurus_cell_line_id, cellosaurus_release_qid):
+def get_wq_reference(cellosaurus_cell_line_id, cellosaurus_release_qid):
     release = wdi_core.WDItemID(
         value=cellosaurus_release_qid, prop_nr="P248", is_reference=True
     )
@@ -578,7 +577,6 @@ def add_all_statements_to_wdi_cell_line(cell_line_object, data):
             fast_run=True,
             fast_run_base_filter={
                 "P31": "Q21014462",
-                "P31": "",
                 "P21": "",
                 "P9072": "",
                 "P3432": "",
@@ -602,7 +600,6 @@ def add_all_statements_to_wdi_cell_line(cell_line_object, data):
             fast_run=True,
             fast_run_base_filter={
                 "P31": "Q21014462",
-                "P31": "",
                 "P21": "",
                 "P9072": "",
                 "P3432": "",
