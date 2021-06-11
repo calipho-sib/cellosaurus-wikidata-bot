@@ -64,7 +64,7 @@ The second one takes 4 arguments:
 - 4th: The QID for the Cellosaurus release on Wikidata   
 
 You will have to check Wikidata manually for the ID of the release. For release 36, the ID is [Q100993240](https://www.wikidata.org/wiki/Q100993240).
-For release 36, it is [Q106915727](https://www.wikidata.org/wiki/Q106915727).
+For release 38, it is [Q106915727](https://www.wikidata.org/wiki/Q106915727).
 
 Notice that you will need the Wikidata user and password of the CellosaurusBot for that operation. The script looks for it in `src/local.py`.  Notice that the credentials should not be commited to GitHub.
 

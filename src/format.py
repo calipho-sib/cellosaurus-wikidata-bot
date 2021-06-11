@@ -110,6 +110,7 @@ def format_cellosaurus_dump_as_dictionary(file):
                 SY = []
                 CLO = []
                 MeSH = "NULL"
+                hPSCreg = "NULL"
                 BTO = []
                 EFO = []
                 BCGO = []

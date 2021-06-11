@@ -29,10 +29,12 @@ login_instance = wdi_login.WDLogin(user=WDUSER, pwd=WDPASS)
 for reference in tqdm(references):
     doi = reference.replace("DOI=", "").replace("\n", "")
     tqdm.write(f"Adding article with DOI = {doi}")
+    print(doi)
     wdi_publication_helper = wdi_helpers.PublicationHelper(
         ext_id=doi, id_type="doi", source="crossref"
     )
     wdi_result = wdi_publication_helper.get_or_create(login_instance)
+    print(wdi_result)
     if wdi_result[0] == None:
         print("Not added to Wikidata.")
         references_still_absent.append(reference.strip())
