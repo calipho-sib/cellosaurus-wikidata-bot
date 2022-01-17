@@ -1,109 +1,84 @@
-ID   ZR-75-27
-AC   CVCL_5612
-DR   Wikidata; Q54996118
-RX   PubMed=obviouslyfakeid;
-RX   DOI=obviouslyfakedoi;
-RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
-RX   PubMed=688225;
-CC   Doubling time: 144 hours, at 14th passage (PubMed=688225).
-CC   Derived from metastatic site: Pleural effusion.
-DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+ID   18a
+AC   CVCL_8993
+SY   iPS-18a; hiPS-18a; hiPS 18a
+DR   EFO; EFO_0007105
+DR   eagle-i; harvard.eagle-i.net/i/0000012c-c6d9-88d3-a061-4a6580000000
+DR   ENCODE; ENCBS424LHN
+DR   ENCODE; ENCBS463LFL
+DR   GEO; GSM637784
+DR   GEO; GSM772935
+DR   GEO; GSM773023
+DR   GEO; GSM773024
+DR   GEO; GSM773027
+DR   GEO; GSM773028
+DR   GEO; GSM773029
+DR   GEO; GSM773030
+DR   GEO; GSM773033
+DR   ISCR; 1627
+DR   SKIP; SKIP004428
+DR   Wikidata; Q54582499
+RX   PubMed=21293464;
+RX   PubMed=21295703;
+RX   PubMed=24704492;
+CC   From: Harvard University; Boston; USA.
+CC   Omics: H3K27ac ChIP-seq epigenome analysis.
+CC   Omics: H3K27me3 ChIP-seq epigenome analysis.
+CC   Omics: H3K36me3 ChIP-seq epigenome analysis.
+CC   Omics: H3K4me1 ChIP-seq epigenome analysis.
+CC   Omics: H3K4me3 ChIP-seq epigenome analysis.
+CC   Omics: H3K9ac ChIP-seq epigenome analysis.
+CC   Omics: H3K9me3 ChIP-seq epigenome analysis.
+CC   Omics: Transcriptome analysis.
+CC   Derived from sampling site: Skin.
 OX   NCBI_TaxID=9606; ! Homo sapiens
-OI   CVCL_1661 ! ZR-75-30
+OI   CVCL_8994 ! 18b
+OI   CVCL_8995 ! 18c
 SX   Female
-AG   47Y
-CA   Cancer cell line
-DT   Created: 04-04-12; Last updated: 05-07-19; Version: 12
+AG   48Y
+CA   Induced pluripotent stem cell
+DT   Created: 06-06-12; Last updated: 12-01-21; Version: 14
 //
-ID   ZR-75-30
-AC   CVCL_1661
-SY   ZR75-30; ZR7530
-DR   BTO; BTO:0004915
-DR   CLO; CLO_0009728
-DR   EFO; EFO_0001263
-DR   CLDB; cl4822
-DR   Cosmic; 904399
-DR   Wikidata; Q54996119
-RX   DOI=10.1016/B978-0-12-333530-2.50009-5;
-RX   PubMed=688225;
-RX   PubMed=3335022;
-RX   PubMed=11044355;
-RX   PubMed=11414198;
-RX   PubMed=16397213;
-RX   PubMed=16541312;
-RX   PubMed=17157791;
-RX   PubMed=19582160;
-RX   PubMed=19593635;
-RX   PubMed=20070913;
-RX   PubMed=20164919;
-RX   PubMed=22460905;
-RX   PubMed=23151021;
-RX   PubMed=23260012;
-RX   PubMed=23601657;
-RX   PubMed=24009699;
-RX   PubMed=24094812;
-RX   PubMed=24176112;
-RX   PubMed=25485619;
-RX   PubMed=25960936;
-RX   PubMed=25984343;
-RX   PubMed=27397505;
-RX   PubMed=28196595;
-RX   PubMed=23260012;
-RX   PubMed=30894373;
-RX   PubMed=31068700;
-RX   PubMed=31395879;
-WW   http://www.pawefish.path.cam.ac.uk/BreastCellLineDescriptions/ZR-75-30.html
-WW   http://lincs.hms.harvard.edu/resources/reagents/icbp43/
-WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
-WW   http://tcpaportal.org/mclp/
-WW   http://www.cellresource.cn/fdetail.aspx?id=240
-WW   http://www.cellresource.cn/fdetail.aspx?id=628
-WW   http://www.cellresource.cn/fdetail.aspx?id=821
-WW   http://www.cellresource.cn/fdetail.aspx?id=1584
-WW   http://www.cellresource.cn/fdetail.aspx?id=2096
-CC   Part of: Cancer Cell Line Encyclopedia (CCLE) project.
-ST   Source(s): ATCC; CCRID; Cosmic-CLP; ECACC; PubMed=25877200
-DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
-OX   NCBI_TaxID=9606; ! Homo sapiens
-OI   CVCL_5612 ! ZR-75-27
-SX   Female
-AG   47Y
-CA   Cancer cell line
-DT   Created: 04-04-12; Last updated: 19-12-19; Version: 31
+ID   18A4
+AC   CVCL_XF03
+DR   CCRID; 3142C0001000000670
+DR   Wikidata; Q93300463
+RX   Patent=CN101519649B;
+RX   Patent=US9574012;
+CC   Registration: International Depositary Authority, China Center for Type Culture Collection; CCTCC C200902.
+CC   Monoclonal antibody isotype: IgG1, kappa.
+CC   Monoclonal antibody target: UniProtKB; O95994; Human AGR2.
+OX   NCBI_TaxID=10090; ! Mus musculus
+HI   CVCL_2199 ! Sp2/0-Ag14
+CA   Hybridoma
+DT   Created: 06-09-19; Last updated: 20-05-21; Version: 3
 //
-ID   ZR-75-9a1
-AC   CVCL_5613
-DR   Wikidata; Q54996121
-RX   PubMed=2713239;
-CC   Selected for resistance to: ChEBI; CHEBI:41774; Tamoxifen.
-DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
+ID   18b
+AC   CVCL_8994
+SY   iPS-18b; IPS cell line 18b; hiPS 18b; HVRDi006-A
+DR   EFO; EFO_0007106
+DR   BioSamples; SAMEA5176969
+DR   eagle-i; harvard.eagle-i.net/i/00000144-087f-80d6-0803-96bd80000000
+DR   ENCODE; ENCBS799NIQ
+DR   ENCODE; ENCBS869TCU
+DR   GEO; GSM621411
+DR   GEO; GSM621695
+DR   GEO; GSM637785
+DR   GEO; GSM981284
+DR   hPSCreg; HVRDi006-A
+DR   ISCR; 1628
+DR   SKIP; SKIP004430
+DR   Wikidata; Q54582501
+RX   PubMed=21293464;
+RX   PubMed=21295703;
+RX   PubMed=24704492;
+CC   From: Harvard University; Boston; USA.
+CC   Omics: Transcriptome analysis.
+CC   Derived from sampling site: Skin.
 OX   NCBI_TaxID=9606; ! Homo sapiens
-HI   CVCL_0588 ! ZR-75-1
+OI   CVCL_8993 ! 18a
+OI   CVCL_8995 ! 18c
 SX   Female
-AG   63Y
-CA   Cancer cell line
-DT   Created: 04-04-12; Last updated: 06-09-19; Version: 13
-//
-ID   ZR-75-B
-AC   CVCL_5614
-SY   ZR75-B; ZR-75B; ZR-75b; ZR75B
-DR   EFO; EFO_0001264
-DR   ArrayExpress; E-TABM-157
-DR   Wikidata; Q54996122
-RX   PubMed=6178756;
-RX   PubMed=17157791;
-RX   PubMed=18516279;
-RX   PubMed=24094812;
-RX   PubMed=24162158;
-RX   PubMed=24176112;
-RX   PubMed=25960936;
-WW   https://www.synapse.org/#!Synapse:syn2346643/wiki/62255
-CC   Part of: GrayJW Breast Cancer Cell Line Panel.
-DI   NCIt; C4194; Invasive ductal carcinoma, not otherwise specified
-OX   NCBI_TaxID=9606; ! Homo sapiens
-HI   CVCL_0588 ! ZR-75-1
-SX   Female
-AG   63Y
-CA   Cancer cell line
-DT   Created: 04-04-12; Last updated: 06-09-19; Version: 19
+AG   48Y
+CA   Induced pluripotent stem cell
+DT   Created: 06-06-12; Last updated: 12-01-21; Version: 14
 //

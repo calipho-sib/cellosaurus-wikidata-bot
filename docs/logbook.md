@@ -17,3 +17,13 @@
 ## 05/12/2020
 * Run check_lines_on_wikidata again to account for minor changes (namely to create (CVCL_A9Z3 and CVCL_A9ZA).
 * Add exact match statements for those cells that have only CLO ID
+
+## 15/02/2021
+* Start run for release 37
+* Old "Found in Taxon" statements are kept for now. They will need to be removed in a clean-up step at a later point.
+
+## 17/02/2021
+* Stopped run for release 37 at CVCL_P465 (I am going to be without good connection in the next few days, and I haven't set a server to run it)
+
+## 22/02/2021
+* Started running the CellosaurusBot once more.
