@@ -1,6 +1,5 @@
 # Log book for CellosaurusBot updates.
 
-
 ## 19/11/2020
 * Added link to specific CLO ID property in place of exact match.
 * Ran __prepare_files.py__ for Release 36.
