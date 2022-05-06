@@ -22,15 +22,7 @@ The bot is based on the dumps of the Cellosaurus database. The first step for ma
 
 ftp://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt
 
-You can create a folder for the release and add it there. Here is an example for release 36:
-
-`mkdir release_36
-echo release_36 >> .gitignore
-cd release_36
-wget ftp://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt
-`
-
-Now that you have the file, it is worth taking a look at it on your text editor. 
+To run it, change the `run_pipeline.sh` file with the updated parameters.
 
 There are 3 main scripts that process the release and integrate to Wikidata: 
 * __prepare_files.py__

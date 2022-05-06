@@ -87,10 +87,10 @@ def main():
 
             prepared_data = cell_line.prepare_for_wikidata(folder_for_errors)
             cell_line.update_line_on_wikidata(prepared_data)
+            time.sleep(0.5)
         except Exception as e:
             print(e)
 
 
 if __name__ == "__main__":
     main()
-
