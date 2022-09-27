@@ -1,19 +1,11 @@
 #!/usr/bin/python3
 
-from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
-from SPARQLWrapper import SPARQLWrapper, JSON
-from pprint import pprint
-import time
-import calendar
-from datetime import datetime, date
-import json
 import pickle
-import os
 
 
 def load_cell_line_category_to_wikidata(file):
     """
-    Load manually prepared dictionary of 
+    Load manually prepared dictionary of
     Cellosaurus categories and their Wikidata matches.
     """
     cell_line_category_to_wikidata = {}

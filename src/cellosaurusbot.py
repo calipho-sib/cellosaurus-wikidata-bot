@@ -93,8 +93,10 @@ class CellosaurusCellLine:
 
         item_with_statements_to_update = add_all_statements_to_wdi_cell_line(self, data)
 
-        item_with_statements_to_update_with_labels = add_labels_and_descriptions_to_cell_line_item_ready_for_update(
-            self, item_with_statements_to_update, label, descriptions
+        item_with_statements_to_update_with_labels = (
+            add_labels_and_descriptions_to_cell_line_item_ready_for_update(
+                self, item_with_statements_to_update, label, descriptions
+            )
         )
 
         cell_line_item = self.cell_line_dump["ID"]
@@ -254,6 +256,7 @@ def get_list_of_biological_sexes(cell_line_object, list_of_taxons_of_origin):
                 "Female": "Q6581072",
                 "Male": "Q6581097",
                 "Sex ambiguous": "Q1097630",
+                "Mixed sex": "Q1097630",
             }
 
             dict_for_non_human_sexes = {
@@ -647,4 +650,3 @@ def append_cellosaurus_id(
     )
 
     return information_to_insert_on_wikidata
-
