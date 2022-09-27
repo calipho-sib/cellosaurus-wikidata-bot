@@ -9,9 +9,11 @@ DOI=10.7554/eLife.67078
 """
 
 import sys
-from src.local import WDUSER, WDPASS
-from wikidataintegrator import wdi_core, wdi_login, wdi_helpers
+
 from tqdm import tqdm
+from wikidataintegrator import wdi_core, wdi_helpers, wdi_login
+
+from src.local import WDPASS, WDUSER
 from src.utils import *
 
 folder_for_errors = sys.argv[1]

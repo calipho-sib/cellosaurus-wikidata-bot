@@ -10,19 +10,21 @@
 # Example: 
 # python3 prepare_files.py project/test_cellosaurus.txt dev/pickle_files dev/errors
 
-from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
-from SPARQLWrapper import SPARQLWrapper, JSON
-from pprint import pprint
-import time
 import json
+import os.path
 import pickle
 import sys
-import os.path
-from src.format import format_cellosaurus_dump_as_dictionary
-from src.utils import *
-from src.query import *
-from src.wdi_wrapper import *
+import time
+from pprint import pprint
+
+from SPARQLWrapper import JSON, SPARQLWrapper
+from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
+
 from src.cellosaurusbot import *
+from src.format import format_cellosaurus_dump_as_dictionary
+from src.query import *
+from src.utils import *
+from src.wdi_wrapper import *
 
 
 def main():

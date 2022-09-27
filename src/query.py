@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from wikidataintegrator import wdi_core
 from tqdm import tqdm
+from wikidataintegrator import wdi_core
 
 # cellosaurus_in_dicionary_format is currently provided by the
 # format_cellosaurus_dump_as_dictionary function in the format.py file
@@ -132,7 +132,7 @@ def query_wikidata_by_ncit(ncit):
 def strip_qid_from_query_result(query_result):
     """
     Strips the qid out of a Wikidata query that
-    returns a single result 
+    returns a single result
 
     : param query_result : The result of a query to the
     Wikidata SPARQL service using WikidataIntegrator

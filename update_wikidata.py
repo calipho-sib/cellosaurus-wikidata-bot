@@ -15,23 +15,18 @@ were saved after running "prepare_files.py"
  $python3 update_wikidata.py project/test_cellosaurus.txt dev/pickle_files dev/errors Q87574023 
  """
 
-from wikidataintegrator import wdi_core, wdi_fastrun, wdi_login
-from SPARQLWrapper import SPARQLWrapper, JSON
-from pprint import pprint
-from tqdm import tqdm
-import time
-import json
-import pickle
 import sys
-import os
+import time
 
-import src.utils as utils
-from src.format import format_cellosaurus_dump_as_dictionary
-from src.local import WDUSER, WDPASS
-from src.utils import *
-from src.query import *
-from src.wdi_wrapper import *
+from tqdm import tqdm
+from wikidataintegrator import wdi_login
+
 from src.cellosaurusbot import *
+from src.format import format_cellosaurus_dump_as_dictionary
+from src.local import WDPASS, WDUSER
+from src.query import *
+from src.utils import *
+from src.wdi_wrapper import *
 
 
 def main():
