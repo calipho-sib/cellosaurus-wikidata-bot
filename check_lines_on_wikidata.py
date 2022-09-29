@@ -95,7 +95,7 @@ def main():
             print(e)
         flag_for_new_lines = True
 
-        time.sleep(0.5)
+        time.sleep(1)
 
     if flag_for_new_lines:
         filename_cell_lines = pickle_path + "/cell_lines_on_wikidata.pickle"
