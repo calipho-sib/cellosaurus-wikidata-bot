@@ -104,8 +104,9 @@ def query_wikidata_by_pubmed_id(pubmed):
 
 
 def query_wikidata_by_doi(doi):
+    doi_formatted = doi.toupper()
     query_result = wdi_core.WDItemEngine.execute_sparql_query(
-        """SELECT ?item WHERE{?item wdt:P356 '""" + doi + """'.}"""
+        """SELECT ?item WHERE{?item wdt:P356 '""" + doi_formatted + """'.}"""
     )
     qid_for_doi = strip_qid_from_query_result(query_result)
     return qid_for_doi
